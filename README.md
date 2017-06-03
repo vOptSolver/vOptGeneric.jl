@@ -3,6 +3,8 @@
 The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 Currently the solver integrates exact algorithms for problems with two and three objectives.
 
+vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/) .
+
 [.] = forthcoming
 
 
@@ -91,11 +93,11 @@ Terms and acronyms used
 - CFLP: Capacitated Facility Location Problem
 - PATHS: shortest paths problem
 - Julia: name of the programming language
-- JuMP: `Julia for Mathematical Optimization' is a modeling language for mathematical optimization embedded in Julia
+- JuMP: stands for Julia for Mathematical Optimization, a modeling language for mathematical optimization embedded in Julia
 - AVL tree is a self-balancing binary search tree
-- API: `Application Programming Interface'
-- GPL: `GNU General Public License'
-- GLPK: `GNU Linear Programming Kit', an open source solver
+- API: stands for Application Programming Interface
+- GPL: stands for GNU General Public License
+- GLPK: stands for GNU Linear Programming Kit, an open source solver
 - CBC: an open source solver
 - CPLEX: a commercial solver
 - GUROBI: a commercial solver
