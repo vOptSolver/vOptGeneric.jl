@@ -90,11 +90,11 @@ julia> Pkg.add("JuMP")
 julia> Pkg.clone("vOptSolver")
 ```
 
-That's all folk! vOptSolver is now ready. Try the examples.
+That's all folk! vOptSolver is now ready. Try the examples, as follow (soon):
 
-### Examples
-
-- Linear Assignment Problem (soon)
+```
+julia>  
+```
 
 ---
 
