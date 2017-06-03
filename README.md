@@ -7,68 +7,70 @@ It integrates exact algorithms for computing a complete set of non-dominated poi
 
 Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 
+## Presentation
 
+### Aims
+- Solver of multiobjective linear optimization problems for scientifics and practionners
+- Easy to formulate a problem, to provide data, to solve a problem, to collect the outputs, to analyze the solutions
+- Natural and intuitive use for mathematicians, informaticians, engineers
 
-## Aims
-- solver of multiobjective optimization problems for scientifics and practionners
-- easy to formulate a problem, to provide data, to solve a problem, to collect the solutions, to analyze the outputs
-- natural and intuitive for mathematicians, informaticians, engineers
+### Purposes
+- Solving needs: methods and algorithms for performing numerical experiments
+- Research needs: support and primitives for the development of new algorithms
+- Pedagogic needs: environment for practicing of theories and algorithms
 
-## Characteristics
-- efficient, flexible, evolutive solver
-- free, open source, multi-platform, reusing existing specifications
-- easy installation, no need of being expert in computer science
+### Characteristics
+- Efficient, flexible, evolutive solver
+- Free, open source, multi-platform, reusing existing specifications
+- Easy installation, no need of being expert in computer science
 
-## Purposes
-- solving needs: methods and algorithms for performing numerical experiments
-- research needs: support and primitives for the development of new algorithms
-- pedagogic needs: environment for practicing of theories and algorithms
-
-## Background
+### Background
 - Julia programming language [(link)](http://julialang.org/)
 - JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
 - Usual free and commercial MILP solvers (GLPK, CPLEX, GUROBI)
 
-## Problems / Definition
-- non-structured problems / algebraic language: 
+## Features
+
+### Problems / Definition
+- Non-structured problems / algebraic language: 
     -   ILP
     -   MILP 
     -   LP
-- structured problems / Application Programming Interface (API): 
+- Structured problems / Application Programming Interface (API): 
     -  OSP, LAP 
     -  [UKP, MKP, UDFLP, SSCFLP, UMFLP, CFLP, PATHS]
 
-## Algorithms
+### Algorithms
 The solving algorithms included compute an exact complete set of non-dominated points
-- generic algorithm for structured or non-structured discrete problems: 
+- Generic algorithm for structured or non-structured discrete problems: 
     - Aneja & Nair method / 2ILP
     - Chalmet's et al. method / 2ILP
     - epsilon-constraint method / 2ILP 
-- specific algorithm for non-structured problem: 
+- Specific algorithm for non-structured problem: 
     - branch-and-cut / 2MILP
-- specific algorithm for structured (MOCO/MOMILP) problem: 
+- Specific algorithm for structured (MOCO/MOMILP) problem: 
     - 2OSP1980 (Julia)
     - 2LAP2008 (C)
     - [2UKP2009 (C++), 2UDFLP2012 (C++), 2UMFLP2016 (C++)]
-- algorithms and datastructures for handling non-dominated points: 
-    - AVL2016/2ILP (julia)
+- Algorithms and datastructures for handling non-dominated points: 
+    - AVL2016/2ILP (Julia)
 
-## Inputs
-- non-structured problems: 
+### Inputs
+- Non-structured problems: 
     - direct with the provided languages (Julia, JuMP)
     - standard MOP format (ILP, MILP, LP)
     - specific problem format (MILP)
-- structured problems: 
+- Structured problems: 
     -  direct with the languages (Julia), 
     -  specific problem format (2LAP, 2UKP, 2UFLP)
 
-## Outputs
-- non-structured problems: 
+### Outputs
+- Non-structured problems: 
     - standard 2MOP format (ILP, MILP, LP)
-- structured problems: 
+- Structured problems: 
     - specific problem format (2LAP, 2UKP, 2UFLP)
 
-## Environment:
+### Environment:
 - julia (v0.6) available on macOS, linux/UBUNTU, windows
 - vOptSolver is free, open source under [GPL] licence
 - vOptSolver has been tested on macOS, linux/UBUNTU
@@ -85,8 +87,8 @@ Terms and acronyms used
 - MOP: MultiObjective Program
 - OSP: One machine Scheduling Problem
 - LAP: Linear Assignment Problem
-- UKP: Unidimensional Knapsack Problem
-- MKP: Multidimensional Knapsack Problem
+- UKP: Unidimensional 01 Knapsack Problem
+- MKP: Multidimensional 01 Knapsack Problem
 - UFLP: Uncapacitated Facility Location Problem
 - UDFLP: Discrete Uncapacitated  Facility Location Problem
 - SSCFLP: Single Source Capacitated Facility Location Problem
