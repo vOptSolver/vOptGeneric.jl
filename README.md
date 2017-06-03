@@ -33,11 +33,12 @@ Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/g
 
 ### Problems / Definition
 - Non-structured problems / algebraic language: 
-    -   ILP
-    -   MILP 
-    -   LP
+    -  ILP: Integer Linear program
+    -  MILP: Mixed Integer Linear Program
+    -  LP: Linear Program
 - Structured problems / Application Programming Interface (API): 
-    -  OSP, LAP 
+    -  OSP: One machine Scheduling Problem
+    -  LAP: Linear Assignment Problem 
     -  [UKP, MKP, UDFLP, SSCFLP, UMFLP, CFLP, PATHS]
 
 ### Algorithms
