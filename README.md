@@ -76,20 +76,26 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - julia available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
 - vOptSolver is free, open source under [GPL] licence, tested on macOS, linux/UBUNTU
 
-### Install
-For a local use:
-- a working version of Julia must be ready; 
-  instructions for installation are available [here](https://julialang.org/downloads/)
-- a working version of your favorite MILP solver must be ready (mandatory for dealing with non-structured problems; GLPK is suggested); 
-  instructions for installation are available [here](http://jump.readthedocs.io/en/latest/installation.html)
+### Install to do one time
+For a local use, a working version of:
+- Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
+- your favorite MILP solver must be ready (mandatory for dealing with non-structured problems; GLPK is suggested); 
+  instructions for the installation are available [here](http://jump.readthedocs.io/en/latest/installation.html)
 
-For a local or distant use, run Julia and add the `JuMP` and `vOptSolver` packages on your Julia distribution as follow (to do one time): 
+For a local or distant use, run Julia and add the two following packages to your Julia distribution, as follow: 
 
 
 ```
 julia> Pkg.add("JuMP")
 julia> Pkg.clone("vOptSolver")
 ```
+
+That's all folk! vOptSolver is now ready. Try the examples.
+
+### Examples
+
+- Linear Assignment Problem (soon)
+
 ---
 
 Terms and acronyms used
