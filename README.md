@@ -3,7 +3,7 @@
 The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 Currently the solver integrates exact algorithms for problems with two and three objectives.
 
-vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/) .
+vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research project [(link)](https://voptproject.wordpress.com/). 
 
 [.] = forthcoming
 
