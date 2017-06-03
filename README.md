@@ -38,17 +38,17 @@ Currently the solver integrates exact algorithms for problems with two and three
 ## Algorithms
 - the solving algorithms included compute an exact complete set of non-dominated points
 - generic algorithm for structured or non-structured discrete problems: 
-    - Aneja-Nair method/2ILP
-    - Chalmet's method/2ILP
-    - e-constraint method/2ILP 
+    - Aneja-Nair method / 2ILP
+    - Chalmet's method / 2ILP
+    - e-constraint method / 2ILP 
 - specific algorithm for non-structured problem: 
-    - branch-and-cut/2MILP
+    - branch-and-cut / 2MILP
 - specific algorithm for structured (MOCO/MOMILP) problem: 
-    - 2OSP1980(julia)
+    - 2OSP1980 (julia)
     - 2LAP2008 (C)
-    - [2UKP2009(C++), 2UDFLP2012 (C++), 2UMFLP2016(C++)]
+    - [2UKP2009 (C++), 2UDFLP2012 (C++), 2UMFLP2016 (C++)]
 - algorithms and datastructures for handling non-dominated points: 
-    - AVL2016/2ILP(julia)
+    - AVL2016/2ILP (julia)
 
 ## Inputs
 - non-structured problems: 
