@@ -1,11 +1,12 @@
 # **vOptSolver**: solver of Multiobjective linear optimization problems
 
+vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
+
 The next release of vOptSolver (version 0.2) is scheduled for June 2017.
-Currently the solver integrates exact algorithms for problems with two and three objectives.
+It integrates exact algorithms for computing a complete set of non-dominated points for structured and non-structured optimization problems with two [and three] objectives ([ ] = forthcoming).
 
-vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research project [(link)](https://voptproject.wordpress.com/). 
+Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 
-[.] = forthcoming
 
 
 ## Goals
@@ -14,7 +15,7 @@ vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research
 - natural and intuitive for mathematicians, informaticians, engineers
 
 ## Characteristics
-- efficient and flexible
+- efficient, flexible, evolutive solver
 - free, open source, multi-platform, reusing existing specifications
 - easy installation, no need of being expert in computer science
 
@@ -26,7 +27,7 @@ vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research
 ## Background
 - Julia programming language [(link)](http://julialang.org/)
 - JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
-- Usual free and commercial MILP solvers (GLPK, CBC, CPLEX, GUROBI, etc.)
+- Usual free and commercial MILP solvers (GLPK, CPLEX, GUROBI)
 
 ## Problems / Definition
 - non-structured problems / algebraic language: 
@@ -38,15 +39,15 @@ vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research
     -  [UKP, MKP, UDFLP, SSCFLP, UMFLP, CFLP, PATHS]
 
 ## Algorithms
-- the solving algorithms included compute an exact complete set of non-dominated points
+The solving algorithms included compute an exact complete set of non-dominated points
 - generic algorithm for structured or non-structured discrete problems: 
-    - Aneja-Nair method / 2ILP
-    - Chalmet's method / 2ILP
-    - e-constraint method / 2ILP 
+    - Aneja & Nair method / 2ILP
+    - Chalmet's et al. method / 2ILP
+    - epsilon-constraint method / 2ILP 
 - specific algorithm for non-structured problem: 
     - branch-and-cut / 2MILP
 - specific algorithm for structured (MOCO/MOMILP) problem: 
-    - 2OSP1980 (julia)
+    - 2OSP1980 (Julia)
     - 2LAP2008 (C)
     - [2UKP2009 (C++), 2UDFLP2012 (C++), 2UMFLP2016 (C++)]
 - algorithms and datastructures for handling non-dominated points: 
@@ -54,11 +55,11 @@ vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 *vOpt* research
 
 ## Inputs
 - non-structured problems: 
-    - direct with the languages (julia, jump)
+    - direct with the provided languages (Julia, JuMP)
     - standard MOP format (ILP, MILP, LP)
     - specific problem format (MILP)
 - structured problems: 
-    -  direct with the languages (julia), 
+    -  direct with the languages (Julia), 
     -  specific problem format (2LAP, 2UKP, 2UFLP)
 
 ## Outputs
@@ -98,7 +99,6 @@ Terms and acronyms used
 - API: stands for Application Programming Interface
 - GPL: stands for GNU General Public License
 - GLPK: stands for GNU Linear Programming Kit, an open source solver
-- CBC: an open source solver
 - CPLEX: a commercial solver
 - GUROBI: a commercial solver
 
