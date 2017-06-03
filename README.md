@@ -75,11 +75,15 @@ The solving algorithms included compute an exact complete set of non-dominated p
 ### Information
 - julia (v0.6) available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
 - vOptSolver is free, open source under [GPL] licence, tested on macOS, linux/UBUNTU
-- 
 
 ### Install
-To do one time on your Julia distribution
+To do one time on your Julia distribution: run Julia and add the `JuMP` and `vOptSolver` packages as follow:
 
+
+```
+julia> Pkg.add("JuMP")
+julia> Pkg.clone("vOptSolver")
+```
 ---
 
 Terms and acronyms used
