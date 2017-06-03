@@ -33,7 +33,7 @@ Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/g
 
 ### Problems / Definition
 - Non-structured problems / algebraic language: 
-    -  ILP: Integer Linear program
+    -  ILP: Integer Linear Program
     -  MILP: Mixed Integer Linear Program
     -  LP: Linear Program
 - Structured problems / Application Programming Interface (API): 
