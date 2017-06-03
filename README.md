@@ -9,7 +9,7 @@ Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/g
 
 
 
-## Goals
+## Aims
 - solver of multiobjective optimization problems for scientifics and practionners
 - easy to formulate a problem, to provide data, to solve a problem, to collect the solutions, to analyze the outputs
 - natural and intuitive for mathematicians, informaticians, engineers
