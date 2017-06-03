@@ -73,11 +73,17 @@ The solving algorithms included compute an exact complete set of non-dominated p
 ## Installation
 
 ### Information
-- julia (v0.6) available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
+- julia available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
 - vOptSolver is free, open source under [GPL] licence, tested on macOS, linux/UBUNTU
 
 ### Install
-To do one time on your Julia distribution: run Julia and add the `JuMP` and `vOptSolver` packages as follow:
+For a local use:
+- a working version of Julia must be ready; 
+  instructions for installation are available [here](https://julialang.org/downloads/)
+- a working version of your favorite MILP solver must be ready (mandatory for dealing with non-structured problems; GLPK is suggested); 
+  instructions for installation are available [here](http://jump.readthedocs.io/en/latest/installation.html)
+
+For a local or distant use, run Julia and add the `JuMP` and `vOptSolver` packages on your Julia distribution as follow (to do one time): 
 
 
 ```
