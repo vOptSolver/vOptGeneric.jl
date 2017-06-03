@@ -1,4 +1,4 @@
-# vOptSolver: solver of Multiobjective linear optimization problems
+# **vOptSolver**: solver of Multiobjective linear optimization problems
 
 The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 Currently the solver integrates exact algorithms for problems with two and three objectives.
@@ -6,27 +6,27 @@ Currently the solver integrates exact algorithms for problems with two and three
 [.] = forthcoming
 
 
-Goals
+## Goals
 - solver of multiobjective optimization problems for scientifics and practionners
 - easy to formulate a problem, to provide data, to solve a problem, to collect the solutions, to analyze the outputs
 - natural and intuitive for mathematicians, informaticians, engineers
 
-Characteristics
+## Characteristics
 - efficient and flexible
 - free, open source, multi-platform, reusing existing specifications
 - easy installation, no need of being expert in computer science
 
-Purposes
+## Purposes
 - solving needs: methods and algorithms for performing numerical experiments
 - research needs: support and primitives for the development of new algorithms
 - pedagogic needs: environment for practicing of theories and algorithms
 
-Background
-- Julia programming language
-- JuMP algebraic language
+## Background
+- Julia programming language [(link)](http://julialang.org/)
+- JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
 - Usual free and commercial MILP solvers (GLPK, CBC, CPLEX, GUROBI, etc.)
 
-Problems / definition
+## Problems / Definition
 - non-structured problems / algebraic language: 
     -   ILP
     -   MILP 
@@ -35,8 +35,8 @@ Problems / definition
     -  OSP, LAP 
     -  [UKP, MKP, UDFLP, SSCFLP, UMFLP, CFLP, PATHS]
 
-Algorithms
-- the solving algorithms included compute an exact complete set of non-dominated ``points''
+## Algorithms
+- the solving algorithms included compute an exact complete set of non-dominated points
 - generic algorithm for structured or non-structured discrete problems: 
     - Aneja-Nair method/2ILP
     - Chalmet's method/2ILP
@@ -50,7 +50,7 @@ Algorithms
 - algorithms and datastructures for handling non-dominated points: 
     - AVL2016/2ILP(julia)
 
-Inputs
+## Inputs
 - non-structured problems: 
     - direct with the languages (julia, jump)
     - standard MOP format (ILP, MILP, LP)
@@ -59,16 +59,16 @@ Inputs
     -  direct with the languages (julia), 
     -  specific problem format (2LAP, 2UKP, 2UFLP)
 
-Outputs
+## Outputs
 - non-structured problems: 
     - standard 2MOP format (ILP, MILP, LP)
 - structured problems: 
     - specific problem format (2LAP, 2UKP, 2UFLP)
 
-Environment:
-- free, open source under [GPL] licence
-- julia (v0.6)
-- available on macOS (v12), linux (UBUNTU), windows (v10)
+## Environment:
+- julia (v0.6) available on macOS, linux/UBUNTU, windows
+- vOptSolver is free, open source under [GPL] licence
+- vOptSolver has been tested on macOS, linux/UBUNTU
 
 
 ---
