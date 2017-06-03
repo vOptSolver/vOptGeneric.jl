@@ -1,11 +1,16 @@
 # **vOptSolver**: solver of Multiobjective linear optimization problems
 
+### About
 vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
 
 The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 It integrates exact algorithms for computing a complete set of non-dominated points for structured and non-structured optimization problems with two [and three] objectives ([ ] = forthcoming).
 
 Coordinator: Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
+
+### News
+
+today
 
 ## Presentation
 
