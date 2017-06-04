@@ -8,22 +8,23 @@
 # - the algorithm is the epsilon-contraint method
 
 # -------------------------------------------------------------
-# Step 1:  select JuMOO and the IP solver to use
+# Step 1:  announce the use of (1) JuMOO and (2) the IP solver to call
 
 using JuMOO
 using GLPK, GLPKMathProgInterface
 
 # -------------------------------------------------------------
-# Step 2:  define the 2-objectives IP to solve
+# Step 2:  define the 2-objectives IP (here: 2UKP) to solve
 
-# --- Indexes, data, variables ---
+# --- Index, data ---
 
-j  = 1,...,5
-p1 = [ 6, 4, 4, 4, 3]
-p2 = [ 12, 10, 5, 3, 1]
-w  = [ 8, 6, 4, 3, 2 ]
+j  = 1,...,5            # index on the 5 items to consider
+p1 = [ 6, 4, 4, 4, 3]   # profits of items for the objective 1
+p2 = [ 12, 10, 5, 3, 1] # profits of items for the objective 2
+w  = [ 8, 6, 4, 3, 2 ]  # weight of items for the constraint
+C  = 12                 # capacity of the knapsack
 
-# -- Set the model (with an explicit and an implicit formulation of the constraint) ---
+# -- Set the model (with an explicit and an implicit formulation of the objectives) ---
 
 mKnapsack = MultiModel(solver = GLPKSolverMIP())
 @variable(mKnapsack, x[1:5], Bin)
@@ -32,7 +33,7 @@ mKnapsack = MultiModel(solver = GLPKSolverMIP())
 @constraint(mKnapsack, sum( w[j] * x[j] for j = 1:5 ) <= C )
 
 # -------------------------------------------------------------
-# Step 3:  call the solver (e-constraint) with the parameters
+# Step 3:  call the solver (here: e-constraint) with the parameters
 
 status = solve(mKnapsack, method=:eps, step=0.1) 
 
