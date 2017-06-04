@@ -75,7 +75,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
     - standard MOP format (ILP, MILP, LP)
     - specific problem format (MILP)
 - Structured problems: 
-    -  direct with the languages (Julia), 
+    -  direct with the language (Julia), 
     -  specific problem format (2LAP, 2UKP, 2UFLP)
 
 ### Outputs
