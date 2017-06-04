@@ -57,8 +57,8 @@ Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://ww
 ### Algorithms
 The solving algorithms included compute an exact complete set of non-dominated points
 - Generic algorithm for structured or non-structured discrete problems: 
-    - Aneja & Nair method / 2ILP
-    - Chalmet et al. method / 2ILP
+    - Aneja1979: Aneja & Nair method / 2ILP
+    - Chalmet1986: Chalmet et al. method / 2ILP
     - epsilon-constraint method / 2ILP 
 - Specific algorithm for non-structured problem: 
     - branch-and-cut / 2MILP
@@ -114,6 +114,14 @@ Install it, and then have fun with vOptSolver. Here an example:
 julia>  
 ```
 ## References
+
+-   [Aneja1979] Y. P. Aneja and K. P. K. Nair: 
+    Bicriteria Transportation Problem.
+    Management Science 25:1, 73-78 1979. 
+
+-   [Chalmet1986] L.G. Chalmet, L. Lemonidis, D.J. Elzinga: 
+    An algorithm for the bi-criterion integer programming problem.
+    European Journal of Operational Research, Volume 25, Issue 2, Pages 292-300, 1986.
 
 -   [2LAP2008] A. Przybylski, X. Gandibleux, M. Ehrgott: 
     Two phase algorithms for the bi-objective assignment problem.
