@@ -61,7 +61,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
     - Aneja1979: Aneja & Nair method / 2ILP
     - Chalmet1986: Chalmet et al. method / 2ILP
 - Specific algorithm for non-structured problem: 
-    - branch-and-cut / 2MILP
+    - Vincent2013: branch-and-cut / 2MILP
 - Specific algorithm for structured (MOCO/MOMILP) problem: 
     - 2OSP1980 (Julia)
     - 2LAP2008 (C)
@@ -117,15 +117,15 @@ julia>
 
 -   [Haimes1971] Y.V. Haimes, L.S. Lasdon, D.A. Wismer: 
     On a bicriterion formation of the problems of integrated system identification and system optimization
-    IEEE Transactions on Systems, Man and Cybernetics. Volume SMC-1, Issue 3, Pages 296-297, July 1971.
+    *IEEE Transactions on Systems, Man and Cybernetics*, Volume SMC-1, Issue 3, Pages 296-297, July 1971.
     
 -   [Aneja1979] Y. P. Aneja and K. P. K. Nair: 
     Bicriteria Transportation Problem.
-    Management Science 25:1, 73-78 1979. 
+    *Management Science*, 25:1, 73-78 1979. 
 
 -   [Chalmet1986] L.G. Chalmet, L. Lemonidis, D.J. Elzinga: 
     An algorithm for the bi-criterion integer programming problem.
-    European Journal of Operational Research, Volume 25, Issue 2, Pages 292-300, 1986.
+    *European Journal of Operational Research*, Volume 25, Issue 2, Pages 292-300, 1986.
 
 -   [2LAP2008] A. Przybylski, X. Gandibleux, M. Ehrgott: 
     Two phase algorithms for the bi-objective assignment problem.
@@ -133,7 +133,11 @@ julia>
 
 -   [2UKP2010] J. Jorge: 
     *Nouvelles propositions pour la résolution exacte du sac à dos multi-objectif unidimensionnel en variables binaires.* 
-    PhD Thesis, Université de Nantes, 2010.
+    PhD Thesis (in French), Université de Nantes, 2010.
+
+-   [Vincent2013] Th. Vincent:
+    *Caractérisation des solutions efficaces et algorithmes d'énumération exacts pour l'optimisation multiobjectif en variables mixtes binaires.* 
+    PhD Thesis (in French), Université de Nantes, 2012.
 
 -   [2UDFLP2012] X. Gandibleux, A. Przybylski , S. Bourougaa, A. Derrien, A. Grimault: 
     Computing the Efficient Frontier for the 0/1 Biobjective Uncapacitated Facility Location Problem 
