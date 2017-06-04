@@ -115,11 +115,17 @@ julia>
 ```
 ## References
 
-- [2LAP2008] A. Przybylski, X. Gandibleux, M. Ehrgott: Two phase algorithms for the bi-objective assignment problem. European Journal of Operational Research, Volume 185, Issue 2, Pages 509-533, 2008.
+-   [2LAP2008] A. Przybylski, X. Gandibleux, M. Ehrgott: 
+    Two phase algorithms for the bi-objective assignment problem.
+    *European Journal of Operational Research*, Volume 185, Issue 2, Pages 509-533, 2008.
 
-- [2UKP2010] J. Jorge: Nouvelles propositions pour la résolution exacte du sac à dos multi-objectif unidimensionnel en variables binaires. PhD Thesis, Université de Nantes, 2010.
+-   [2UKP2010] J. Jorge: 
+    *Nouvelles propositions pour la résolution exacte du sac à dos multi-objectif unidimensionnel en variables binaires.* 
+    PhD Thesis, Université de Nantes, 2010.
 
-- [2UDFLP2012] X. Gandibleux, A. Przybylski , S. Bourougaa, A. Derrien, A. Grimault: Computing the Efficient Frontier for the 0/1 Biobjective Uncapacitated Facility Location Problem CORS/MOPGP’2012 (10th international conference on Multiple Objective Programming and Goal Programming). June 11-13, 2012, Niagara Falls, Canada.
+-   [2UDFLP2012] X. Gandibleux, A. Przybylski , S. Bourougaa, A. Derrien, A. Grimault: 
+    Computing the Efficient Frontier for the 0/1 Biobjective Uncapacitated Facility Location Problem 
+    *CORS/MOPGP’2012 (10th international conference on Multiple Objective Programming and Goal Programming).* June 11-13, 2012, Niagara Falls, Canada.
 
 ---
 
