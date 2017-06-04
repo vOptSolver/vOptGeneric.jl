@@ -115,7 +115,7 @@ Resources availables:
 
 - [Examples](./examples/): 
     - problems ready to be solved
-- [Documents](./doc/): 
+- [Documentation](./doc/): 
     - description of the Application Programming Interface 
 
 ## References
