@@ -65,7 +65,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - Specific algorithm for structured (MOCO/MOMILP) problem: 
     - Wassenhove1980: 2OSP1980 (Julia)
     - Przybylski2008: 2LAP2008 (C)
-    - [Jorge2010: 2UKP2010 (C++); Gandibleux: 2UDFLP2012 (C++); 2UMFLP2016 (C++)]
+    - [Jorge2010: 2UKP2010 (C++); Gandibleux2012: 2UDFLP2012 (C++); Delmee2017: 2UMFLP2016 (C++)]
 - Algorithms and datastructures for handling non-dominated points: 
     - AVL2016/2ILP (Julia)
 
@@ -139,13 +139,19 @@ julia>
     *Nouvelles propositions pour la résolution exacte du sac à dos multi-objectif unidimensionnel en variables binaires.* 
     PhD Thesis (in French), Université de Nantes, 2010.
 
--   [Vincent2013] Th. Vincent:
-    *Caractérisation des solutions efficaces et algorithmes d'énumération exacts pour l'optimisation multiobjectif en variables mixtes binaires.* 
-    PhD Thesis (in French), Université de Nantes, 2012.
-
 -   [Gandibleux2012] X. Gandibleux, A. Przybylski , S. Bourougaa, A. Derrien, A. Grimault: 
     Computing the Efficient Frontier for the 0/1 Biobjective Uncapacitated Facility Location Problem 
     *CORS/MOPGP’2012 (10th international conference on Multiple Objective Programming and Goal Programming).* June 11-13, 2012, Niagara Falls, Canada.
+
+-   [Vincent2013] Th. Vincent:
+    *Caractérisation des solutions efficaces et algorithmes d'énumération exacts pour l'optimisation multiobjectif en variables mixtes binaires.* 
+    PhD Thesis (in French), Université de Nantes, 2013.
+
+-   [Delmee2017] Q. Delmée, X. Gandibleux and A. Przybylski
+    Résolution exacte du problème de localisation de services bi-objectif sans contrainte de capacité en variables mixtes.
+    *ROADEF2017 (18ème édition du congrès annuel de la Société Française de Recherche Opérationnelle et d'Aide à la Décision).* 22-24 février 2017, Metz, FRANCE.
+
+
 
 ---
 
