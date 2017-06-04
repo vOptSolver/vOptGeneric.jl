@@ -16,7 +16,7 @@ using GLPK, GLPKMathProgInterface
 # -------------------------------------------------------------
 # Step 2:  define the 2-objectives IP (here: 2UKP) to solve
 
-# --- Index, data ---
+# --- Data ---
 
 j  = 1,...,5            # index on the 5 items to consider
 p1 = [ 6, 4, 4, 4, 3]   # profits of items for the objective 1
@@ -24,7 +24,7 @@ p2 = [ 12, 10, 5, 3, 1] # profits of items for the objective 2
 w  = [ 8, 6, 4, 3, 2 ]  # weight of items for the constraint
 C  = 12                 # capacity of the knapsack
 
-# -- Set the model (with an explicit and an implicit formulation of the objectives) ---
+# -- Model (with an explicit and an implicit formulation of the objectives) ---
 
 mKnapsack = MultiModel(solver = GLPKSolverMIP())
 @variable(mKnapsack, x[1:5], Bin)
