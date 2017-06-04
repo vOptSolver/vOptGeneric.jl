@@ -16,7 +16,7 @@ Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 [Features](#Features)
 [Running](#Running)
 
-## Presentation
+## Presentation <a id="Presentation"></a>
 
 ### Aims
 - Solver of multiobjective linear optimization problems for scientifics and practionners
@@ -38,7 +38,7 @@ Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 - JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
 - Usual free and commercial MILP solvers (GLPK, CPLEX, GUROBI)
 
-## Features
+## Features <a id="Features"></a>
 
 ### Problems / Definition
 - Non-structured problems / algebraic language: 
@@ -80,7 +80,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - Structured problems: 
     - specific problem format (2LAP, 2UKP, 2UFLP)
 
-## Running
+## Running <a id="Running"></a>
 
 ### Information
 - Julia is available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
