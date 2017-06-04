@@ -6,9 +6,9 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 
 ### Table of Contents
 
-- [Presentation](./README.md#Presentation-)
-- [Features](./README.md#Features-)
-- [Running](./README.md#running-)
+- [Presentation](./README.md#Presentation)
+- [Features](./README.md#Features)
+- [Running](./README.md#running)
 
 
 ### Coordinator
