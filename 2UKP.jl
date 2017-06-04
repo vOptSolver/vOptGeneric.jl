@@ -1,3 +1,12 @@
+# =============================================================
+# vOptSolver - June 2017
+#
+# Example where:
+# - the problem is a bi-objective 0/1 unidimensional knapsack problem
+# - the data are provided explicitely using the Julia syntax
+# - the problem is defined with the algebraic language (=> it is viewed as a non-structured problem)
+# - the algorithm is the epsilon-contraint method
+
 # -------------------------------------------------------------
 # Step 1:  select JuMOO and the IP solver to use
 
@@ -14,7 +23,7 @@ p1 = [ 6, 4, 4, 4, 3]
 p2 = [ 12, 10, 5, 3, 1]
 w  = [ 8, 6, 4, 3, 2 ]
 
-# -- Set the model ---
+# -- Set the model (with an explicit and an implicit formulation of the constraint) ---
 
 mKnapsack = MultiModel(solver = GLPKSolverMIP())
 @variable(mKnapsack, x[1:5], Bin)
@@ -26,3 +35,6 @@ mKnapsack = MultiModel(solver = GLPKSolverMIP())
 # Step 3:  call the solver (e-constraint) with the parameters
 
 status = solve(mKnapsack, method=:eps, step=0.1) 
+
+# -------------------------------------------------------------
+# Step 4:  Get the results
