@@ -21,6 +21,9 @@ All bugs, feature requests, pull requests, feedback, etc., are welcome.
 ### Coordinator
 Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 
+### How To Cite
+IFORS2017
+
 ## Presentation
 
 ### Aims
