@@ -65,7 +65,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - Specific algorithm for structured (MOCO/MOMILP) problem: 
     - Wassenhove1980: 2OSP1980 (Julia)
     - Przybylski2008: 2LAP2008 (C)
-    - [Jorge2010: 2UKP2010 (C++); Gandibleux2012: 2UDFLP2012 (C++); Delmee2017: 2UMFLP2016 (C++)]
+    - [Jorge2010: 2UKP2010 (C++); Gandibleux2012: 2UDFLP2012 (C++); Delmee2017: 2UMFLP2016 (C++); Gandibleux2006: PATHS (C)]
 - Algorithms and datastructures for handling non-dominated points: 
     - [AVL2016/2ILP (Julia)]
 
@@ -130,6 +130,10 @@ julia>
 -   [Chalmet1986] L.G. Chalmet, L. Lemonidis, D.J. Elzinga: 
     An algorithm for the bi-criterion integer programming problem.
     *European Journal of Operational Research*, Volume 25, Issue 2, Pages 292-300, 1986.
+
+-   [Gandibleux2006] X. Gandibleux, F. Beugnies, S. Randriamasy. 
+    Martins' algorithm revisited for multi-objective shortest path problems with a MaxMin cost function. 
+    *4OR: A Quarterly Journal of Operations Research*, Springer Verlag, 4 (1), pp.47-59, 2006.
 
 -   [Przybylski2008] A. Przybylski, X. Gandibleux, M. Ehrgott: 
     Two phase algorithms for the bi-objective assignment problem.
