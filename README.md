@@ -6,9 +6,9 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 
 ### Table of Contents
 
-- [Presentation](#Presentation)
-- [Features](#Features)
-- [Running](#Running)
+- [Presentation](./README.md#Presentation-)
+- [Features](./README.md#Features-)
+- [Running](./README.md#running-)
 
 
 ### Coordinator
@@ -19,7 +19,7 @@ Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 03-Jun-2017: The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 
 
-## Presentation <a id="Presentation"></a>
+## Presentation
 
 ### Aims
 - Solver of multiobjective linear optimization problems for scientifics and practionners
@@ -41,7 +41,7 @@ Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 - JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
 - Usual free and commercial MILP solvers (GLPK, CPLEX, GUROBI)
 
-## Features <a id="Features"></a>
+## Features
 
 ### Problems / Definition
 - Non-structured problems / algebraic language: 
@@ -83,7 +83,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - Structured problems: 
     - specific problem format (2LAP, 2UKP, 2UFLP)
 
-## Running <a id="Running"></a>
+## Running 
 
 ### Information
 - Julia is available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
