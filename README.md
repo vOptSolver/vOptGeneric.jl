@@ -9,6 +9,7 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 - [Presentation](./README.md#presentation)
 - [Features](./README.md#features)
 - [Instructions](./README.md#instructions)
+- [References] (./README.md#references)
 
 
 ### News
