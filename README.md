@@ -8,7 +8,7 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 
 - [Presentation](./README.md#presentation)
 - [Features](./README.md#features)
-- [Running](./README.md#running)
+- [Instructions](./README.md#instructions)
 
 
 ### Coordinator
@@ -83,13 +83,13 @@ The solving algorithms included compute an exact complete set of non-dominated p
 - Structured problems: 
     - specific problem format (2LAP, 2UKP, 2UFLP)
 
-## Running 
+## Instructions 
 
 ### Information
 - Julia is available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
 - vOptSolver is free, open source under [GPL] licence, tested with Julia 0.5 on macOS and linux-Ubuntu
 
-### Installation
+### Installation Instructions
 For a local use, a working version of:
 - Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
 - your favorite MILP solver must be ready (mandatory for dealing with non-structured problems; GLPK is suggested); 
@@ -105,8 +105,9 @@ julia> Pkg.clone("vOptSolver")
 
 That's all folk! 
 
-### Example
-It is time to try vOptSolver:
+### Usage Instructions
+
+Install it, and then have fun with vOptSolver. Here an example:
 
 ```
 julia>  
