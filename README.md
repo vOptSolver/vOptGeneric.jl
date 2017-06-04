@@ -141,7 +141,7 @@ julia>
 
 -   [Jorge2010] J. Jorge: 
     *Nouvelles propositions pour la résolution exacte du sac à dos multi-objectif unidimensionnel en variables binaires.* 
-    PhD Thesis (in French), Université de Nantes, 2010.
+    PhD Thesis (in French), Université de Nantes - France, 2010.
 
 -   [Gandibleux2012] X. Gandibleux, A. Przybylski , S. Bourougaa, A. Derrien, A. Grimault: 
     Computing the Efficient Frontier for the 0/1 Biobjective Uncapacitated Facility Location Problem 
@@ -149,11 +149,11 @@ julia>
 
 -   [Vincent2013] Th. Vincent:
     *Caractérisation des solutions efficaces et algorithmes d'énumération exacts pour l'optimisation multiobjectif en variables mixtes binaires.* 
-    PhD Thesis (in French), Université de Nantes, 2013.
+    PhD Thesis (in French), Université de Nantes - France, 2013.
 
 -   [Delmee2017] Q. Delmée, X. Gandibleux and A. Przybylski
     Résolution exacte du problème de localisation de services bi-objectif sans contrainte de capacité en variables mixtes.
-    *ROADEF2017 (18ème édition du congrès annuel de la Société Française de Recherche Opérationnelle et d'Aide à la Décision).* 22-24 février 2017, Metz, FRANCE.
+    *ROADEF2017 (18ème édition du congrès annuel de la Société Française de Recherche Opérationnelle et d'Aide à la Décision).* 22-24 février 2017, Metz, France.
 
 
 
