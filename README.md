@@ -125,7 +125,7 @@ julia>
 
 -   [Wassenhove1980] L. N. Van Wassenhove, L. F. Gelders: 
     Solving a bicriterion scheduling problem.
-    *European Journal of Operational Research*, Volume 4, Issue 1, Pages 42-48, 1980
+    *European Journal of Operational Research*, Volume 4, Issue 1, Pages 42-48, 1980.
 
 -   [Chalmet1986] L.G. Chalmet, L. Lemonidis, D.J. Elzinga: 
     An algorithm for the bi-criterion integer programming problem.
