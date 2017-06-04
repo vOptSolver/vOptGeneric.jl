@@ -11,13 +11,14 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 - [Instructions](./README.md#instructions)
 
 
-### Coordinator
-Prof. Dr. Xavier Gandibleux [(contact)](http://www.univ-nantes.fr/gandibleux-x)
-
 ### News
-
 03-Jun-2017: The next release of vOptSolver (version 0.2) is scheduled for June 2017.
 
+### Feedback
+All bugs, feature requests, pull requests, feedback, etc., are welcome. 
+
+### Coordinator
+Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 
 ## Presentation
 
