@@ -6,8 +6,8 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 
 ### Table of Contents
 
-- [Presentation](./README.md#Presentation)
-- [Features](./README.md#Features)
+- [Presentation](./README.md#presentation)
+- [Features](./README.md#features)
 - [Running](./README.md#running)
 
 
