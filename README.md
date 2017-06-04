@@ -58,7 +58,7 @@ Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://ww
 The solving algorithms included compute an exact complete set of non-dominated points
 - Generic algorithm for structured or non-structured discrete problems: 
     - Aneja & Nair method / 2ILP
-    - Chalmet's et al. method / 2ILP
+    - Chalmet et al. method / 2ILP
     - epsilon-constraint method / 2ILP 
 - Specific algorithm for non-structured problem: 
     - branch-and-cut / 2MILP
