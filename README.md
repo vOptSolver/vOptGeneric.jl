@@ -112,8 +112,10 @@ Install it, and then have fun with vOptSolver.
 
 Resources availables:
 
-- [Examples](./examples/): structured and non-structured problems
-- [Documents](./doc/): description of the Application Programming Interface 
+- [Examples](./examples/): 
+    - problems ready to be solved
+- [Documents](./doc/): 
+    - description of the Application Programming Interface 
 
 ## References
 
