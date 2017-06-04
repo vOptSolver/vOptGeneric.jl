@@ -57,9 +57,9 @@ Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://ww
 ### Algorithms
 The solving algorithms included compute an exact complete set of non-dominated points
 - Generic algorithm for structured or non-structured discrete problems: 
+    - Haimes1971: epsilon-constraint method / 2ILP 
     - Aneja1979: Aneja & Nair method / 2ILP
     - Chalmet1986: Chalmet et al. method / 2ILP
-    - epsilon-constraint method / 2ILP 
 - Specific algorithm for non-structured problem: 
     - branch-and-cut / 2MILP
 - Specific algorithm for structured (MOCO/MOMILP) problem: 
@@ -115,6 +115,10 @@ julia>
 ```
 ## References
 
+-   [Haimes1971] Y.V. Haimes, L.S. Lasdon, D.A. Wismer: 
+    On a bicriterion formation of the problems of integrated system identification and system optimization
+    IEEE Transactions on Systems, Man and Cybernetics. Volume SMC-1, Issue 3, Pages 296-297, July 1971.
+    
 -   [Aneja1979] Y. P. Aneja and K. P. K. Nair: 
     Bicriteria Transportation Problem.
     Management Science 25:1, 73-78 1979. 
