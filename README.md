@@ -67,7 +67,7 @@ The solving algorithms included compute an exact complete set of non-dominated p
     - Przybylski2008: 2LAP2008 (C)
     - [Jorge2010: 2UKP2010 (C++); Gandibleux2012: 2UDFLP2012 (C++); Delmee2017: 2UMFLP2016 (C++)]
 - Algorithms and datastructures for handling non-dominated points: 
-    - AVL2016/2ILP (Julia)
+    - [AVL2016/2ILP (Julia)]
 
 ### Inputs
 - Non-structured problems: 
