@@ -131,7 +131,7 @@ julia>
     An algorithm for the bi-criterion integer programming problem.
     *European Journal of Operational Research*, Volume 25, Issue 2, Pages 292-300, 1986.
 
--   [Gandibleux2006] X. Gandibleux, F. Beugnies, S. Randriamasy. 
+-   [Gandibleux2006] X. Gandibleux, F. Beugnies, S. Randriamasy:  
     Martins' algorithm revisited for multi-objective shortest path problems with a MaxMin cost function. 
     *4OR: A Quarterly Journal of Operations Research*, Springer Verlag, 4 (1), pp.47-59, 2006.
 
@@ -151,7 +151,7 @@ julia>
     *Caractérisation des solutions efficaces et algorithmes d'énumération exacts pour l'optimisation multiobjectif en variables mixtes binaires.* 
     PhD Thesis (in French), Université de Nantes - France, 2013.
 
--   [Delmee2017] Q. Delmée, X. Gandibleux and A. Przybylski
+-   [Delmee2017] Q. Delmée, X. Gandibleux and A. Przybylski: 
     Résolution exacte du problème de localisation de services bi-objectif sans contrainte de capacité en variables mixtes.
     *ROADEF2017 (18ème édition du congrès annuel de la Société Française de Recherche Opérationnelle et d'Aide à la Décision).* 22-24 février 2017, Metz, France.
 
