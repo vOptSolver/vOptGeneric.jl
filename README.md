@@ -108,11 +108,11 @@ That's all folk!
 
 ### Usage Instructions
 
-Install it, and then have fun with vOptSolver. Here an example:
+Install it, and then have fun with vOptSolver. 
 
-```
-julia>  
-```
+Examples are available [here](./Examples/).
+
+
 ## References
 
 -   [Haimes1971] Y.V. Haimes, L.S. Lasdon, D.A. Wismer: 
