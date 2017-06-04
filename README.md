@@ -110,7 +110,7 @@ That's all folk!
 
 Install it, and then have fun with vOptSolver. 
 
-Examples are available [here](./Examples/).
+Examples are available [here](./examples/).
 
 
 ## References
