@@ -47,7 +47,7 @@ July 17-21, 2017 Quebec City, Canada.
 ### Background
 - Julia programming language [(link)](http://julialang.org/)
 - JuMP algebraic language [(link)](https://jump.readthedocs.io/en/latest/)
-- Usual free and commercial MILP solvers (GLPK, CPLEX, GUROBI)
+- Usual free (GLPK) and commercial (CPLEX, GUROBI) MILP solvers
 
 ## Features
 
