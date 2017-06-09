@@ -67,7 +67,6 @@ The solving algorithms included compute an exact complete set of non-dominated p
     - Haimes1971: epsilon-constraint method / 2ILP 
     - Aneja1979: Aneja & Nair method / 2ILP
     - Chalmet1986: Chalmet et al. method / 2ILP
-- Specific algorithm for non-structured problem: 
     - Vincent2013: branch-and-cut / 2MILP
 - Specific algorithm for structured (MOCO/MOMILP) problem: 
     - Wassenhove1980: 2OSP1980 (Julia)
