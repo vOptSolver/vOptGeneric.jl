@@ -22,7 +22,10 @@ All bugs, feature requests, pull requests, feedback, etc., are welcome.
 Prof. Dr. Xavier Gandibleux, University of Nantes - France [(contact)](http://www.univ-nantes.fr/gandibleux-x)
 
 ### How To Cite
-IFORS2017
+X. Gandibleux, G. Soleilhac, A. Przybylski, S. Ruzika. 
+vOptSolver: an open source software environment for multiobjective mathematical optimization.
+*IFORS2017: 21st Conference of the International Federation of Operational Research Societies*. 
+July 17-21, 2017 Quebec City, Canada.
 
 ## Presentation
 
