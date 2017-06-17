@@ -14,6 +14,7 @@ The version 0.2 integrates exact algorithms for computing a complete set of non-
 
 ### News
 03-Jun-2017: The next release of vOptSolver (version 0.2) is scheduled for June 2017.
+
 17-Jun-2017: Moved from GitLab to GitHub
 
 ### Feedback
