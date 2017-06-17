@@ -1,7 +1,7 @@
-# **vOptSolver**: solver of Multiobjective linear optimization problems
+# Solver of Multiobjective linear optimization problems
 
 ### About
-vOptSolver is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
+**vOptSolver** is a solver of Multiobjective linear optimization problems. It is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
 The version 0.2 integrates exact algorithms for computing a complete set of non-dominated points for structured and non-structured optimization problems with two [and three] objectives ([ ] = forthcoming).
 
 ### Content
