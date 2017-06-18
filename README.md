@@ -118,9 +118,9 @@ Install it, and then have fun with vOptSolver.
 
 Resources availables:
 
-- [Examples](./examples/): 
+- [Examples](https://github.com/xgandibleux/vOptSolver/tree/master/examples/): 
     - problems ready to be solved
-- [Documentation](./doc/): 
+- [Documentation](https://github.com/xgandibleux/vOptSolver/tree/master/doc/): 
     - description of the Application Programming Interface 
 
 ## References
