@@ -1,6 +1,6 @@
-# Solver of Multiobjective linear optimization problems
+# Solver of multiobjective linear optimization problems
 
-**vOptSolver** is a solver of Multiobjective linear optimization problems (MOCO, MOILP, MOMILP, MOLP). It is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
+**vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOILP, MOMILP, MOLP). It is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
 The version 0.2 integrates exact algorithms for computing a complete set of non-dominated points for structured and non-structured optimization problems with two [and three] objectives ([ ] = forthcoming).
 
 ### Content
@@ -52,11 +52,11 @@ July 17-21, 2017 Quebec City, Canada.
 ## Features
 
 ### Problems / Definition
-- Non-structured problems / algebraic language: 
+- Multiobjective non-structured problems / algebraic language (JuMP): 
     -  LP: Linear Program
     -  MILP: Mixed Integer Linear Program
     -  ILP: Integer Linear Program 
-- Structured problems / Application Programming Interface (API): 
+- Multiobjective structured problems / Application Programming Interface (API): 
     -  OSP: One machine Scheduling Problem
     -  LAP: Linear Assignment Problem 
     -  [UKP, MKP, UDFLP, SSCFLP, UMFLP, CFLP, PATHS]
