@@ -3,6 +3,8 @@
 **vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOILP, MOMILP, MOLP). It is currently supported by the ANR/DFG-14-CE35-0034-01 research project [(link)](https://voptproject.wordpress.com/). 
 The version 0.2 integrates exact algorithms for computing a complete set of non-dominated points for structured and non-structured optimization problems with two [and three] objectives ([ ] = forthcoming).
 
+This repository concerns **vOptGeneric**, the part of vOptSolver devoted to multiobjective non-structured problems. With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives.
+
 ### Content
 
 - [Presentation](./README.md#presentation)
