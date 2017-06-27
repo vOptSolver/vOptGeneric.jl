@@ -39,7 +39,7 @@ function MultiModel(;solver=JuMP.UnsetSolver())
     return m
 end
 
-function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 1e-3)::Symbol
+function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5)::Symbol
     if method == nothing
         warn("use solve(m, method = :eps)")
         return :Infeasible
@@ -106,12 +106,19 @@ function solve_eps(m::Model, ϵ::Float64)
             push!(md.X_E, varValueDict)
             push!(md.X_E_raw, copy(m.colVal))
 
+            print("z1 = ", f1Val, ", z2 = ", f2Val)
             #Set the RHS of the epsilon-constraint
             if f2Sense == :Min
                 JuMP.setRHS(eps, f2Val - f2.aff.constant - ϵ)
+                println(". Solving with f2 <= ", f2Val - f2.aff.constant - ϵ)
             else
                 JuMP.setRHS(eps, f2Val - f2.aff.constant + ϵ)
+                println(". Solving with f2 >= ", f2Val - f2.aff.constant + ϵ)
             end
+
+            # for (k,v) in varDict
+            #     setvalue(v, getvalue(v))
+            # end
 
             #And solve again
             status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
