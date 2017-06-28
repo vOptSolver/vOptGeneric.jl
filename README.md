@@ -1,4 +1,4 @@
-# Solver of multiobjective linear optimization problems
+# vOptSolver: vOptGeneric for multiobjective non-structured problems
 
 This repository concerns **vOptGeneric**, the part of **vOptSolver** devoted to **multiobjective non-structured problems**. With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives.
 
