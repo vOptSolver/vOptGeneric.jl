@@ -7,10 +7,6 @@ We suppose you are familiar with vOptSolver; if not, read first this [presentati
 
 ## Instructions 
 
-### Information
-- Julia is available on macOS, linux, windows for a local use or online on [JuliaBox](https://juliabox.com/) for a distant use
-- vOptSolver is free, open source under [GPL] licence, tested with Julia 0.5 on macOS and linux-Ubuntu
-
 ### Installation Instructions
 For a local use, a working version of:
 - Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
