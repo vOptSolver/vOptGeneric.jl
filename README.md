@@ -1,6 +1,6 @@
 # vOptGeneric: part of vOptSolver for non-structured problems
 
-**vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOILP, MOMILP, MOLP).
+**vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOIP, MOMILP, MOLP).
 This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems**. With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives.
 
 We suppose you are familiar with vOptSolver; if not, read first this [presentation](https://voptsolver.github.io/vOptSolver/).
@@ -28,9 +28,5 @@ That's all folk!
 
 Install it, and then have fun with vOptSolver. 
 
-Resources availables:
-
-- [Examples](https://github.com/xgandibleux/vOptSolver/tree/master/examples/): 
-    - problems ready to be solved
-- [Documentation](https://github.com/xgandibleux/vOptSolver/tree/master/doc/): 
-    - description of the Application Programming Interface 
+## Examples: 
+Problems ready to be solved are in folder examples
