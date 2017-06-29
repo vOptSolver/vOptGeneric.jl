@@ -2,13 +2,14 @@ __precompile__()
 module vOptGeneric
 
 importall JuMP
-export MultiData, 
-    MultiModel,
+export MultiModel,
     getMultiData,
     solve,
     writeMOP,
     parseMOP,
-    print_results_raw, 
+    print_X_E,
+    getvalue,
+    getY_N,
     @addobjective,
     @variable,
     @constraint
@@ -19,12 +20,12 @@ type MultiData
     objs::Array{QuadExpr}               #Objectives
 	objSenses::Array{Symbol}            #Objective Senses
     Y_N::Vector{Tuple{Float64,Float64}} #Objective values for each point
-    X_E::Vector{Dict{Symbol,Any}}       #Variable values for each point, keeps the structure of user-declared variables
+    X_E::Vector{Dict{Union{Variable,Array{Variable}},Union{Float64, Array{Float64}}}}#Variable values for each point, keeps the structure of user-declared variables
     X_E_raw::Vector{Vector{Float64}}    #Variable values for each point
 end
 
 function getMultiData(m::Model)
-    !haskey(m.ext, :Multi) && error("This functionality is only available for MultiJuMP models")
+    !haskey(m.ext, :Multi) && error("This model wasn't created with vOptGeneric")
     return m.ext[:Multi]::MultiData
 end
 
@@ -33,7 +34,7 @@ function MultiModel(;solver=JuMP.UnsetSolver())
     m.solvehook = solvehook
     m.ext[:Multi] = MultiData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
-                              Vector{Any}(), #Y_N
+                              Vector{NTuple{N,Float64} where N}(), #Y_N
                               Vector{Any}(), #X_E
                               Vector{Vector{Float64}}()) #X_E_raw
     return m
@@ -75,10 +76,10 @@ function solve_eps(m::Model, ϵ::Float64)
         end
 
         #Dict{Symbol,Any} -> variable-name <> JuMP.Variable
-        if :objDict in fieldnames(JuMP.Model)
-            varDict = filter((k,v) -> isa(v, JuMP.Variable) || isa(v, Array{JuMP.Variable}), m.objDict)
-        else
+        if :varDict in fieldnames(JuMP.Model)
             varDict = m.varDict
+        else
+            varDict = filter((k,v) -> isa(v, JuMP.Variable) || isa(v, Array{JuMP.Variable}), m.objDict)
         end
 
         #While a solution exists
@@ -87,8 +88,8 @@ function solve_eps(m::Model, ϵ::Float64)
             f1Val = m.objVal
             f2Val = JuMP.getvalue(f2)
 
-            #Dict{Symbol,Any} -> variable-name <> variable-value
-            varValueDict = Dict(k=>JuMP.getvalue(v) for (k,v) in varDict)
+            #Dict{Symbol,Any} -> variable(s) <> variable(s)-value(s)
+            varValueDict = Dict(v=>JuMP.getvalue(v) for (k,v) in varDict)
 
             #If last solution found is dominated by this one
             if length(md.Y_N) > 0
@@ -163,7 +164,6 @@ end
 
 # Returns coefficients for the affine part of an objective
 function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
-
     # Check that no coefficients are NaN/Inf
     JuMP.assert_isfinite(objaff)
     if !JuMP.verify_ownership(m, objaff.aff.vars)
@@ -173,11 +173,10 @@ function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
     @inbounds for ind in 1:length(objaff.aff.vars)
         f[objaff.aff.vars[ind].col] += objaff.aff.coeffs[ind]
     end
-
     return f
 end
 
-function print_results_raw(m)
+function print_X_E(m::Model)
     md = getMultiData(m)
     for i = 1:length(md.Y_N)
         print(md.Y_N[i]," : ")
@@ -192,6 +191,22 @@ function print_results_raw(m)
         end 
         println()
    end
+end
+
+function getvalue(arr::Array{Variable}, i::Int)
+    m = first(arr).m
+    md = getMultiData(m)
+    return md.X_E[i][arr]
+end
+
+function getvalue(v::Variable, i::Int)
+    m = v.m
+    md = getMultiData(m)
+    return md.X_E[i][v]
+end
+
+function getY_N(m::Model)
+    return getMultiData(m).Y_N
 end
 
 end#module

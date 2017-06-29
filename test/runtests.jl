@@ -7,6 +7,7 @@ using GLPK, GLPKMathProgInterface
 m = MultiModel(solver = GLPKSolverMIP())
 
 @variable(m, x[1:6,1:6], Bin)
+@variable(m, y, Bin)
 
 M = 50
 p1 =   [M 4 5 M M M;
@@ -30,12 +31,10 @@ p2 =   [M 3 1 M M M;
 @constraint(m, sum(x[i,6] for i = 1:6) == 1)
 @constraint(m, cstr[i=2:5], sum(x[i,j] for j = 1:6) - sum(x[j,i] for j =1:6) == 0)
 
-solve(m, method=:eps, ϵ=0.1)
+solve(m, method=:eps)
 
 #get the results and print/plot them
-md = getMultiData(m)
-Y_N = md.Y_N
-X_E = md.X_E
+Y_N = getY_N(m)
 
 f1 = map(x -> x[1], Y_N)
 f2 = map(x -> x[2], Y_N)

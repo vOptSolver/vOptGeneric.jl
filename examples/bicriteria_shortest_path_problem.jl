@@ -31,12 +31,10 @@ p2 =   [M 3 1 M M M;
 solve(m, method=:eps, step=0.1)
 
 #get the results and print/plot them
-md = getMultiData(m)
-Y_N = md.Y_N
-X_E = md.X_E
+Y_N = getY_N(m)
 
 for n = 1:length(Y_N)
-    X = X_E[n][:x]
+    X = getvalue(x, n)
     for ind in find(X)
         i,j = ind2sub(X,ind)
         print("$i->$j ")
