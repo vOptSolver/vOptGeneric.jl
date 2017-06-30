@@ -5,7 +5,7 @@ m = parseMOP(ARGS[1], solver = CplexSolver())
 # or
 # m = parseMOP(filename) ; setsolver(m, ...)
 
-solve(m, method=:eps)
+solve(m, method=:epsilon)
 
 print_results_raw(m)
 

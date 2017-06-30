@@ -2,8 +2,8 @@ __precompile__()
 module vOptGeneric
 
 importall JuMP
-export MultiModel,
-    getMultiData,
+export vModel,
+    getvOptData,
     solve,
     writeMOP,
     parseMOP,
@@ -16,7 +16,7 @@ export MultiModel,
 
 include("MOP.jl")
 
-type MultiData
+type vOptData
     objs::Array{QuadExpr}               #Objectives
 	objSenses::Array{Symbol}            #Objective Senses
     Y_N::Vector{Tuple{Float64,Float64}} #Objective values for each point
@@ -24,15 +24,15 @@ type MultiData
     X_E_raw::Vector{Vector{Float64}}    #Variable values for each point
 end
 
-function getMultiData(m::Model)
-    !haskey(m.ext, :Multi) && error("This model wasn't created with vOptGeneric")
-    return m.ext[:Multi]::MultiData
+function getvOptData(m::Model)
+    !haskey(m.ext, :vOpt) && error("This model wasn't created with vOptGeneric")
+    return m.ext[:vOpt]::vOptData
 end
 
-function MultiModel(;solver=JuMP.UnsetSolver())
+function vModel(;solver=JuMP.UnsetSolver())
     m = Model(solver=solver)
     m.solvehook = solvehook
-    m.ext[:Multi] = MultiData(Vector{QuadExpr}(), #objs
+    m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
                               Vector{NTuple{N,Float64} where N}(), #Y_N
                               Vector{Any}(), #X_E
@@ -45,7 +45,7 @@ function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5
         warn("use solve(m, method = :eps)")
         return :Infeasible
     end
-    if method == :eps
+    if method == :epsilon
         return solve_eps(m, step)
     end
 end
@@ -53,8 +53,8 @@ end
 function solve_eps(m::Model, ϵ::Float64)
     any(:Cont in m.colCat) && error("Epsilon method implemented for pure integer problems only")
 
-    #Retrieve objectives and their senses from MultiData
-    md = getMultiData(m)
+    #Retrieve objectives and their senses from vOptData
+    md = getvOptData(m)
     f1,f2 = md.objs[1],md.objs[2]
     f1Sense,f2Sense = md.objSenses[1],md.objSenses[2]
 
@@ -102,7 +102,7 @@ function solve_eps(m::Model, ϵ::Float64)
                 end
             end
 
-            #Store results in MultiData
+            #Store results in vOptData
             push!(md.Y_N, (f1Val, f2Val))
             push!(md.X_E, varValueDict)
             push!(md.X_E_raw, copy(m.colVal))
@@ -153,7 +153,7 @@ macro addobjective(m, args...)
     code = quote
         f = @expression($m, $expr)
         !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
-        md = $m.ext[:Multi]
+        md = $m.ext[:vOpt]
         push!(md.objSenses, $(esc(sense)))
         push!(md.objs, QuadExpr(f))
     end
@@ -177,7 +177,7 @@ function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
 end
 
 function print_X_E(m::Model)
-    md = getMultiData(m)
+    md = getvOptData(m)
     for i = 1:length(md.Y_N)
         print(md.Y_N[i]," : ")
         for j = 1:m.numCols
@@ -195,18 +195,18 @@ end
 
 function getvalue(arr::Array{Variable}, i::Int)
     m = first(arr).m
-    md = getMultiData(m)
+    md = getvOptData(m)
     return md.X_E[i][arr]
 end
 
 function getvalue(v::Variable, i::Int)
     m = v.m
-    md = getMultiData(m)
+    md = getvOptData(m)
     return md.X_E[i][v]
 end
 
 function getY_N(m::Model)
-    return getMultiData(m).Y_N
+    return getvOptData(m).Y_N
 end
 
 end#module

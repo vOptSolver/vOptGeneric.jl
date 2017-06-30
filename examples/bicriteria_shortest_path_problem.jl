@@ -1,6 +1,6 @@
 using vOptGeneric
 using GLPK,GLPKMathProgInterface
-m = MultiModel(solver = GLPKSolverMIP())
+m = vModel(solver = GLPKSolverMIP())
 # using CPLEX
 # m = MultiModel(solver = CplexSolver())
 
@@ -28,7 +28,7 @@ p2 =   [M 3 1 M M M;
 @constraint(m, sum(x[i,6] for i = 1:6) == 1)
 @constraint(m, cstr[i=2:5], sum(x[i,j] for j = 1:6) - sum(x[j,i] for j =1:6) == 0)
 
-solve(m, method=:eps, step=0.1)
+solve(m, method=:epsilon, step=0.1)
 
 #get the results and print/plot them
 Y_N = getY_N(m)

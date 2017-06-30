@@ -1,5 +1,5 @@
 using vOptGeneric
-m = MultiModel()
+m = vModel()
 
 @variable(m, x[1:6,1:6], Bin)
 @variable(m, 0 <= y <= 10, Int)
