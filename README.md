@@ -32,6 +32,7 @@ Before your first local or distant use,
 
 ```
 julia> Pkg.clone("http://github.com/vOptSolver/vOptGeneric.jl")
+julia> Pkg.add("GLPK")
 ```
 
 That's all folk; at this point, vOptGeneric is properly installed.
