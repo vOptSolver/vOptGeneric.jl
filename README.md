@@ -47,7 +47,7 @@ When vOptGeneric is properly installed,
 julia> using vOptGeneric
 julia> using GLPK
 ```
-vOptSpecific is ready. See examples for further informations and have fun with the solver! 
+vOptGeneric is ready. See examples for further informations and have fun with the solver! 
 
 ## Examples
 The folder `examples` provides (1) source code of problems ready to be solved and (2) selected datafiles into different formats.
