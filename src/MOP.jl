@@ -20,7 +20,7 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
     numRows = length(m.linconstr)
 
 
-    md = getMultiData(m)
+    md = getvOptData(m)
     objlincoef = [prepAffObjective(m, f) for f in md.objs]
 
     write(f,"OBJSENSE\n")
@@ -172,12 +172,13 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
     write(f,"ENDATA\n")
     close(f)
     gc_enable(true)
+    nothing
 end
 
 nextline(f) = split(chomp(readline(f)), ' ', keep=false)
 function parseMOP(fname::AbstractString; solver=JuMP.UnsetSolver())
 
-    m = MultiModel(solver = solver)
+    m = vModel(solver = solver)
 
     open(fname) do f
         ln = nextline(f)
@@ -252,7 +253,7 @@ function parseMOP(fname::AbstractString; solver=JuMP.UnsetSolver())
             end
         end
 
-        md = m.ext[:Multi]
+        md = m.ext[:vOpt]
         for key in objOrder
             obj = DicoObj[key]
             push!(md.objs, obj)

@@ -1,0 +1,25 @@
+NAME   vOptModel
+OBJSENSE
+ MIN
+ROWS
+ N  OBJ1
+ N  OBJ2
+ L  CON1
+ L  CON2
+COLUMNS
+    MARKER    'MARKER'                 'INTORG'
+    x1  CON2  3
+    x1  OBJ1  3
+    x1  OBJ2  -1
+    x2  CON1  1
+    x2  CON2  -1
+    x2  OBJ1  1
+    x2  OBJ2  -2
+    MARKER    'MARKER'                 'INTEND'
+RHS
+    RHS    CON1    3
+    RHS    CON2    6
+BOUNDS
+  PL BOUND x1
+  PL BOUND x2
+ENDATA

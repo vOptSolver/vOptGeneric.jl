@@ -7,9 +7,7 @@ m = parseMOP(ARGS[1], solver = CplexSolver())
 
 solve(m, method=:epsilon)
 
-print_results_raw(m)
-
-
+print_X_E(m)
 
 using PyPlot
 Y_N = getY_N(m)
