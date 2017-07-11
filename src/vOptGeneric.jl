@@ -2,6 +2,8 @@ __precompile__()
 module vOptGeneric
 
 importall JuMP
+import MathProgBase
+
 export vModel,
     getvOptData,
     solve,
@@ -19,9 +21,8 @@ include("MOP.jl")
 type vOptData
     objs::Array{QuadExpr}               #Objectives
 	objSenses::Array{Symbol}            #Objective Senses
-    Y_N::Vector{Tuple{Float64,Float64}} #Objective values for each point
-    X_E::Vector{Dict{Union{Variable,Array{Variable}},Union{Float64, Array{Float64}}}}#Variable values for each point, keeps the structure of user-declared variables
-    X_E_raw::Vector{Vector{Float64}}    #Variable values for each point
+    Y_N::Vector{NTuple{N,Float64} where N}#Objective values for each point
+    X_E::Vector{Vector{Float64}}        #Variable values for each point
 end
 
 function getvOptData(m::Model)
@@ -35,8 +36,7 @@ function vModel(;solver=JuMP.UnsetSolver())
     m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
                               Vector{NTuple{N,Float64} where N}(), #Y_N
-                              Vector{Any}(), #X_E
-                              Vector{Vector{Float64}}()) #X_E_raw
+                              Vector{Vector{Float64}}()) #X_E
     return m
 end
 
@@ -51,8 +51,6 @@ function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5
 end
 
 function solve_eps(m::Model, ϵ::Float64)
-    any(:Cont in m.colCat) && error("Epsilon method implemented for pure integer problems only")
-
     #Retrieve objectives and their senses from vOptData
     md = getvOptData(m)
     f1,f2 = md.objs[1],md.objs[2]
@@ -75,12 +73,8 @@ function solve_eps(m::Model, ϵ::Float64)
             @constraint(m, eps, f2.aff >= 0.0)
         end
 
-        #Dict{Symbol,Any} -> variable-name <> JuMP.Variable
-        if :varDict in fieldnames(JuMP.Model)
-            varDict = m.varDict
-        else
-            varDict = filter((k,v) -> isa(v, JuMP.Variable) || isa(v, Array{JuMP.Variable}), m.objDict)
-        end
+
+        varArray = [JuMP.Variable(m,i) for i in 1:MathProgBase.numvar(m)]
 
         #While a solution exists
         while status == :Optimal
@@ -88,8 +82,6 @@ function solve_eps(m::Model, ϵ::Float64)
             f1Val = m.objVal
             f2Val = JuMP.getvalue(f2)
 
-            #Dict{Symbol,Any} -> variable(s) <> variable(s)-value(s)
-            varValueDict = Dict(v=>JuMP.getvalue(v) for (k,v) in varDict)
 
             #If last solution found is dominated by this one
             if length(md.Y_N) > 0
@@ -98,14 +90,13 @@ function solve_eps(m::Model, ϵ::Float64)
                 R2 = f1Sense==:Min ? (<=) : (>=)
                 if R1(f1Val,Y_m1[1]) && R2(f2Val, Y_m1[2])
                     #Remove last solution from Y_N and X_E
-                    pop!(md.Y_N) ; pop!(md.X_E) ; pop!(md.X_E_raw)
+                    pop!(md.Y_N) ; pop!(md.X_E)
                 end
             end
 
             #Store results in vOptData
             push!(md.Y_N, (f1Val, f2Val))
-            push!(md.X_E, varValueDict)
-            push!(md.X_E_raw, copy(m.colVal))
+            push!(md.X_E, JuMP.getvalue.(varArray))
 
             print("z1 = ", f1Val, ", z2 = ", f2Val)
             #Set the RHS of the epsilon-constraint
@@ -150,14 +141,13 @@ macro addobjective(m, args...)
         sense = Expr(:quote,sense)
     end
     expr = esc(args[2])
-    code = quote
+    return quote
         f = @expression($m, $expr)
         !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
         md = $m.ext[:vOpt]
         push!(md.objSenses, $(esc(sense)))
         push!(md.objs, QuadExpr(f))
     end
-    return code
 end
 
 
@@ -181,11 +171,11 @@ function print_X_E(m::Model)
     for i = 1:length(md.Y_N)
         print(md.Y_N[i]," : ")
         for j = 1:m.numCols
-            if md.X_E_raw[i][j] != 0
+            if md.X_E[i][j] != 0
                 if m.colCat[j] == :Int || m.colCat[j] == :Bin
-                    print(getname(m,j),"=",round(Int,md.X_E_raw[i][j])," ")
+                    print(getname(m,j),"=",round(Int,md.X_E[i][j])," ")
                 else
-                    print(getname(m,j),"=",md.X_E_raw[i][j]," ")
+                    print(getname(m,j),"=",md.X_E[i][j]," ")
                 end
             end
         end 
@@ -193,17 +183,27 @@ function print_X_E(m::Model)
    end
 end
 
-function getvalue(arr::Array{Variable}, i::Int)
-    m = first(arr).m
-    md = getvOptData(m)
-    return md.X_E[i][arr]
+function getvalue(v::Variable, i::Int)
+    md = getvOptData(v.m)
+    return md.X_E[i][v.col]
 end
 
-function getvalue(v::Variable, i::Int)
-    m = v.m
-    md = getvOptData(m)
-    return md.X_E[i][v]
+function getvalue(arr::Array{Variable}, i::Int)
+
+    ret = similar(arr,Float64)
+    isempty(ret) && return ret
+
+    for I in eachindex(arr)
+        v = arr[I]
+        value = getvalue(v, i)
+        ret[I] = value
+    end
+
+    return ret
 end
+
+getvalue(x::JuMP.JuMPContainer, i::Int) = JuMP._map(v -> getvalue(v, i), x)
+
 
 function getY_N(m::Model)
     return getvOptData(m).Y_N
