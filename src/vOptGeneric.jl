@@ -102,10 +102,10 @@ function solve_eps(m::Model, ϵ::Float64)
             #Set the RHS of the epsilon-constraint
             if f2Sense == :Min
                 JuMP.setRHS(eps, f2Val - f2.aff.constant - ϵ)
-                println(". Solving with f2 <= ", f2Val - f2.aff.constant - ϵ)
+                println(". Solving with f2 <= ", f2Val - ϵ)
             else
                 JuMP.setRHS(eps, f2Val - f2.aff.constant + ϵ)
-                println(". Solving with f2 >= ", f2Val - f2.aff.constant + ϵ)
+                println(". Solving with f2 >= ", f2Val + ϵ)
             end
 
             # for (k,v) in varDict
