@@ -68,9 +68,9 @@ function solve_eps(m::Model, ϵ::Float64)
 
         #Declare the epsilon-constraint (RHS will be set later)
         if f2Sense == :Min        
-            @constraint(m, eps, f2.aff <= 0.0)
+            eps = @constraint(m, f2.aff <= 0.0)
         else
-            @constraint(m, eps, f2.aff >= 0.0)
+            eps = @constraint(m, f2.aff >= 0.0)
         end
 
 
@@ -81,7 +81,6 @@ function solve_eps(m::Model, ϵ::Float64)
             #Get the score on the objectives
             f1Val = m.objVal
             f2Val = JuMP.getvalue(f2)
-
 
             #If last solution found is dominated by this one
             if length(md.Y_N) > 0
