@@ -2,7 +2,7 @@ using vOptGeneric
 using GLPK,GLPKMathProgInterface
 m = vModel(solver = GLPKSolverMIP())
 # using CPLEX
-# m = MultiModel(solver = CplexSolver())
+# m = vModel(solver = CplexSolver())
 
 @variable(m, x[1:6,1:6], Bin)
 

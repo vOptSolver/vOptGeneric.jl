@@ -1,9 +1,6 @@
 using vOptGeneric, CPLEX
 
-
 m = parseMOP(ARGS[1], solver = CplexSolver())
-# or
-# m = parseMOP(filename) ; setsolver(m, ...)
 
 solve(m, method=:epsilon)
 
