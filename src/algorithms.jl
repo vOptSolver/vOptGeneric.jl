@@ -42,12 +42,10 @@ function solve_eps(m::Model, ϵ::Float64)
                 end
             end
 
-            #If this solution isn't dominated by the last one :
-            if isempty(vd.Y_N) || !(R1(vd.Y_N[end][1],f1Val) && R2(vd.Y_N[end][1], f2Val))
-                #Store results in vOptData
-                push!(vd.Y_N, (f1Val, f2Val))
-                push!(vd.X_E, JuMP.getvalue.(varArray))
-            end
+            #Store results in vOptData
+            push!(vd.Y_N, (f1Val, f2Val))
+            push!(vd.X_E, JuMP.getvalue.(varArray))
+
 
             print("z1 = ", f1Val, ", z2 = ", f2Val)
             #Set the RHS of the epsilon-constraint
