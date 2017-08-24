@@ -1,5 +1,6 @@
 __precompile__()
 module vOptGeneric
+using Combinatorics
 
 importall JuMP
 import MathProgBase
@@ -22,7 +23,7 @@ include("algorithms.jl")
 type vOptData
     objs::Array{QuadExpr}               #Objectives
 	objSenses::Array{Symbol}            #Objective Senses
-    Y_N::Vector{NTuple{N,Float64} where N}#Objective values for each point
+    Y_N::Vector{Vector{Float64}}        #Objective values for each point
     X_E::Vector{Vector{Float64}}        #Variable values for each point
 end
 
@@ -36,22 +37,25 @@ function vModel(;solver=JuMP.UnsetSolver())
     m.solvehook = solvehook
     m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
-                              Vector{NTuple{N,Float64} where N}(), #Y_N
+                              Vector{Vector{Float64}}(), #Y_N
                               Vector{Vector{Float64}}()) #X_E
     return m
 end
 
 function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5)::Symbol
-    if method == nothing
-        warn("use solve(m, method = :(epsilon | dichotomy | chalmet) )")
-        return :Infeasible
-    elseif method == :epsilon
+    if method == :epsilon
         return solve_eps(m, step)
     elseif method == :dicho || method == :dichotomy
         return solve_dicho(m)
     elseif method == :Chalmet || method == :chalmet
         return solve_Chalmet(m, step)
+    elseif method == :lex || method == :lexico
+        return solve_lexico(m)
+    else
+        warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
+        return :Unsolved
     end
+
 end
 
 macro addobjective(m, args...)

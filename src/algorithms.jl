@@ -1,3 +1,81 @@
+function solve_lexico(m::Model)
+    #Retrieve objectives and their senses from vOptData
+    vd = getvOptData(m)
+    empty!(vd.Y_N) ; empty!(vd.X_E)
+    objs = vd.objs
+    objSenses = vd.objSenses
+    nbObj = length(objs)
+
+    #Check that problem is feasible and that no objective is unbounded
+    for i = 1:nbObj
+        m.obj = objs[i]
+        m.objSense = objSenses[i]
+        status = solve(m, ignore_solve_hook=true)
+        status != :Optimal && return status
+    end
+
+    #Create the constraints on the objectives
+    #JuMP doesn't support changing constraint coefficients so we use >= and <= constraints,
+    #and typemin/typemax to deactivate the constraints
+    @constraintref cstr_obj[1:nbObj]
+    for i = 1:nbObj
+        if objSenses[i] == :Max
+            cstr_obj[i] = @constraint(m, objs[i].aff >= Float64(typemin(Int)))
+        else
+            cstr_obj[i] = @constraint(m, objs[i].aff <= Float64(typemax(Int)))
+        end
+    end
+
+    for p in permutations(1:nbObj, nbObj)
+        solve_permutation(m, p, cstr_obj)
+    end
+   
+    return :Optimal
+end
+
+function solve_permutation(m::Model, p, cstr_obj)
+    println("solving for objectives $p")
+
+    vd = getvOptData(m)
+    objs = vd.objs
+    objSenses = vd.objSenses
+
+    #Set the first objective of the permutation as an objective in the JuMP model
+    m.obj = objs[p[1]]
+    m.objSense = objSenses[p[1]]
+
+    #Solve with that objective
+    status = solve(m, ignore_solve_hook=true)
+    status != :Optimal && return status
+
+    for i = 2:length(p)
+        fVal = m.objVal #get the value for the last objective solved
+        JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant) #set the constraint for the last objective solved
+        m.obj = objs[p[i]] #set the i-th objective of the permutation in the JuMP model
+        m.objSense = objSenses[p[i]]
+        solve(m, ignore_solve_hook=true) #and solve
+    end    
+
+    varArray = [JuMP.Variable(m,i) for i in 1:MathProgBase.numvar(m)]
+    #Store results in vOptData
+    push!(vd.Y_N, map(JuMP.getvalue, objs))
+    push!(vd.X_E, JuMP.getvalue.(varArray))
+
+    for i = 1:length(p)
+        if objSenses[i] == :Max
+            JuMP.setRHS(cstr_obj[i], Float64(typemin(Int)))
+        else
+            JuMP.setRHS(cstr_obj[i], Float64(typemax(Int)))
+        end
+    end
+
+    nothing
+end
+
+
+
+
+
 function solve_eps(m::Model, ϵ::Float64)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
@@ -43,7 +121,7 @@ function solve_eps(m::Model, ϵ::Float64)
             end
 
             #Store results in vOptData
-            push!(vd.Y_N, (f1Val, f2Val))
+            push!(vd.Y_N, [f1Val, f2Val])
             push!(vd.X_E, JuMP.getvalue.(varArray))
 
 
@@ -100,7 +178,7 @@ function solve_dicho(m::Model)
         yr_2 = JuMP.getvalue(f2)
 
         #Store results in vOptData
-        push!(vd.Y_N, (yr_1, yr_2))
+        push!(vd.Y_N, [yr_1, yr_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
 
 
@@ -117,7 +195,7 @@ function solve_dicho(m::Model)
             ys_2 = m.objVal
 
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
-                push!(vd.Y_N, (ys_1, ys_2))
+                push!(vd.Y_N, [ys_1, ys_2])
                 push!(vd.X_E, JuMP.getvalue.(varArray))
                 dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray)
             end
@@ -192,7 +270,7 @@ function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray)
     end
 
     if f1Sense == :Min && val < lb - 1e-4 || val > lb + 1e-4
-        push!(vd.Y_N, (yt_1, yt_2))
+        push!(vd.Y_N, [yt_1, yt_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
         dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray)
         dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray)
@@ -239,7 +317,7 @@ function solve_Chalmet(m::Model, step)
             ys_2 = m.objVal
 
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
-                push!(vd.Y_N, (ys_1, ys_2))
+                push!(vd.Y_N, [ys_1, ys_2])
                 push!(vd.X_E, JuMP.getvalue.(varArray))
                 #Declare the constraints on z1 and z2 (RHS will be set later)
                 if f1Sense == :Min
@@ -332,7 +410,7 @@ function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cs
         yt_1 = JuMP.getvalue(f1)
         yt_2 = JuMP.getvalue(f2)
 
-        push!(vd.Y_N, (yt_1, yt_2))
+        push!(vd.Y_N, [yt_1, yt_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
         ChalmetRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, cstrz1, cstrz2, ϵ)
         ChalmetRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ)
