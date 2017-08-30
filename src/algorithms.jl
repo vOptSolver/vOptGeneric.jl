@@ -300,7 +300,7 @@ function solve_Chalmet(m::Model, step)
         yr_2 = JuMP.getvalue(f2)
 
         #Store results in vOptData
-        push!(vd.Y_N, (yr_1, yr_2))
+        push!(vd.Y_N, [yr_1, yr_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
 
 
