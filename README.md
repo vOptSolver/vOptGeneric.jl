@@ -1,5 +1,8 @@
 # vOptGeneric: part of vOptSolver for non-structured problems
 
+[![Build Status](https://travis-ci.org/vOptSolver/vOptGeneric.jl.svg?branch=master)](https://travis-ci.org/vOptSolver/vOptGeneric.jl)
+[![codecov.io](http://codecov.io/github/vOptSolver/vOptGeneric.jl/coverage.svg?branch=master)](http://codecov.io/github/vOptSolver/vOptGeneric.jl?branch=master)
+
 **vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOIP, MOMILP, MOLP).
 This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2IP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives.
 
