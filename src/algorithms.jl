@@ -364,6 +364,19 @@ function solve_Chalmet(m::Model, step)
                 end
                 deleteat!(vd.Y_N, inds)
                 deleteat!(vd.X_E, inds)
+
+
+                if f1Sense == :Min
+                    JuMP.setRHS(cstrz1, Float64(typemax(Int)))
+                else
+                    JuMP.setRHS(cstrz1, Float64(typemin(Int)))
+                end
+
+                if f2Sense == :Min
+                    JuMP.setRHS(cstrz2, Float64(typemax(Int)))
+                else
+                    JuMP.setRHS(cstrz2, Float64(typemin(Int)))
+                end
             end
         end
     end
