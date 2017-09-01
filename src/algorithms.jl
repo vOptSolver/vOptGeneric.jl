@@ -1,3 +1,5 @@
+# MIT License
+# Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
 function solve_lexico(m::Model)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)

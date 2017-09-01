@@ -1,3 +1,5 @@
+# MIT License
+# Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
 varname_generic(m::Model, col::Integer) = "VAR$(col)"
 
 function varname_given(m::Model, col::Integer)
