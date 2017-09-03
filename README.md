@@ -4,7 +4,7 @@
 [![codecov.io](http://codecov.io/github/vOptSolver/vOptGeneric.jl/coverage.svg?branch=master)](http://codecov.io/github/vOptSolver/vOptGeneric.jl?branch=master)
 
 **vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOIP, MOMILP, MOLP).
-This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2IP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives.
+This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2IP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows (local use) and on JuliaBox (distant use).
 
 We suppose you are familiar with vOptSolver; if not, read first this [presentation](https://voptsolver.github.io/vOptSolver/).
 
@@ -17,7 +17,7 @@ For a local use, a working version of:
   
 ### Run Julia
 
-On linux or in the cloud (juliaBox):
+On linux or in the cloud (JuliaBox):
 
 - open a console on your computer or in the cloud
 - when the prompt is ready, type in the console `julia`
