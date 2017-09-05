@@ -37,6 +37,7 @@ end
 function vModel(;solver=JuMP.UnsetSolver())
     m = Model(solver=solver)
     m.solvehook = solvehook
+    m.printhook = printhook
     m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
                               Vector{Vector{Float64}}(), #Y_N
@@ -59,6 +60,17 @@ function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5
     end
 
 end
+
+function printhook(io::IO, m::Model)
+    vd = getvOptData(m)
+    for i = 1:length(vd.objs)
+        println(vd.objSenses[i] == :Min ? "Min " : "Max ", vd.objs[i])
+    end
+    str = JuMP.model_str(JuMP.REPLMode, m)
+    index = searchindex(str, "Subject to")
+    index != 0 && print(str[index:end])
+end
+
 
 macro addobjective(m, args...)
     if length(args) != 2
