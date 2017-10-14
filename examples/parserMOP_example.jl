@@ -1,10 +1,14 @@
 using vOptGeneric, CPLEX
 
-m = parseMOP(ARGS[1], solver = CplexSolver())
+if length(ARGS) == 0
+    m = parseMOP("example.MOP", solver = CplexSolver())
+else
+    m = parseMOP(ARGS[1], solver = CplexSolver())
+end
 
 solve(m, method=:epsilon)
 
-print_X_E(m)
+printX_E(m)
 
 using PyPlot
 Y_N = getY_N(m)

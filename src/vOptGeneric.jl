@@ -12,7 +12,7 @@ export vModel,
     solve,
     writeMOP,
     parseMOP,
-    print_X_E,
+    printX_E,
     getvalue,
     getY_N,
     @addobjective,
@@ -106,7 +106,8 @@ function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
     return f
 end
 
-function print_X_E(m::Model)
+@deprecate print_X_E printX_E
+function printX_E(m::Model)
     vd = getvOptData(m)
     for i = 1:length(vd.Y_N)
         print(vd.Y_N[i]," : ")
