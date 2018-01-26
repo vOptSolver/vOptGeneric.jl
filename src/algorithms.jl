@@ -12,7 +12,7 @@ function solve_lexico(m::Model)
     for i = 1:nbObj
         m.obj = objs[i]
         m.objSense = objSenses[i]
-        status = solve(m, ignore_solve_hook=true)
+        status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
         status != :Optimal && return status
     end
 
@@ -47,7 +47,7 @@ function solve_permutation(m::Model, p, cstr_obj)
     m.objSense = objSenses[p[1]]
 
     #Solve with that objective
-    status = solve(m, ignore_solve_hook=true)
+    status = @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true)
     status != :Optimal && return status
 
     for i = 2:length(p)
@@ -55,7 +55,7 @@ function solve_permutation(m::Model, p, cstr_obj)
         JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant) #set the constraint for the last objective solved
         m.obj = objs[p[i]] #set the i-th objective of the permutation in the JuMP model
         m.objSense = objSenses[p[i]]
-        solve(m, ignore_solve_hook=true) #and solve
+        @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true) #and solve
     end    
 
     varArray = [JuMP.Variable(m,i) for i in 1:MathProgBase.numvar(m)]
