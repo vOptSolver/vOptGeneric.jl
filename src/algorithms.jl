@@ -12,7 +12,7 @@ function solve_lexico(m::Model)
     for i = 1:nbObj
         m.obj = objs[i]
         m.objSense = objSenses[i]
-        status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
+        status = @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true)
         status != :Optimal && return status
     end
 
@@ -22,9 +22,9 @@ function solve_lexico(m::Model)
     @constraintref cstr_obj[1:nbObj]
     for i = 1:nbObj
         if objSenses[i] == :Max
-            cstr_obj[i] = @constraint(m, objs[i].aff >= Float64(typemin(Int)))
+            cstr_obj[i] = @constraint(m, objs[i].aff >= -1e18)
         else
-            cstr_obj[i] = @constraint(m, objs[i].aff <= Float64(typemax(Int)))
+            cstr_obj[i] = @constraint(m, objs[i].aff <= 1e18)
         end
     end
 
@@ -52,7 +52,8 @@ function solve_permutation(m::Model, p, cstr_obj)
 
     for i = 2:length(p)
         fVal = m.objVal #get the value for the last objective solved
-        JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant) #set the constraint for the last objective solved
+        slack = objSenses[p[i-1]] == :Max ? -1e-6 : 1e-6
+        JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant + slack) #set the constraint for the last objective solved
         m.obj = objs[p[i]] #set the i-th objective of the permutation in the JuMP model
         m.objSense = objSenses[p[i]]
         @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true) #and solve
@@ -65,9 +66,9 @@ function solve_permutation(m::Model, p, cstr_obj)
 
     for i = 1:length(p)
         if objSenses[i] == :Max
-            JuMP.setRHS(cstr_obj[i], Float64(typemin(Int)))
+            JuMP.setRHS(cstr_obj[i], -1e18)
         else
-            JuMP.setRHS(cstr_obj[i], Float64(typemax(Int)))
+            JuMP.setRHS(cstr_obj[i], 1e18)
         end
     end
 
