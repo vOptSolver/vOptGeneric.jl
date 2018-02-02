@@ -22,12 +22,14 @@ export vModel,
 include("MOP.jl")
 include("algorithms.jl")
 
-type vOptData
-    objs::Array{QuadExpr}               #Objectives
-	objSenses::Array{Symbol}            #Objective Senses
+mutable struct vOptData
+    objs::Vector{QuadExpr}               #Objectives
+	objSenses::Vector{Symbol}            #Objective Senses
     Y_N::Vector{Vector{Float64}}        #Objective values for each point
     X_E::Vector{Vector{Float64}}        #Variable values for each point
 end
+
+Base.copy(vd::vOptData) = vOptData(deepcopy(vd.objs), deepcopy(vd.objSenses), [], [])
 
 function getvOptData(m::Model)
     !haskey(m.ext, :vOpt) && error("This model wasn't created with vOptGeneric")

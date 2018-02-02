@@ -419,7 +419,7 @@ function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cs
         println(" and f2 >= ", lbz2 + ϵ)
     end
 
-    status = solve(m, ignore_solve_hook=true)
+    status = @suppress solve(m, ignore_solve_hook=true)
 
     if status == :Optimal
 
