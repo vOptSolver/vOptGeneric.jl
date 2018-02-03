@@ -27,9 +27,10 @@ mutable struct vOptData
 	objSenses::Vector{Symbol}            #Objective Senses
     Y_N::Vector{Vector{Float64}}        #Objective values for each point
     X_E::Vector{Vector{Float64}}        #Variable values for each point
+    isacopy::Bool
 end
 
-Base.copy(vd::vOptData) = vOptData(deepcopy(vd.objs), deepcopy(vd.objSenses), [], [])
+Base.copy(vd::vOptData) = vOptData(deepcopy(vd.objs), deepcopy(vd.objSenses), [], [], true)
 
 function getvOptData(m::Model)
     !haskey(m.ext, :vOpt) && error("This model wasn't created with vOptGeneric")
@@ -43,11 +44,17 @@ function vModel(;solver=JuMP.UnsetSolver())
     m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
                               Vector{Symbol}(), #objSenses
                               Vector{Vector{Float64}}(), #Y_N
-                              Vector{Vector{Float64}}()) #X_E
+                              Vector{Vector{Float64}}(), #X_E
+                              false) #isacopy
     return m
 end
 
 function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5)::Symbol
+    vd = getvOptData(m)
+    if vd.isacopy
+        vd.objs .= copy.(vd.objs, m)
+    end
+
     if method == :epsilon
         return solve_eps(m, step)
     elseif method == :dicho || method == :dichotomy
