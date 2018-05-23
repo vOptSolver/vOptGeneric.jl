@@ -138,6 +138,11 @@ function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
             status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
         end
 
+        #Sort X_E and Y_N
+        s = sortperm(vd.Y_N, by = e -> e[1])
+        vd.Y_N = vd.Y_N[s]
+        vd.X_E = vd.X_E[s]
+
         ###
         #JuMP doesn't support removing constraints
         #To leave the model unaltered we change the value of the RHS
@@ -316,7 +321,7 @@ function solve_Chalmet(m::Model, step)
                 end
                 ChalmetRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, step)
 
-                #Lazy sort X_E and Y_N
+                #Sort X_E and Y_N
                 s = sortperm(vd.Y_N, by = e -> e[1])
                 vd.Y_N = vd.Y_N[s]
                 vd.X_E = vd.X_E[s]
