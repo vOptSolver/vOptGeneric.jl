@@ -75,11 +75,7 @@ function solve_permutation(m::Model, p, cstr_obj)
     nothing
 end
 
-
-
-
-
-function solve_eps(m::Model, ϵ::Float64)
+function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -108,43 +104,40 @@ function solve_eps(m::Model, ϵ::Float64)
         #While a solution exists
         while status == :Optimal
             #Get the score on the objectives
-            f1Val = m.objVal
-            f2Val = JuMP.getvalue(f2)
+            f1Val = round_results ? round(m.objVal) : m.objVal
+            f2Val = round_results ? round(JuMP.getvalue(f2)) : JuMP.getvalue(f2)
 
             R1 = f1Sense==:Min ? (<=) : (>=)
             R2 = f2Sense==:Min ? (<=) : (>=)
+            weak_dom(a, b) = R1(a[1], b[1]) && R2(a[2], b[2])
 
             #If last solution found is dominated by this one
             if !isempty(vd.Y_N)
                 Y_m1 = vd.Y_N[end]
-                if R1(f1Val,Y_m1[1]) && R2(f2Val, Y_m1[2])
+                if weak_dom((f1Val, f2Val), Y_m1)
                     #Remove last solution from Y_N and X_E
                     pop!(vd.Y_N) ; pop!(vd.X_E)
                 end
             end
 
             #Store results in vOptData
-            push!(vd.Y_N, [f1Val, f2Val])
             push!(vd.X_E, JuMP.getvalue.(varArray))
+            push!(vd.Y_N, [f1Val, f2Val])
 
-
-            print("z1 = ", f1Val, ", z2 = ", f2Val)
+            verbose && print("z1 = ", f1Val, ", z2 = ", f2Val)
             #Set the RHS of the epsilon-constraint
             if f2Sense == :Min
                 JuMP.setRHS(eps, f2Val - f2.aff.constant - ϵ)
-                println(". Solving with f2 <= ", f2Val - ϵ)
+                verbose && println(". Solving with f2 <= ", f2Val - ϵ)
             else
                 JuMP.setRHS(eps, f2Val - f2.aff.constant + ϵ)
-                println(". Solving with f2 >= ", f2Val + ϵ)
+                verbose && println(". Solving with f2 >= ", f2Val + ϵ)
             end
-
-            # for (k,v) in varDict
-            #     setvalue(v, getvalue(v))
-            # end
 
             #And solve again
             status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
         end
+
         ###
         #JuMP doesn't support removing constraints
         #To leave the model unaltered we change the value of the RHS
@@ -160,7 +153,7 @@ function solve_eps(m::Model, ϵ::Float64)
     return :Optimal
 end
 
-function solve_dicho(m::Model)
+function solve_dicho(m::Model, round_results)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -181,12 +174,12 @@ function solve_dicho(m::Model)
         yr_2 = JuMP.getvalue(f2)
 
         #Store results in vOptData
-        push!(vd.Y_N, [yr_1, yr_2])
+        push!(vd.Y_N, round_results ? round.([yr_1, yr_2]) : [yr_1, yr_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
 
 
         #Set the second objective as an objective in the JuMP model
-        m.obj=f2
+        m.obj = f2
         m.objSense = f2Sense
 
         #Solve with that objective
@@ -198,38 +191,26 @@ function solve_dicho(m::Model)
             ys_2 = m.objVal
 
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
-                push!(vd.Y_N, [ys_1, ys_2])
+                push!(vd.Y_N, round_results ? round.([ys_1, ys_2]) : [ys_1, ys_2])
                 push!(vd.X_E, JuMP.getvalue.(varArray))
-                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray)
+                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results)
             end
         
-            #Lazy sort X_E and Y_N
-            s = sortperm(vd.Y_N, by = e -> e[1])
+            #Sort X_E and Y_N
+            s = sortperm(vd.Y_N, by = first)
             vd.Y_N = vd.Y_N[s]
             vd.X_E = vd.X_E[s]
 
-            #We can use weak dominance definition here
-            dom_min_min(a,b) = a[1] <= b[1] && a[2] <= b[2]
-            dom_max_max(a,b) = a[1] >= b[1] && a[2] >= b[2]
-            dom_min_max(a,b) = a[1] <= b[1] && a[2] >= b[2]
-            dom_max_min(a,b) = a[1] >= b[1] && a[2] <= b[2]
-
-            if f1Sense==f2Sense==:Min
-                dominates = dom_min_min
-            elseif f1Sense==f2Sense==:Max
-                dominates = dom_max_max
-            elseif f1Sense==:Min
-                dominates = dom_min_max
-            else
-                dominates = dom_max_min
-            end
+            R1 = f1Sense==:Min ? (<=) : (>=)
+            R2 = f2Sense==:Min ? (<=) : (>=)
+            weak_dom(a, b) = R1(a[1], b[1]) && R2(a[2], b[2])
 
             #Filter X_E and Y_N :
             inds = Int[]
             for i = 1:length(vd.Y_N)-1
-                if dominates(vd.Y_N[i], vd.Y_N[i+1])
+                if weak_dom(vd.Y_N[i], vd.Y_N[i+1])
                     push!(inds, i+1)
-                elseif dominates(vd.Y_N[i+1], vd.Y_N[i])
+                elseif weak_dom(vd.Y_N[i+1], vd.Y_N[i])
                     push!(inds, i)
                 end
             end
@@ -241,7 +222,7 @@ function solve_dicho(m::Model)
     status
 end
 
-function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray)
+function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, round_results)
 
     vd = getvOptData(m)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -272,11 +253,11 @@ function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray)
         val = λ1*yt_1 - λ2*yt_2
     end
 
-    if f1Sense == :Min && val < lb - 1e-4 || val > lb + 1e-4
-        push!(vd.Y_N, [yt_1, yt_2])
+    if (f1Sense == :Min && val < lb - 1e-4) || val > lb + 1e-4
+        push!(vd.Y_N, round_results ? round.([yt_1, yt_2]) : [yt_1, yt_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
-        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray)
-        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray)
+        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results)
+        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results)
     end
 
 end

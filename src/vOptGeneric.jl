@@ -49,16 +49,16 @@ function vModel(;solver=JuMP.UnsetSolver())
     return m
 end
 
-function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5)::Symbol
+function solvehook(m::Model; suppress_warnings=false, method=nothing, step = 0.5, round_results = false, verbose = true)::Symbol
     vd = getvOptData(m)
     if vd.isacopy
         vd.objs .= copy.(vd.objs, m)
     end
 
     if method == :epsilon
-        return solve_eps(m, step)
+        return solve_eps(m, step, round_results, verbose)
     elseif method == :dicho || method == :dichotomy
-        return solve_dicho(m)
+        return solve_dicho(m, round_results)
     elseif method == :Chalmet || method == :chalmet
         return solve_Chalmet(m, step)
     elseif method == :lex || method == :lexico
