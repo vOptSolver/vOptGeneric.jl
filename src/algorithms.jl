@@ -1,6 +1,6 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
-function solve_lexico(m::Model)
+function solve_lexico(m::Model ; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -12,7 +12,7 @@ function solve_lexico(m::Model)
     for i = 1:nbObj
         m.obj = objs[i]
         m.objSense = objSenses[i]
-        status = @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true)
+        status = @suppress solve(m, ignore_solve_hook=true ; args...)
         status != :Optimal && return status
     end
 
@@ -29,13 +29,13 @@ function solve_lexico(m::Model)
     end
 
     for p in permutations(1:nbObj, nbObj)
-        solve_permutation(m, p, cstr_obj)
+        solve_permutation(m, p, cstr_obj ; args...)
     end
    
     return :Optimal
 end
 
-function solve_permutation(m::Model, p, cstr_obj)
+function solve_permutation(m::Model, p, cstr_obj ; args...)
     println("solving for objectives $p")
 
     vd = getvOptData(m)
@@ -47,7 +47,7 @@ function solve_permutation(m::Model, p, cstr_obj)
     m.objSense = objSenses[p[1]]
 
     #Solve with that objective
-    status = @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true)
+    status = @suppress solve(m, ignore_solve_hook=true; args...)
     status != :Optimal && return status
 
     for i = 2:length(p)
@@ -56,7 +56,7 @@ function solve_permutation(m::Model, p, cstr_obj)
         JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant + slack) #set the constraint for the last objective solved
         m.obj = objs[p[i]] #set the i-th objective of the permutation in the JuMP model
         m.objSense = objSenses[p[i]]
-        @suppress solve(m, ignore_solve_hook=true, suppress_warnings=true) #and solve
+        @suppress solve(m, ignore_solve_hook=true ; args...) #and solve
     end    
 
     varArray = [JuMP.Variable(m,i) for i in 1:MathProgBase.numvar(m)]
@@ -75,7 +75,7 @@ function solve_permutation(m::Model, p, cstr_obj)
     nothing
 end
 
-function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
+function solve_eps(m::Model, ϵ::Float64, round_results, verbose ; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -87,7 +87,7 @@ function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
     m.objSense = f1Sense
 
     #Solve with that objective
-    status = solve(m, ignore_solve_hook=true)
+    status = solve(m, ignore_solve_hook=true; args...)
 
     #If a solution exists
     if status == :Optimal
@@ -135,7 +135,7 @@ function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
             end
 
             #And solve again
-            status = solve(m, ignore_solve_hook=true, suppress_warnings=true)
+            status = solve(m, ignore_solve_hook=true, suppress_warnings=true ; args...)
         end
 
         #Sort X_E and Y_N
@@ -158,7 +158,7 @@ function solve_eps(m::Model, ϵ::Float64, round_results, verbose)
     return :Optimal
 end
 
-function solve_dicho(m::Model, round_results)
+function solve_dicho(m::Model, round_results ; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -169,8 +169,10 @@ function solve_dicho(m::Model, round_results)
     m.obj=f1
     m.objSense = f1Sense
 
+    @show args
+
     #Solve with that objective
-    status = solve(m, ignore_solve_hook=true)
+    status = solve(m, ignore_solve_hook=true ;  args...)
 
     #If a solution exists
     if status == :Optimal
@@ -188,7 +190,7 @@ function solve_dicho(m::Model, round_results)
         m.objSense = f2Sense
 
         #Solve with that objective
-        status = solve(m, ignore_solve_hook=true)
+        status = solve(m, ignore_solve_hook=true ; args...)
 
         if status == :Optimal
 
@@ -198,7 +200,7 @@ function solve_dicho(m::Model, round_results)
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
                 push!(vd.Y_N, round_results ? round.([ys_1, ys_2]) : [ys_1, ys_2])
                 push!(vd.X_E, JuMP.getvalue.(varArray))
-                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results)
+                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results ; args...)
             end
         
             #Sort X_E and Y_N
@@ -227,7 +229,7 @@ function solve_dicho(m::Model, round_results)
     status
 end
 
-function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, round_results)
+function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, round_results ; args...)
 
     vd = getvOptData(m)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -246,7 +248,7 @@ function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, round_result
         m.obj = λ1*f1 - λ2*f2
     end
 
-    solve(m, ignore_solve_hook=true)
+    solve(m, ignore_solve_hook=true ; args...)
 
     yt_1 = JuMP.getvalue(f1)
     yt_2 = JuMP.getvalue(f2)
@@ -261,14 +263,14 @@ function dichoRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, round_result
     if (f1Sense == :Min && val < lb - 1e-4) || val > lb + 1e-4
         push!(vd.Y_N, round_results ? round.([yt_1, yt_2]) : [yt_1, yt_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
-        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results)
-        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results)
+        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results ; args...)
+        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results ; args...)
     end
 
 end
 
 
-function solve_Chalmet(m::Model, step)
+function solve_Chalmet(m::Model, step ; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -280,7 +282,7 @@ function solve_Chalmet(m::Model, step)
     m.objSense = f1Sense
 
     #Solve with that objective
-    status = solve(m, ignore_solve_hook=true)
+    status = solve(m, ignore_solve_hook=true ; args...)
 
     #If a solution exists
     if status == :Optimal
@@ -298,7 +300,7 @@ function solve_Chalmet(m::Model, step)
         m.objSense = f2Sense
 
         #Solve with that objective
-        status = solve(m, ignore_solve_hook=true)
+        status = solve(m, ignore_solve_hook=true ; args...)
 
         if status == :Optimal
 
@@ -319,7 +321,7 @@ function solve_Chalmet(m::Model, step)
                 else
                     cstrz2 = @constraint(m, f2.aff >= 0.0)
                 end
-                ChalmetRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, step)
+                ChalmetRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, step ; args...)
 
                 #Sort X_E and Y_N
                 s = sortperm(vd.Y_N, by = e -> e[1])
@@ -373,7 +375,7 @@ function solve_Chalmet(m::Model, step)
     return status
 end
 
-function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ)
+function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ ; args...)
 
     vd = getvOptData(m)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -405,7 +407,7 @@ function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cs
         println(" and f2 >= ", lbz2 + ϵ)
     end
 
-    status = @suppress solve(m, ignore_solve_hook=true)
+    status = @suppress solve(m, ignore_solve_hook=true; args...)
 
     if status == :Optimal
 
@@ -414,8 +416,8 @@ function ChalmetRecursion(m::Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cs
 
         push!(vd.Y_N, [yt_1, yt_2])
         push!(vd.X_E, JuMP.getvalue.(varArray))
-        ChalmetRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, cstrz1, cstrz2, ϵ)
-        ChalmetRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ)
+        ChalmetRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, cstrz1, cstrz2, ϵ ; args...)
+        ChalmetRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ ; args...)
 
     end
 end
