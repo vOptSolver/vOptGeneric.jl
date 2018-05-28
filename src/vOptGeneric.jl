@@ -51,8 +51,6 @@ end
 
 function solvehook(m::Model; relax=false, method=nothing, step = 0.5, round_results = false, verbose = true, args...)::Symbol
 
-    @show args
-
     vd = getvOptData(m)
     if vd.isacopy
         vd.objs .= copy.(vd.objs, m)

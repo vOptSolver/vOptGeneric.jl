@@ -169,8 +169,6 @@ function solve_dicho(m::Model, round_results ; args...)
     m.obj=f1
     m.objSense = f1Sense
 
-    @show args
-
     #Solve with that objective
     status = solve(m, ignore_solve_hook=true ;  args...)
 
