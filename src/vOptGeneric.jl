@@ -63,7 +63,7 @@ function solvehook(m::Model; relax=false, method=nothing, step = 0.5, round_resu
     elseif method == :Chalmet || method == :chalmet
         return solve_Chalmet(m, step ; relaxation=relax, args...)
     elseif method == :lex || method == :lexico
-        return solve_lexico(m ; relaxation=relax, args...)
+        return solve_lexico(m, verbose ; relaxation=relax, args...)
     else
         warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
         return :Unsolved

@@ -1,6 +1,6 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
-function solve_lexico(m::Model ; args...)
+function solve_lexico(m::Model, verbose; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -29,6 +29,7 @@ function solve_lexico(m::Model ; args...)
     end
 
     for p in permutations(1:nbObj, nbObj)
+        verbose && println("solving for objectives $p")
         solve_permutation(m, p, cstr_obj ; args...)
     end
    
@@ -36,7 +37,6 @@ function solve_lexico(m::Model ; args...)
 end
 
 function solve_permutation(m::Model, p, cstr_obj ; args...)
-    println("solving for objectives $p")
 
     vd = getvOptData(m)
     objs = vd.objs
