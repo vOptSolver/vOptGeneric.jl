@@ -13,7 +13,7 @@ We suppose you are familiar with vOptSolver; if not, read first this [presentati
 For a local use, a working version of:
 - Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
 - your favorite MILP solver must be ready (GLPK is suggested); 
-  instructions for the installation are available [here](http://jump.readthedocs.io/en/latest/installation.html)
+  instructions for the installation are available [here](http://www.juliaopt.org/JuMP.jl/0.18/installation.html)
   
 ### Run Julia
 
