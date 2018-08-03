@@ -34,7 +34,7 @@ Before your first local or distant use,
 2. add as follow the two mandatory packages to your Julia distribution: 
 
 ```
-julia> Pkg.clone("http://github.com/vOptSolver/vOptGeneric.jl")
+julia> Pkg.add("vOptGeneric.jl")
 julia> Pkg.add("GLPK") ; Pkg.add("GLPKMathProgInterface")
 ```
 
