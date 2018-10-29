@@ -22,9 +22,9 @@ function solve_lexico(m::Model, verbose; args...)
     @constraintref cstr_obj[1:nbObj]
     for i = 1:nbObj
         if objSenses[i] == :Max
-            cstr_obj[i] = @constraint(m, objs[i].aff >= -1e18)
+            cstr_obj[i] = @constraint(m, objs[i].aff >= -1e16)
         else
-            cstr_obj[i] = @constraint(m, objs[i].aff <= 1e18)
+            cstr_obj[i] = @constraint(m, objs[i].aff <= 1e16)
         end
     end
 
@@ -66,9 +66,9 @@ function solve_permutation(m::Model, p, cstr_obj ; args...)
 
     for i = 1:length(p)
         if objSenses[i] == :Max
-            JuMP.setRHS(cstr_obj[i], -1e18)
+            JuMP.setRHS(cstr_obj[i], -1e16)
         else
-            JuMP.setRHS(cstr_obj[i], 1e18)
+            JuMP.setRHS(cstr_obj[i], 1e16)
         end
     end
 
@@ -148,9 +148,9 @@ function solve_eps(m::Model, ϵ::Float64, round_results, verbose ; args...)
         #To leave the model unaltered we change the value of the RHS
         ###
         if f2Sense == :Min
-            JuMP.setRHS(eps, Float64(typemax(Int)))
+            JuMP.setRHS(eps, 1e16)
         else
-            JuMP.setRHS(eps, Float64(typemin(Int)))
+            JuMP.setRHS(eps,-1e16)
         end
     else
         return status
@@ -356,15 +356,15 @@ function solve_Chalmet(m::Model, step ; args...)
 
 
                 if f1Sense == :Min
-                    JuMP.setRHS(cstrz1, Float64(typemax(Int)))
+                    JuMP.setRHS(cstrz1, 1e16)
                 else
-                    JuMP.setRHS(cstrz1, Float64(typemin(Int)))
+                    JuMP.setRHS(cstrz1,-1e16)
                 end
 
                 if f2Sense == :Min
-                    JuMP.setRHS(cstrz2, Float64(typemax(Int)))
+                    JuMP.setRHS(cstrz2, 1e16)
                 else
-                    JuMP.setRHS(cstrz2, Float64(typemin(Int)))
+                    JuMP.setRHS(cstrz2,-1e16)
                 end
             end
         end

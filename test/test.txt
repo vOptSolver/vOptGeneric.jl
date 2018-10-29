@@ -187,7 +187,7 @@ RHS
     RHS    CON4    0
     RHS    CON5    0
     RHS    CON6    0
-    RHS    CON7    9223372036854776e3
+    RHS    CON7    1e16
 BOUNDS
   UP BOUND x_1_1 1
   UP BOUND x_1_2 1

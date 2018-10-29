@@ -4,8 +4,7 @@ __precompile__()
 module vOptGeneric
 using Combinatorics, Suppressor
 
-importall JuMP
-import MathProgBase
+using JuMP, MathProgBase
 
 export vModel,
     getvOptData,
@@ -77,8 +76,8 @@ function printhook(io::IO, m::Model)
         println(vd.objSenses[i] == :Min ? "Min " : "Max ", vd.objs[i])
     end
     str = JuMP.model_str(JuMP.REPLMode, m)
-    index = searchindex(str, "Subject to")
-    index != 0 && print(str[index:end])
+    index = findfirst("Subject to", str)
+    index !== nothing && print(str[first(index):end])
 end
 
 
@@ -98,7 +97,7 @@ macro addobjective(m, args...)
         !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
         vd = $m.ext[:vOpt]
         push!(vd.objSenses, $(esc(sense)))
-        push!(vd.objs, QuadExpr(f))
+        push!(vd.objs, convert(QuadExpr, f))
     end
 end
 

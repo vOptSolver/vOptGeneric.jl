@@ -1,12 +1,13 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
+using Printf
 varname_generic(m::Model, col::Integer) = "VAR$(col)"
 
 function varname_given(m::Model, col::Integer)
     # TODO: deal with non-ascii characters?
     name = getname(m, col)
     for (pat, sub) in [("[", "_"), ("]", ""), (",", "_")]
-        name = replace(name, pat, sub)
+        name = replace(name, pat => sub)
     end
     name
 end
@@ -40,7 +41,6 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
     end
 
     # Objective and constraint names
-    gc_enable(false)
     write(f,"ROWS\n")
 
     for i = 1:length(md.objs)
@@ -62,7 +62,6 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
         end
         @printf(f," %c  CON%d\n",senseChar,c)
     end
-    gc_enable(true)
 
     
 
@@ -72,7 +71,6 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
     nzval = A.nzval
 
     # Output each column
-    gc_enable(false)
     inintegergroup = false
     write(f,"COLUMNS\n")
     for col in 1:m.numCols
@@ -87,45 +85,41 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
         end
         for ind in colptr[col]:(colptr[col+1]-1)
             @printf(f,"    %s  CON%d  ",varname(m,col),rowval[ind])
-            print_shortest(f,nzval[ind])
+            (Base.Grisu).print_shortest(f,nzval[ind])
             println(f)
         end
         for obj = 1:length(md.objs)
             @printf(f,"    %s  OBJ%d  ",varname(m,col), obj)
-            print_shortest(f,objlincoef[obj][col])
+            (Base.Grisu).print_shortest(f,objlincoef[obj][col])
             println(f)
         end
     end
     if inintegergroup
         @printf(f,"    MARKER    'MARKER'                 'INTEND'\n")
     end
-    gc_enable(true)
 
     # RHSs
-    gc_enable(false)
     write(f,"RHS\n")
     for c in 1:numRows
         rowsense = JuMP.sense(m.linconstr[c])
         if rowsense != :range
             @printf(f,"    RHS    CON%d    ",c)
-            print_shortest(f,JuMP.rhs(m.linconstr[c]))
+            (Base.Grisu).print_shortest(f,JuMP.rhs(m.linconstr[c]))
         else
             @printf(f,"    RHS    CON%d    ",c)
-            print_shortest(f,m.linconstr[c].lb)
+            (Base.Grisu).print_shortest(f,m.linconstr[c].lb)
         end
         println(f)
     end
-    gc_enable(true)
 
     # RANGES
     if hasrange
-        gc_enable(false)
         write(f,"RANGES\n")
         for c in 1:numRows
             rowsense = JuMP.sense(m.linconstr[c])
             if rowsense == :range
                 @printf(f,"    rhs    CON%d    ",c)
-                print_shortest(f,m.linconstr[c].ub-m.linconstr[c].lb)
+                (Base.Grisu).print_shortest(f,m.linconstr[c].ub-m.linconstr[c].lb)
                 println(f)
             end
         end
@@ -133,14 +127,13 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
 
 
     # BOUNDS
-    gc_enable(false)
     write(f,"BOUNDS\n")
     for col in 1:m.numCols
         if m.colLower[col] == 0
             if m.colUpper[col] != Inf
                 # Default lower 0, and an upper
                 @printf(f,"  UP BOUND %s ", varname(m,col))
-                print_shortest(f, m.colUpper[col])
+                (Base.Grisu).print_shortest(f, m.colUpper[col])
                 println(f)
             else
                 # Default bounds. Explicitly state for solvers like Gurobi. See issue #792
@@ -153,31 +146,30 @@ function writeMOP(m, fname::AbstractString, genericnames=false)
         elseif m.colLower[col] != -Inf && m.colUpper[col] == +Inf
             # No upper, but a lower
             @printf(f, "  PL BOUND %s\n  LO BOUND %s ",varname(m,col),varname(m,col))
-            print_shortest(f,m.colLower[col])
+            (Base.Grisu).print_shortest(f,m.colLower[col])
             println(f)
         elseif m.colLower[col] == -Inf && m.colUpper[col] != +Inf
             # No lower, but a upper
             @printf(f,"  MI BOUND %s\n  UP BOUND %s ",varname(m,col),varname(m,col))
-            print_shortest(f,m.colUpper[col])
+            (Base.Grisu).print_shortest(f,m.colUpper[col])
             println(f)
         else
             # Lower and upper
             @printf(f, "  LO BOUND %s ",varname(m,col))
-            print_shortest(f,m.colLower[col])
+            (Base.Grisu).print_shortest(f,m.colLower[col])
             println(f)
             @printf(f, "  UP BOUND %s ",varname(m,col))
-            print_shortest(f,m.colUpper[col])
+            (Base.Grisu).print_shortest(f,m.colUpper[col])
             println(f)
         end
     end
     
     write(f,"ENDATA\n")
     close(f)
-    gc_enable(true)
     nothing
 end
 
-nextline(f) = split(chomp(readline(f)), ' ', keep=false)
+nextline(f) = split(chomp(readline(f)), ' ', keepempty=false)
 function parseMOP(fname::AbstractString; solver=JuMP.UnsetSolver())
 
     m = vModel(solver = solver)
@@ -249,7 +241,7 @@ function parseMOP(fname::AbstractString; solver=JuMP.UnsetSolver())
         for (k,v) in DicoExpr
             expr, expr_type = v
             if expr_type == :N
-                push!(DicoObj, k => QuadExpr(expr))
+                push!(DicoObj, k => convert(QuadExpr, expr))
             else
                 push!(DicoCstr, k => (LinearConstraint(expr, -Inf, Inf), expr_type) )
             end
