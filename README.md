@@ -34,6 +34,7 @@ Before your first local or distant use,
 2. add as follow the mandatory packages to your Julia distribution: 
 
 ```
+julia> using Pkg
 julia> Pkg.add("vOptGeneric.jl")
 julia> Pkg.add("GLPK") ; Pkg.add("GLPKMathProgInterface")
 ```
