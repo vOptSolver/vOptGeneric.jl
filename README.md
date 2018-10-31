@@ -57,7 +57,7 @@ vOptGeneric is ready. See examples for further informations and have fun with th
 
 | Problem | Description                            | Output    | Method                       | Parameter (if required)  | Name          |
 |:--------|:---------------------------------------|:---------:| ---------------------------: | ------------| :--------|
-| 2-ILP   | bi-objective Integer Linear Program    | $Y_N$     | **:epsilon**                 | step = *realValue*       | ϵ-constraint  | 
+| 2-ILP   | bi-objective Integer Linear Program    | \$Y_N\$     | **:epsilon**                 | step = *realValue*       | ϵ-constraint  | 
 | 2-ILP   | bi-objective Integer Linear Program    | $Y_N$     | **:chalmet** or **:Chalmet** | step = *realValue*       | Chalmet       |
 | 2-ILP   | bi-objective Integer Linear Program    | $Y_{SN}$  | **:dicho** or **:dichotomy** | (none)                   | Aneja & Nair  |
 | $p$-ILP | multi-objective Integer Linear Program | $Y_{lex}$ | **:lex** or **:lexico**      | (none)                   | Lexicographic |
