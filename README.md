@@ -35,7 +35,7 @@ Before your first local or distant use,
 
 ```
 julia> using Pkg
-julia> Pkg.add("vOptGeneric.jl")
+julia> Pkg.add("vOptGeneric")
 julia> Pkg.add("GLPK") ; Pkg.add("GLPKMathProgInterface")
 ```
 
