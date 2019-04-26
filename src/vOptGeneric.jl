@@ -4,10 +4,11 @@ __precompile__()
 module vOptGeneric
 using Combinatorics, Suppressor
 
-using JuMP, MathProgBase
+using JuMP
 
 export vModel,
     getvOptData,
+    with_optimizer,
     optimize!,
     getvalue,
     printX_E,
@@ -23,7 +24,7 @@ include("MOP.jl")
 include("algorithms.jl")
 
 mutable struct vOptData
-    objs::Vector{JuMP.MOI.ScalarAffineFunction{Float64}}    #Objectives
+    objs::Vector{Any}    #Objectives
 	objSenses::Vector{JuMP.MOI.OptimizationSense}           #Objective Senses
     Y_N::Vector{Vector{Float64}}                            #Objective values for each point
     X_E::Vector{Vector{Float64}}                            #Variable values for each point
@@ -56,6 +57,10 @@ function vSolve(m::Model; relax=false, method=nothing, step = 0.5, round_results
         vd.objs .= copy.(vd.objs, m)
     end
 
+    if relax != false
+        @warn "linear relaxation not yet implemented"
+    end
+    
     if method == :epsilon
         solve_eps(m, step, round_results, verbose ; relaxation=relax, args...)
     elseif method == :dicho || method == :dichotomy
@@ -97,7 +102,9 @@ end
             !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
             vd = $m.ext[:vOpt]
             push!(vd.objSenses, $(esc(sense)))
-            push!(vd.objs, JuMP.MOI.ScalarAffineFunction(f))
+            # push!(vd.objs, JuMP.MOI.ScalarAffineFunction(f))
+            push!(vd.objs, f)
+            f
         end
     end
 
