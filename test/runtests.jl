@@ -1,9 +1,8 @@
-using vOptGeneric
+using Revise, JuMP, vOptGeneric
 using Test, LinearAlgebra
 using Cbc
 
 m = vModel(with_optimizer(Cbc.Optimizer))
-
 @variable(m, x[1:6,1:6], Bin)
 @variable(m, y, Bin)
 M = 50
@@ -29,13 +28,38 @@ p2 =   [M 3 1 M M M;
 vSolve(m, method=:epsilon)
 
 Y_N = getY_N(m)
-f1 = map(x -> x[1], Y_N)
-f2 = map(x -> x[2], Y_N)
+f1 = map(x -> x[1], Y_N) ; f2 = map(x -> x[2], Y_N)
 
-@test f1 == [8.0,10.0,11.0,13.0]
-@test f2 == [9.0,7.0,5.0,4.0]
-@test getvalue(x, 1) == [0.0 1.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0]
+@test f1 == [8.0,10.0,11.0,13.0] && f2 == [9.0,7.0,5.0,4.0]
+@test value(x, 1) == [0.0 1.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0]
 printX_E(m)
+
+######################
+
+m_copy = copy(m)        
+vSolve(m_copy, with_optimizer(Cbc.Optimizer), method=:epsilon)
+Y_N = getY_N(m)
+f1 = map(x -> x[1], Y_N) ; f2 = map(x -> x[2], Y_N)
+@test f1 == [8.0,10.0,11.0,13.0] && f2 == [9.0,7.0,5.0,4.0]
+@test value(x, 1) == [0.0 1.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0]
+printX_E(m_copy)
+
+
+######################
+
+m = vModel(with_optimizer(Cbc.Optimizer))
+cities = ["Paris", "New-York", "Madrid"]
+@variable(m, x[cities], Bin)
+@constraint(m, constr, x["Paris"] >= 1)
+@addobjective(m, Min, sum(x))
+@addobjective(m, Max, sum(x))
+vSolve(m, method=:epsilon)
+@show value.(x, 1)
+@test value.(x, 1)["Paris"] == 1.0
+@test value.(x, 1)["New-York"] == 0.0
+@test value.(x, 1)["Madrid"] == 0.0
+
+######################
 
 # writeMOP(m, "test.txt")
 # m = parseMOP("test.txt", solver = GLPKSolverMIP())

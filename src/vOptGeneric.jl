@@ -4,71 +4,63 @@ __precompile__()
 module vOptGeneric
 using Combinatorics, Suppressor
 
-using JuMP
+import JuMP
 
 export vModel,
     getvOptData,
-    with_optimizer,
-    optimize!,
-    getvalue,
     printX_E,
     getY_N,
     vSolve,
-    @variable,
-    @constraint,
     @addobjective
     # writeMOP,
     # parseMOP,
     
-include("MOP.jl")
+# include("MOP.jl")
 include("algorithms.jl")
 
 mutable struct vOptData
-    objs::Vector{Any}    #Objectives
+    objs::Vector{JuMP.GenericAffExpr}    #Objectives
 	objSenses::Vector{JuMP.MOI.OptimizationSense}           #Objective Senses
     Y_N::Vector{Vector{Float64}}                            #Objective values for each point
     X_E::Vector{Vector{Float64}}                            #Variable values for each point
-    isacopy::Bool
 end
 
-Base.copy(vd::vOptData) = vOptData(deepcopy(vd.objs), deepcopy(vd.objSenses), [], [], true)
+vOptData() = vOptData([], [], [], [])
 
-function getvOptData(m::Model)
+function JuMP.copy_extension_data(data::vOptData, new_model::JuMP.AbstractModel, model::JuMP.AbstractModel)
+    new_objs = [JuMP.copy(obj, new_model) for obj in data.objs]
+    return vOptData(new_objs, copy(data.objSenses), [], [])
+end
+
+function getvOptData(m::JuMP.Model)
     !haskey(m.ext, :vOpt) && error("This model wasn't created with vOptGeneric")
     return m.ext[:vOpt]::vOptData
 end
 
-function vModel(optimizer_factory::OptimizerFactory; args...)
-    m = Model(optimizer_factory ; args...)
+function vModel(optimizer_factory::JuMP.OptimizerFactory; args...)
+    m = JuMP.Model(optimizer_factory ; args...)
     m.optimize_hook = vSolve
     # m.printhook = printhook
-    m.ext[:vOpt] = vOptData(Vector{QuadExpr}(), #objs
-                              Vector{Symbol}(), #objSenses
-                              Vector{Vector{Float64}}(), #Y_N
-                              Vector{Vector{Float64}}(), #X_E
-                              false) #isacopy
+    m.ext[:vOpt] = vOptData()
     return m
 end
 
-function vSolve(m::Model; relax=false, method=nothing, step = 0.5, round_results = false, verbose = true, args...)
+function vSolve(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing; relax=false, method=nothing, step = 0.5, round_results = false, verbose = true, args...)
 
     vd = getvOptData(m)
-    if vd.isacopy
-        vd.objs .= copy.(vd.objs, m)
-    end
 
     if relax != false
         @warn "linear relaxation not yet implemented"
     end
     
     if method == :epsilon
-        solve_eps(m, step, round_results, verbose ; relaxation=relax, args...)
+        solve_eps(m, optimizer_factory, step, round_results, verbose ; relaxation=relax, args...)
     elseif method == :dicho || method == :dichotomy
-        solve_dicho(m, round_results ; relaxation=relax, args...)
+        solve_dicho(m, optimizer_factory, round_results ; relaxation=relax, args...)
     elseif method == :Chalmet || method == :chalmet
-        solve_Chalmet(m, step ; relaxation=relax, args...)
+        solve_Chalmet(m, optimizer_factory, step ; relaxation=relax, args...)
     elseif method == :lex || method == :lexico
-        solve_lexico(m, verbose ; relaxation=relax, args...)
+        solve_lexico(m, optimizer_factory, verbose ; relaxation=relax, args...)
     else
         @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
     end
@@ -88,25 +80,25 @@ end
 # end
 
 
-    macro addobjective(m, args...)
-        if length(args) != 2
-            error("in @addobjective: needs three arguments: model, 
-                    objective sense (Max or Min) and linear expression.")
-        end
-        m = esc(m)
-        args[1] != :Min && args[1] != :Max && error("in @addobjective: expected Max or Min for objective sense, got $(args[1])")
-        sense = args[1] == :Min ? JuMP.MOI.MIN_SENSE : JuMP.MOI.MAX_SENSE
-        expr = esc(args[2])
-        return quote
-            f = @expression($m, $expr)
-            !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
-            vd = $m.ext[:vOpt]
-            push!(vd.objSenses, $(esc(sense)))
-            # push!(vd.objs, JuMP.MOI.ScalarAffineFunction(f))
-            push!(vd.objs, f)
-            f
-        end
+macro addobjective(m, args...)
+    if length(args) != 2
+        error("in @addobjective: needs three arguments: model, 
+                objective sense (Max or Min) and linear expression.")
     end
+    m = esc(m)
+    args[1] != :Min && args[1] != :Max && error("in @addobjective: expected Max or Min for objective sense, got $(args[1])")
+    sense = args[1] == :Min ? JuMP.MOI.MIN_SENSE : JuMP.MOI.MAX_SENSE
+    expr = esc(args[2])
+    return quote
+        f = JuMP.@expression($m, $expr)
+        !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
+        vd = $m.ext[:vOpt]
+        push!(vd.objSenses, $(esc(sense)))
+        # push!(vd.objs, JuMP.MOI.ScalarAffineFunction(f))
+        push!(vd.objs, f)
+        f
+    end
+end
 
 # Returns coefficients for the affine part of an objective
 # function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
@@ -122,17 +114,17 @@ end
 #     return f
 # end
 
-@deprecate print_X_E printX_E
-function printX_E(m::Model)
+function printX_E(m::JuMP.Model)
     vd = getvOptData(m)
     for i = 1:length(vd.Y_N)
         print(vd.Y_N[i]," : ")
-        for j = 1:m.numCols
-            if vd.X_E[i][j] != 0
-                if m.colCat[j] == :Int || m.colCat[j] == :Bin
-                    print(getname(m,j),"=",round(Int,vd.X_E[i][j])," ")
+        for var = JuMP.all_variables(m)
+            val = JuMP.value(var, i)
+            if val != 0
+                if JuMP.is_binary(var) || JuMP.is_integer(var)
+                    print(JuMP.name(var), "=", round(Int, val), " ")
                 else
-                    print(getname(m,j),"=",vd.X_E[i][j]," ")
+                    print(JuMP.name(var)," =", val," ")
                 end
             end
         end 
@@ -140,28 +132,25 @@ function printX_E(m::Model)
    end
 end
 
-function getvalue(v::VariableRef, i::Int)
-    vd = getvOptData(v.m)
-    return vd.X_E[i][v.col]
+function JuMP.value(v::JuMP.VariableRef, i::Int)
+    vd = getvOptData(v.model)
+    return vd.X_E[i][v.index.value]
 end
 
-function getvalue(arr::Array{VariableRef}, i::Int)
-
+function JuMP.value(arr::Array{JuMP.VariableRef}, i::Int)
     ret = similar(arr,Float64)
-    isempty(ret) && return ret
-
-    for I in eachindex(arr)
-        v = arr[I]
-        value = getvalue(v, i)
-        ret[I] = value
+    for j in eachindex(arr)
+        ret[j] = JuMP.value(arr[j], i)
     end
-
     return ret
 end
 
-getvalue(x::JuMP.Containers.DenseAxisArray, i::Int) = JuMP._map(v -> getvalue(v, i), x)
+function value(::AbstractArray{<:JuMP.AbstractJuMPScalar}, i::Int)
+    error("`JuMP.value` is not defined for collections of JuMP types. Use" *
+          " Julia's broadcast syntax instead: `JuMP.value.(x, i)`.")
+end
 
-function getY_N(m::Model)
+function getY_N(m::JuMP.Model)
     return getvOptData(m).Y_N
 end
 
