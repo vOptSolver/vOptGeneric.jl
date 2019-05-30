@@ -11,53 +11,49 @@ function solve_lexico(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Opti
     #Check that problem is feasible and that no objective is unbounded
     for i = 1:nbObj
         JuMP.set_objective(m, objSenses[i], objs[i])
-        @suppress JuMP.optimize!(m, ignore_optimize_hook=true )
-        # status != :Optimal && return status TODO
-    end
-
-    #Create the constraints on the objectives
-    #JuMP doesn't support changing constraint coefficients so we use >= and <= constraints,
-    #and typemin/typemax to deactivate the constraints
-    cstr_obj = JuMP.ScalarConstraint[]
-    for i = 1:nbObj
-        if objSenses[i] == JuMP.MOI.MAX_SENSE
-            cstr = JuMP.@build_constraint(objs[i].aff >= -1e16)
-            push!(cstr_obj, cstr)
-            JuMP.add_constraint(m, cstr)
-        else
-            cstr = JuMP.@build_constraint(objs[i].aff <= -1e16)
-            push!(cstr_obj, cstr)
-            JuMP.add_constraint(m, cstr)
+        JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+        status = JuMP.termination_status(m)
+        if status != JuMP.MOI.OPTIMAL
+            return status
         end
     end
 
+    #Create the constraints on the objectives
+    cstr_rhs = [JuMP.@variable(m) for _ = 1:nbObj]
+    cstr_obj = [objSenses[i] == JuMP.MOI.MAX_SENSE ? JuMP.@constraint(m, objs[i] >= cstr_rhs[i]) : JuMP.@constraint(m, objs[i] <= cstr_rhs[i]) for i=1:nbObj]
+
     for p in permutations(1:nbObj, nbObj)
         verbose && println("solving for objectives $p")
-        solve_permutation(m, p, cstr_obj ; args...)
+        solve_permutation(m, optimizer_factory, p, cstr_obj, cstr_rhs ; args...)
     end
    
     return :Optimal
 end
 
-function solve_permutation(m::JuMP.Model, p, cstr_obj ; args...)
+function solve_permutation(m::JuMP.Model, optimizer_factory, p, cstr_obj, cstr_rhs ; args...)
 
     vd = getvOptData(m)
     objs = vd.objs
     objSenses = vd.objSenses
 
     #Set the first objective of the permutation as an objective in the JuMP JuMP.Model
-    JuMP.set_objective(m, objSenses[p[1]], objs[p[1]])
+    JuMP.set_objective(m, objSenses[first(p)], objs[first(p)])
 
     #Solve with that objective
-    status = @suppress JuMP.optimize!(m, ignore_optimize_hook=true)
-    status != :Optimal && return status
+    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    
+    status = JuMP.termination_status(m)
+    if status != JuMP.MOI.OPTIMAL
+        return status
+    end
 
     for i = 2:length(p)
-        fVal = m.objVal #get the value for the last objective solved
-        slack = objSenses[p[i-1]] == JuMP.MOI.MAX_SENSE ? -1e-6 : 1e-6
-        JuMP.setRHS(cstr_obj[p[i-1]], fVal - objs[p[i-1]].aff.constant + slack) #set the constraint for the last objective solved
+        fVal = JuMP.value(objs[p[i-1]]) #get the value for the last objective solved
+        slack = objSenses[p[i-1]] == JuMP.MOI.MAX_SENSE ? -1e-8 : 1e-8
+        # JuMP.fix(cstr_rhs[p[i-1]], fVal - objs[p[i-1]].constant + slack)
+        JuMP.fix(cstr_rhs[p[i-1]], fVal + slack)
         JuMP.set_objective(m, objSenses[p[i]], objs[p[i]]) #set the i-th objective of the permutation in the JuMP JuMP.Model
-        @suppress JuMP.optimize!(m, ignore_optimize_hook=true ) #and solve
+        JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true ) #and solve
     end    
 
     varArray = JuMP.all_variables(m)
@@ -65,15 +61,11 @@ function solve_permutation(m::JuMP.Model, p, cstr_obj ; args...)
     push!(vd.Y_N, map(JuMP.value, objs))
     push!(vd.X_E, JuMP.value.(varArray))
 
-    for i = 1:length(p)
-        if objSenses[i] == JuMP.MOI.MAX_SENSE
-            JuMP.setRHS(cstr_obj[i], -1e16)
-        else
-            JuMP.setRHS(cstr_obj[i], 1e16)
-        end
+    for var in cstr_rhs
+        JuMP.is_fixed(var) && JuMP.unfix.(var) #errors if calling unfix on an unfixed variable
     end
 
-    nothing
+    return
 end
 
 function solve_eps(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, ϵ::Float64, round_results, verbose ; args...)
@@ -82,70 +74,59 @@ function solve_eps(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Optimiz
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
     f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
+    varArray = JuMP.all_variables(m)
     
     #Set the first objective as an objective in the JuMP Model
     JuMP.set_objective(m, f1Sense, f1)
     
+    R1 = f1Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
+    R2 = f2Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
+    weak_dom(a, b) = R1(a[1], b[1]) && R2(a[2], b[2])
+
+    #Declare the epsilon-constraint (RHS will be set later)
+    RHS = JuMP.@variable(m)
+    eps = (f2Sense == JuMP.MOI.MIN_SENSE) ? JuMP.@constraint(m, f2 <= RHS) : JuMP.@constraint(m, f2 >= RHS)
+
     #Solve with that objective
     JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
     status = JuMP.termination_status(m)
     @show status
-    #If a solution exists
     if status == JuMP.MOI.OPTIMAL
-
-        varArray = JuMP.all_variables(m)
-
-        #Get the score on the objectives
-        f1Val = JuMP.value(f1)
-        f2Val = JuMP.value(f2)
-
-        #Store results in vOptData
-        push!(vd.X_E, JuMP.value.(varArray))
-        push!(vd.Y_N, [f1Val, f2Val])
-
-        R1 = f1Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
-        R2 = f2Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
-        weak_dom(a, b) = R1(a[1], b[1]) && R2(a[2], b[2])
-
-        #Declare the epsilon-constraint (RHS will be set later)
-        RHS = JuMP.@variable(m)
-        eps = f2Sense == JuMP.MOI.MIN_SENSE ? JuMP.@constraint(m, f2 <= RHS) : JuMP.@constraint(m, f2 >= RHS)
-        first_optimize = true
-
         #While a solution exists
         while status == JuMP.MOI.OPTIMAL
-
-            if !first_optimize
-                Y_m1 = vd.Y_N[end]
-                #If last solution found is dominated by this one
-                if weak_dom((f1Val, f2Val), Y_m1)
-                    #Remove last solution from Y_N and X_E
-                    pop!(vd.Y_N) ; pop!(vd.X_E)
+            #Get the score on the objectives
+            f1Val = JuMP.value(f1)
+            f2Val = JuMP.value(f2)
+    
+            #If last solution found is dominated by this one
+            if length(vd.Y_N) > 0
+                if weak_dom((f1Val, f2Val), vd.Y_N[end])
+                    verbose && println(vd.Y_N[end], "dominated by ($f1Val, $f2Val)")
+                    pop!(vd.Y_N) ; pop!(vd.X_E) #Remove last solution from Y_N and X_E
                 end
-                #Store results in vOptData
-                push!(vd.X_E, JuMP.value.(varArray))
-                push!(vd.Y_N, [f1Val, f2Val])
             end
+
+            #Store results in vOptData
+            push!(vd.X_E, JuMP.value.(varArray))
+            push!(vd.Y_N, [f1Val, f2Val])
 
             verbose && print("z1 = ", f1Val, ", z2 = ", f2Val)
 
             #Set the RHS of the epsilon-constraint
             if f2Sense == JuMP.MOI.MIN_SENSE
-                JuMP.fix(RHS, f2Val - f2.constant - ϵ)
+                JuMP.fix(RHS, f2Val - ϵ)
                 verbose && println(". Solving with f2 <= ", f2Val - ϵ)
             else
-                JuMP.fix(RHS, f2Val - f2.constant + ϵ)
+                JuMP.fix(RHS, f2Val + ϵ)
                 verbose && println(". Solving with f2 >= ", f2Val + ϵ)
             end
 
             #And solve again
-            first_optimize = false
             JuMP.optimize!(m, ignore_optimize_hook=true)
             status = JuMP.termination_status(m)
             #Get the score on the objectives
             f1Val = JuMP.value(f1)
             f2Val = JuMP.value(f2)
-
         end
 
         #Sort X_E and Y_N

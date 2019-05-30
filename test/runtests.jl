@@ -19,8 +19,8 @@ p2 =   [M 3 1 M M M;
         M M M M M 2;
         M M M M M M]
 
-@addobjective(m, Min , sum(x[i,j]*p1[i,j] for i=1:6, j=1:6))
-@addobjective(m, Min , sum(x[i,j]*p2[i,j] for i=1:6, j=1:6))
+@addobjective(m, Min, sum(x[i,j]*p1[i,j] for i=1:6, j=1:6) + 5)
+@addobjective(m, Min, sum(x[i,j]*p2[i,j] for i=1:6, j=1:6) - 5)
 @constraint(m, sum(x[1,j] for j = 1:6) == 1)
 @constraint(m, sum(x[i,6] for i = 1:6) == 1)
 @constraint(m, cstr[i=2:5], sum(x[i,j] for j = 1:6) - sum(x[j,i] for j =1:6) == 0)
@@ -29,8 +29,7 @@ vSolve(m, method=:epsilon)
 
 Y_N = getY_N(m)
 f1 = map(x -> x[1], Y_N) ; f2 = map(x -> x[2], Y_N)
-
-@test f1 == [8.0,10.0,11.0,13.0] && f2 == [9.0,7.0,5.0,4.0]
+@test f1 == [13, 15, 16, 18] && f2 == [4, 2, 0, -1]
 @test value(x, 1) == [0.0 1.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 1.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 1.0; 0.0 0.0 0.0 0.0 0.0 0.0; 0.0 0.0 0.0 0.0 0.0 0.0]
 printX_E(m)
 
