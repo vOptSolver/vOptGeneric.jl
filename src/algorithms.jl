@@ -11,7 +11,7 @@ function solve_lexico(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Opti
     #Check that problem is feasible and that no objective is unbounded
     for i = 1:nbObj
         JuMP.set_objective(m, objSenses[i], objs[i])
-        JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+        JuMP.optimize!(m, i == 1 ? optimizer_factory : nothing, ignore_optimize_hook=true)
         status = JuMP.termination_status(m)
         if status != JuMP.MOI.OPTIMAL
             return status
@@ -22,15 +22,18 @@ function solve_lexico(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Opti
     cstr_rhs = [JuMP.@variable(m) for _ = 1:nbObj]
     cstr_obj = [objSenses[i] == JuMP.MOI.MAX_SENSE ? JuMP.@constraint(m, objs[i] >= cstr_rhs[i]) : JuMP.@constraint(m, objs[i] <= cstr_rhs[i]) for i=1:nbObj]
 
-    for p in permutations(1:nbObj, nbObj)
+    for p in Combinatorics.permutations(1:nbObj, nbObj)
         verbose && println("solving for objectives $p")
-        solve_permutation(m, optimizer_factory, p, cstr_obj, cstr_rhs ; args...)
+        solve_permutation(m, p, cstr_obj, cstr_rhs ; args...)
     end
+
+    JuMP.delete.(m, cstr_obj)
+    JuMP.delete.(m, cstr_rhs)
    
-    return :Optimal
+    return JuMP.MOI.OPTIMAL
 end
 
-function solve_permutation(m::JuMP.Model, optimizer_factory, p, cstr_obj, cstr_rhs ; args...)
+function solve_permutation(m::JuMP.Model, p, cstr_obj, cstr_rhs ; args...)
 
     vd = getvOptData(m)
     objs = vd.objs
@@ -40,7 +43,7 @@ function solve_permutation(m::JuMP.Model, optimizer_factory, p, cstr_obj, cstr_r
     JuMP.set_objective(m, objSenses[first(p)], objs[first(p)])
 
     #Solve with that objective
-    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    JuMP.optimize!(m, ignore_optimize_hook=true)
     
     status = JuMP.termination_status(m)
     if status != JuMP.MOI.OPTIMAL
@@ -53,7 +56,7 @@ function solve_permutation(m::JuMP.Model, optimizer_factory, p, cstr_obj, cstr_r
         # JuMP.fix(cstr_rhs[p[i-1]], fVal - objs[p[i-1]].constant + slack)
         JuMP.fix(cstr_rhs[p[i-1]], fVal + slack)
         JuMP.set_objective(m, objSenses[p[i]], objs[p[i]]) #set the i-th objective of the permutation in the JuMP JuMP.Model
-        JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true ) #and solve
+        JuMP.optimize!(m, ignore_optimize_hook=true) #and solve
     end    
 
     varArray = JuMP.all_variables(m)
@@ -65,15 +68,14 @@ function solve_permutation(m::JuMP.Model, optimizer_factory, p, cstr_obj, cstr_r
         JuMP.is_fixed(var) && JuMP.unfix.(var) #errors if calling unfix on an unfixed variable
     end
 
-    return
 end
 
 function solve_eps(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, ϵ::Float64, round_results, verbose ; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
-    f1,f2 = vd.objs[1],vd.objs[2]
-    f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
+    f1,f2 = vd.objs
+    f1Sense,f2Sense = vd.objSenses
     varArray = JuMP.all_variables(m)
     
     #Set the first objective as an objective in the JuMP Model
@@ -90,7 +92,7 @@ function solve_eps(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Optimiz
     #Solve with that objective
     JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
     status = JuMP.termination_status(m)
-    @show status
+
     if status == JuMP.MOI.OPTIMAL
         #While a solution exists
         while status == JuMP.MOI.OPTIMAL
@@ -138,48 +140,51 @@ function solve_eps(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Optimiz
     else
         return status
     end
-    return :Optimal
+    return JuMP.MOI.OPTIMAL
 end
 
-function solve_dicho(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, round_results ; args...)
+function solve_dicho(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, round_results, verbose; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
-    f1,f2 = vd.objs[1],vd.objs[2]
-    f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
+    f1, f2 = vd.objs
+    f1Sense, f2Sense = vd.objSenses
     varArray = JuMP.all_variables(m)
 
     #Set the first objective as an objective in the JuMP JuMP.Model
     JuMP.set_objective(m, f1Sense, f1)
+    verbose && println("solving for z1")
     
     #Solve with that objective
-    status = JuMP.optimize!(m, ignore_optimize_hook=true ;  args...)
+    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    status = JuMP.termination_status(m)
 
     #If a solution exists
-    if status == :Optimal
+    if status == JuMP.MOI.OPTIMAL
 
-        yr_1 = m.objVal
+        yr_1 = JuMP.value(f1)
         yr_2 = JuMP.value(f2)
 
         #Store results in vOptData
         push!(vd.Y_N, round_results ? round.([yr_1, yr_2]) : [yr_1, yr_2])
         push!(vd.X_E, JuMP.value.(varArray))
 
-
         #Set the second objective as an objective in the JuMP JuMP.Model
-        JuMP.set_objective(m, f2sense, f2)
+        JuMP.set_objective(m, f2Sense, f2)
+        verbose && println("solving for z2")
 
         #Solve with that objective
-        status = JuMP.optimize!(m, ignore_optimize_hook=true )
+        JuMP.optimize!(m, ignore_optimize_hook=true)
+        status = JuMP.termination_status(m)
 
-        if status == :Optimal
+        if status == JuMP.MOI.OPTIMAL
 
             ys_1 = JuMP.value(f1)
-            ys_2 = m.objVal
+            ys_2 = JuMP.value(f2)
 
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
                 push!(vd.Y_N, round_results ? round.([ys_1, ys_2]) : [ys_1, ys_2])
                 push!(vd.X_E, JuMP.value.(varArray))
-                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results ; args...)
+                dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results, verbose ; args...)
             end
         
             #Sort X_E and Y_N
@@ -208,47 +213,42 @@ function solve_dicho(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Optim
     status
 end
 
-function dichoRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, round_results ; args...)
+function dichoRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, round_results, verbose ; args...)
 
     vd = getvOptData(m)
-    f1,f2 = vd.objs[1],vd.objs[2]
-    f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
+    f1, f2 = vd.objs
+    f1Sense, f2Sense = vd.objSenses
 
     λ1 = abs(yr_2 - ys_2)
     λ2 = abs(ys_1 - yr_1)
 
-    m.objSense = f1Sense
-
     if f1Sense==f2Sense
         lb = λ1*yr_1 + λ2*yr_2
-        JuMP.set_objective_function(λ1*f1 + λ2*f2)
+        JuMP.set_objective(m, f1Sense, λ1*f1 + λ2*f2)
+        verbose && println("solving for $λ1*f1 + $λ2*f2")        
     else
         lb = λ1*yr_1 - λ2*yr_2
-        JuMP.set_objective_function(λ1*f1 - λ2*f2)
+        JuMP.set_objective(m, f1Sense, λ1*f1 - λ2*f2)
+        verbose && println("solving for $λ1*f1 - $λ2*f2") 
     end
 
-    JuMP.optimize!(m, ignore_optimize_hook=true )
+    JuMP.optimize!(m, ignore_optimize_hook=true)
 
     yt_1 = JuMP.value(f1)
     yt_2 = JuMP.value(f2)
 
-
-    if f1Sense==f2Sense
-        val = λ1*yt_1 + λ2*yt_2
-    else
-        val = λ1*yt_1 - λ2*yt_2
-    end
+    val = f1Sense == f2Sense ? λ1*yt_1 + λ2*yt_2 : λ1*yt_1 - λ2*yt_2
 
     if (f1Sense == JuMP.MOI.MIN_SENSE && val < lb - 1e-4) || val > lb + 1e-4
         push!(vd.Y_N, round_results ? round.([yt_1, yt_2]) : [yt_1, yt_2])
         push!(vd.X_E, JuMP.value.(varArray))
-        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results ; args...)
-        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results ; args...)
+        dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results, verbose ; args...)
+        dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results, verbose ; args...)
     end
 
 end
 
-function solve_Chalmet(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, step ; args...)
+function solve_Chalmet(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}, step, verbose ; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -257,144 +257,113 @@ function solve_Chalmet(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.Opt
 
     #Set the first objective as an objective in the JuMP JuMP.Model
     JuMP.set_objective(m, f1Sense, f1)
+    verbose && println("solving for z1")
 
     #Solve with that objective
-    status = JuMP.optimize!(m, ignore_optimize_hook=true )
+    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    status = JuMP.termination_status(m)
 
     #If a solution exists
-    if status == :Optimal
+    if status == JuMP.MOI.OPTIMAL
 
-        yr_1 = m.objVal
+        yr_1 = JuMP.value(f1)
         yr_2 = JuMP.value(f2)
 
         #Store results in vOptData
         push!(vd.Y_N, [yr_1, yr_2])
         push!(vd.X_E, JuMP.value.(varArray))
 
-
         #Set the second objective as an objective in the JuMP JuMP.Model
         JuMP.set_objective(m, f2Sense, f2)
+        verbose && println("solving for z2")
 
 
         #Solve with that objective
-        status = JuMP.optimize!(m, ignore_optimize_hook=true )
+        JuMP.optimize!(m, ignore_optimize_hook=true)
+        status = JuMP.termination_status(m)
 
-        if status == :Optimal
+        if status == JuMP.MOI.OPTIMAL
 
             ys_1 = JuMP.value(f1)
-            ys_2 = m.objVal
+            ys_2 = JuMP.value(f2)
 
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
                 push!(vd.Y_N, [ys_1, ys_2])
                 push!(vd.X_E, JuMP.value.(varArray))
                 #Declare the constraints on z1 and z2 (RHS will be set later)
-                if f1Sense == JuMP.MOI.MIN_SENSE
-                    cstrz1 = JuMP.@constraint(m, f1.aff <= 0.0)
-                else
-                    cstrz1 = JuMP.@constraint(m, f1.aff >= 0.0)
-                end
-                if f2Sense == JuMP.MOI.MIN_SENSE
-                    cstrz2 = JuMP.@constraint(m, f2.aff <= 0.0)
-                else
-                    cstrz2 = JuMP.@constraint(m, f2.aff >= 0.0)
-                end
-                ChalmetRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, step ; args...)
+                rhs_z1 = JuMP.@variable(m)
+                rhs_z2 = JuMP.@variable(m)
+                cstr_z1 = f1Sense == JuMP.MOI.MIN_SENSE ? JuMP.@constraint(m, f1 <= rhs_z1) : JuMP.@constraint(m, f1 >= rhs_z1)
+                cstr_z2 = f2Sense == JuMP.MOI.MIN_SENSE ? JuMP.@constraint(m, f2 <= rhs_z2) : JuMP.@constraint(m, f2 >= rhs_z2)
+
+                ChalmetRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, rhs_z1, rhs_z2, step, verbose; args...)
 
                 #Sort X_E and Y_N
-                s = sortperm(vd.Y_N, by = e -> e[1])
+                s = sortperm(vd.Y_N, by = first)
                 vd.Y_N = vd.Y_N[s]
                 vd.X_E = vd.X_E[s]
 
-                #We can use weak dominance definition here
-                dom_min_min(a,b) = a[1] <= b[1] && a[2] <= b[2]
-                dom_max_max(a,b) = a[1] >= b[1] && a[2] >= b[2]
-                dom_min_max(a,b) = a[1] <= b[1] && a[2] >= b[2]
-                dom_max_min(a,b) = a[1] >= b[1] && a[2] <= b[2]
-
-                if f1Sense==f2Sense==JuMP.MOI.MIN_SENSE
-                    dominates = dom_min_min
-                elseif f1Sense==f2Sense==JuMP.MOI.MAX_SENSE
-                    dominates = dom_max_max
-                elseif f1Sense==JuMP.MOI.MIN_SENSE
-                    dominates = dom_min_max
-                else
-                    dominates = dom_max_min
-                end
+                R1 = f1Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
+                R2 = f2Sense==JuMP.MOI.MIN_SENSE ? (<=) : (>=)
+                weak_dom(a, b) = R1(a[1], b[1]) && R2(a[2], b[2])
 
                 #Filter X_E and Y_N :
                 inds = Int[]
                 for i = 1:length(vd.Y_N)-1
-                    if dominates(vd.Y_N[i], vd.Y_N[i+1])
+                    if weak_dom(vd.Y_N[i], vd.Y_N[i+1])
                         push!(inds, i+1)
-                    elseif dominates(vd.Y_N[i+1], vd.Y_N[i])
+                    elseif weak_dom(vd.Y_N[i+1], vd.Y_N[i])
                         push!(inds, i)
                     end
                 end
                 deleteat!(vd.Y_N, inds)
                 deleteat!(vd.X_E, inds)
 
-
-                if f1Sense == JuMP.MOI.MIN_SENSE
-                    JuMP.setRHS(cstrz1, 1e16)
-                else
-                    JuMP.setRHS(cstrz1,-1e16)
-                end
-
-                if f2Sense == JuMP.MOI.MIN_SENSE
-                    JuMP.setRHS(cstrz2, 1e16)
-                else
-                    JuMP.setRHS(cstrz2,-1e16)
-                end
+                JuMP.delete(m, cstr_z1)
+                JuMP.delete(m, cstr_z2)
+                JuMP.delete(m, rhs_z1)
+                JuMP.delete(m, rhs_z2)
             end
         end
     end
 
-    return status
+    return JuMP.MOI.OPTIMAL
 end
 
-function ChalmetRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ ; args...)
+function ChalmetRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, rhs_z1, rhs_z2, ϵ, verbose ; args...)
 
     vd = getvOptData(m)
-    f1,f2 = vd.objs[1],vd.objs[2]
-    f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
-
-    m.objSense = f1Sense
-    if f1Sense==f2Sense
-        JuMP.set_objective_function(f1 + f2)
-    else
-        JuMP.set_objective_function(f1 - f2)
-    end
-
+    f1, f2 = vd.objs
+    f1Sense, f2Sense = vd.objSenses
+    JuMP.set_objective(m, f1Sense, f1Sense==f2Sense ? f1 + f2 : f1 - f2)
     lbz1 = f1Sense==JuMP.MOI.MAX_SENSE ? min(yr_1, ys_1) : max(yr_1, ys_1)
     lbz2 = f2Sense==JuMP.MOI.MAX_SENSE ? min(yr_2, ys_2) : max(yr_2, ys_2)
 
     if f1Sense == JuMP.MOI.MIN_SENSE
-        JuMP.setRHS(cstrz1, lbz1 - f1.aff.constant - ϵ)
-        print(". Solving with f1 <= ", lbz1 - ϵ)
+        JuMP.fix(rhs_z1, lbz1 - ϵ)
+        verbose && print("solving with z1 <= ", lbz1 - ϵ)
     else
-        JuMP.setRHS(cstrz1, lbz1 - f1.aff.constant + ϵ)
-        print(". Solving with f1 >= ", lbz1 + ϵ)
+        JuMP.fix(rhs_z1, lbz1 + ϵ)
+        verbose && print("solving with z1 >= ", lbz1 + ϵ)
     end
 
     if f2Sense == JuMP.MOI.MIN_SENSE
-        JuMP.setRHS(cstrz2, lbz2 - f2.aff.constant - ϵ)
-        println(" and f2 <= ", lbz2 - ϵ)
+        JuMP.fix(rhs_z2, lbz2 - ϵ)
+        verbose && println(" and z2 <= ", lbz2 - ϵ)
     else
-        JuMP.setRHS(cstrz2, lbz2 - f2.aff.constant + ϵ)
-        println(" and f2 >= ", lbz2 + ϵ)
+        JuMP.fix(rhs_z2, lbz2 + ϵ)
+        verbose && println(" and z2 >= ", lbz2 + ϵ)
     end
 
-    status = @suppress JuMP.optimize!(m, ignore_optimize_hook=true)
+    JuMP.optimize!(m, ignore_optimize_hook=true)
+    status = JuMP.termination_status(m)
 
-    if status == :Optimal
-
+    if status == JuMP.MOI.OPTIMAL
         yt_1 = JuMP.value(f1)
         yt_2 = JuMP.value(f2)
-
         push!(vd.Y_N, [yt_1, yt_2])
         push!(vd.X_E, JuMP.value.(varArray))
-        ChalmetRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, cstrz1, cstrz2, ϵ ; args...)
-        ChalmetRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, cstrz1, cstrz2, ϵ ; args...)
-
+        ChalmetRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, rhs_z1, rhs_z2, ϵ, verbose; args...)
+        ChalmetRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, rhs_z1, rhs_z2, ϵ, verbose ; args...)
     end
 end

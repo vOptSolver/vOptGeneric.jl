@@ -2,9 +2,7 @@
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
 __precompile__()
 module vOptGeneric
-using Combinatorics, Suppressor
-
-import JuMP
+import JuMP, Combinatorics
 
 export vModel,
     getvOptData,
@@ -45,7 +43,7 @@ function vModel(optimizer_factory::JuMP.OptimizerFactory; args...)
     return m
 end
 
-function vSolve(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing; relax=false, method=nothing, step = 0.5, round_results = false, verbose = true, args...)
+function vSolve(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
 
     vd = getvOptData(m)
 
@@ -56,16 +54,14 @@ function vSolve(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerF
     if method == :epsilon
         solve_eps(m, optimizer_factory, step, round_results, verbose ; relaxation=relax, args...)
     elseif method == :dicho || method == :dichotomy
-        solve_dicho(m, optimizer_factory, round_results ; relaxation=relax, args...)
+        solve_dicho(m, optimizer_factory, round_results, verbose ; relaxation=relax, args...)
     elseif method == :Chalmet || method == :chalmet
-        solve_Chalmet(m, optimizer_factory, step ; relaxation=relax, args...)
+        solve_Chalmet(m, optimizer_factory, step, verbose ; relaxation=relax, args...)
     elseif method == :lex || method == :lexico
         solve_lexico(m, optimizer_factory, verbose ; relaxation=relax, args...)
     else
         @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
     end
-
-    return
 
 end
 
@@ -90,35 +86,20 @@ macro addobjective(m, args...)
     sense = args[1] == :Min ? JuMP.MOI.MIN_SENSE : JuMP.MOI.MAX_SENSE
     expr = esc(args[2])
     return quote
-        f = JuMP.@expression($m, $expr)
+        f = JuMP.@expression($m, $expr * 1.) # dirty fix, find a way to convert VariableRef to AffExpr
         !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
         vd = $m.ext[:vOpt]
         push!(vd.objSenses, $(esc(sense)))
-        # push!(vd.objs, JuMP.MOI.ScalarAffineFunction(f))
         push!(vd.objs, f)
         f
     end
 end
 
-# Returns coefficients for the affine part of an objective
-# function prepAffObjective(m, objaff::JuMP.GenericQuadExpr)
-#     # Check that no coefficients are NaN/Inf
-#     JuMP.assert_isfinite(objaff)
-#     if !JuMP.verify_ownership(m, objaff.aff.vars)
-#         error("Variable not owned by model present in objective")
-#     end
-#     f = zeros(m.numCols)
-#     @inbounds for ind in 1:length(objaff.aff.vars)
-#         f[objaff.aff.vars[ind].col] += objaff.aff.coeffs[ind]
-#     end
-#     return f
-# end
-
 function printX_E(m::JuMP.Model)
     vd = getvOptData(m)
     for i = 1:length(vd.Y_N)
         print(vd.Y_N[i]," : ")
-        for var = JuMP.all_variables(m)
+        for var in JuMP.all_variables(m)
             val = JuMP.value(var, i)
             if val != 0
                 if JuMP.is_binary(var) || JuMP.is_integer(var)
@@ -137,36 +118,8 @@ function JuMP.value(v::JuMP.VariableRef, i::Int)
     return vd.X_E[i][v.index.value]
 end
 
-function JuMP.value(arr::Array{JuMP.VariableRef}, i::Int)
-    ret = similar(arr,Float64)
-    for j in eachindex(arr)
-        ret[j] = JuMP.value(arr[j], i)
-    end
-    return ret
-end
-
-function value(::AbstractArray{<:JuMP.AbstractJuMPScalar}, i::Int)
-    error("`JuMP.value` is not defined for collections of JuMP types. Use" *
-          " Julia's broadcast syntax instead: `JuMP.value.(x, i)`.")
-end
-
 function getY_N(m::JuMP.Model)
     return getvOptData(m).Y_N
 end
 
-
-end#module
-
-
-# TODO: submit PR for :
-
-# julia> f = JuMP.MOI.ScalarAffineFunction(@expression(m, sum(x)));
-
-# julia> set_objective_function(m, f)
-
-# julia> set_objective_sense(m, JuMP.MOI.MAX_SENSE, f)
-# ERROR: MethodError: no method matching set_objective_sense(::Model, ::MathOptInterface.OptimizationSense, ::MathOptInterface.ScalarAffineFunction{Float64})
-# Closest candidates are:
-#   set_objective_sense(::Model, ::MathOptInterface.OptimizationSense) at C:\Users\Gauthier\.julia\packages\JuMP\jnmGG\src\objective.jl:45
-# Stacktrace:
-#  [1] top-level scope at none:0
+end
