@@ -10,8 +10,8 @@ export vModel,
     getY_N,
     vSolve,
     @addobjective,
-    parseMOP
-    # writeMOP,
+    parseMOP,
+    writeMOP
     
 include("MOP.jl")
 include("algorithms.jl")

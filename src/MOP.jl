@@ -1,178 +1,183 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
-using Printf
-# varname_generic(m::Model, col::Integer) = "VAR$(col)"
 
-# function varname_given(m::Model, col::Integer)
-#     # TODO: deal with non-ascii characters?
-#     name = getname(m, col)
-#     for (pat, sub) in [("[", "_"), ("]", ""), (",", "_")]
-#         name = replace(name, pat => sub)
-#     end
-#     name
-# end
+function _varname(v::JuMP.VariableRef)
+    name = JuMP.name(v)
+    for (pat, sub) in [("[", "_"), ("]", ""), (",", "_")]
+        name = replace(name, pat => sub)
+    end
+    name
+end
 
+function writeMOP(m, fname::AbstractString, genericnames = false)
 
-# function writeMOP(m, fname::AbstractString, genericnames=false)
-#     varname = genericnames ? varname_generic : varname_given
-
-#     f = open(fname, "w")
-
-#     write(f,"NAME   vOptModel\n")
-
-#     numRows = length(m.linconstr)
-
-
-#     md = getvOptData(m)
-#     objlincoef = [prepAffObjective(m, f) for f in md.objs]
-
-#     write(f,"OBJSENSE\n")
-#     if md.objSenses[1] == :Min
-#         write(f," MIN\n")
-#     else
-#         write(f," MAX\n")
-#     end
-
-#     for i = 2:length(md.objs)
-#         if md.objSenses[i] != md.objSenses[1]
-#             println("Warning, MOP does not support different optimisation senses. Flipping objective coefficients.")
-#             objlincoef[i] = -objlincoef[i]
-#         end
-#     end
-
-#     # Objective and constraint names
-#     write(f,"ROWS\n")
-
-#     for i = 1:length(md.objs)
-#         @printf(f," N  OBJ%d\n", i)
-#     end
-
-#     hasrange = false
-#     for c in 1:numRows
-#         rowsense = JuMP.sense(m.linconstr[c])
-#         if rowsense == :(<=)
-#             senseChar = 'L'
-#         elseif rowsense == :(==)
-#             senseChar = 'E'
-#         elseif rowsense == :(>=)
-#             senseChar = 'G'
-#         else
-#             hasrange = true
-#             senseChar = 'E'
-#         end
-#         @printf(f," %c  CON%d\n", senseChar, c)
-#     end
-
+    open(fname, "w") do f
+        print(f, "NAME   vOptModel\n")
     
+        cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [JuMP.all_constraints(m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
+        for set_type in (JuMP.MOI.EqualTo{Float64}, JuMP.MOI.GreaterThan{Float64}, JuMP.MOI.LessThan{Float64}, JuMP.MOI.Interval{Float64})]
+        numRows = sum(length, (cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval))
 
-#     A = JuMP.prepConstrMatrix(m)
-#     colptr = A.colptr
-#     rowval = A.rowval
-#     nzval = A.nzval
+        md = getvOptData(m)
 
-#     # Output each column
-#     inintegergroup = false
-#     write(f,"COLUMNS\n")
-#     for col in 1:m.numCols
-#         t = m.colCat[col]
-#         (t == :SemiCont || t == :SemiInt) && error("The MPS file writer does not currently support semicontinuous or semi-integer variables")
-#         if (t == :Bin || t == :Int) && !inintegergroup
-#             @printf(f,"    MARKER    'MARKER'                 'INTORG'\n")
-#             inintegergroup = true
-#         elseif (t == :Cont || t == :Fixed) && inintegergroup
-#             @printf(f,"    MARKER    'MARKER'                 'INTEND'\n")
-#             inintegergroup = false
-#         end
-#         for ind in colptr[col]:(colptr[col+1]-1)
-#             @printf(f,"    %s  CON%d  ", varname(m, col), rowval[ind])
-#             (Base.Grisu).print_shortest(f, nzval[ind])
-#             println(f)
-#         end
-#         for obj = 1:length(md.objs)
-#             @printf(f,"    %s  OBJ%d  ", varname(m, col), obj)
-#             (Base.Grisu).print_shortest(f, objlincoef[obj][col])
-#             println(f)
-#         end
-#     end
-#     if inintegergroup
-#         @printf(f,"    MARKER    'MARKER'                 'INTEND'\n")
-#     end
+        print(f, "OBJSENSE\n")
+        if md.objSenses[1] == JuMP.MOI.MIN_SENSE
+            print(f, " MIN\n")
+        else
+            print(f, " MAX\n")
+        end
 
-#     # RHSs
-#     write(f,"RHS\n")
-#     for c in 1:numRows
-#         rowsense = JuMP.sense(m.linconstr[c])
-#         if rowsense != :range
-#             @printf(f,"    RHS    CON%d    ", c)
-#             (Base.Grisu).print_shortest(f, JuMP.rhs(m.linconstr[c]))
-#         else
-#             @printf(f,"    RHS    CON%d    ", c)
-#             (Base.Grisu).print_shortest(f, m.linconstr[c].lb)
-#         end
-#         println(f)
-#     end
+        flippedObj = [sense != md.objSenses[1] for sense in md.objSenses]
+        if any(flippedObj)
+            @info "MOP format does not support different optimisation senses. Flipping objective coefficients."
+        end
 
-#     # RANGES
-#     if hasrange
-#         write(f,"RANGES\n")
-#         for c in 1:numRows
-#             rowsense = JuMP.sense(m.linconstr[c])
-#             if rowsense == :range
-#                 @printf(f,"    rhs    CON%d    ", c)
-#                 (Base.Grisu).print_shortest(f, m.linconstr[c].ub-m.linconstr[c].lb)
-#                 println(f)
-#             end
-#         end
-#     end
+        # Objective and constraint names
+        print(f, "ROWS\n")
+        for i = 1:length(md.objs)
+            print(f, " N  OBJ$i\n")
+        end
 
+        dictCstrIndex = Dict{JuMP.ConstraintRef, Int}()
+        cstr_index = 1
+        for cstrRef in cstrLessThan
+            print(f, " L  CON$cstr_index\n")
+            push!(dictCstrIndex, cstrRef => cstr_index)
+            cstr_index += 1
+        end
+        for cstrRef in cstrEqualTo
+            print(f, " E  CON$cstr_index\n")
+            push!(dictCstrIndex, cstrRef => cstr_index)
+            cstr_index += 1
+        end
+        for cstrRef in cstrGreaterThan
+            print(f, " G  CON$cstr_index\n")
+            push!(dictCstrIndex, cstrRef => cstr_index)
+            cstr_index += 1
+        end
+        for cstrRef in cstrInterval
+            print(f, " E  CON$cstr_index\n")
+            push!(dictCstrIndex, cstrRef => cstr_index)
+            cstr_index += 1
+        end
 
-#     # BOUNDS
-#     write(f,"BOUNDS\n")
-#     for col in 1:m.numCols
-#         if m.colLower[col] == 0
-#             if m.colUpper[col] != Inf
-#                 # Default lower 0, and an upper
-#                 @printf(f,"  UP BOUND %s ", varname(m, col))
-#                 (Base.Grisu).print_shortest(f, m.colUpper[col])
-#                 println(f)
-#             else
-#                 # Default bounds. Explicitly state for solvers like Gurobi. See issue #792
-#                 @printf(f,"  PL BOUND %s", varname(m, col))
-#                 println(f)
-#             end
-#         elseif m.colLower[col] == -Inf && m.colUpper[col] == +Inf
-#             # Free
-#             @printf(f, "  FR BOUND %s\n", varname(m, col))
-#         elseif m.colLower[col] != -Inf && m.colUpper[col] == +Inf
-#             # No upper, but a lower
-#             @printf(f, "  PL BOUND %s\n  LO BOUND %s ", varname(m, col), varname(m, col))
-#             (Base.Grisu).print_shortest(f, m.colLower[col])
-#             println(f)
-#         elseif m.colLower[col] == -Inf && m.colUpper[col] != +Inf
-#             # No lower, but a upper
-#             @printf(f,"  MI BOUND %s\n  UP BOUND %s ", varname(m, col), varname(m, col))
-#             (Base.Grisu).print_shortest(f, m.colUpper[col])
-#             println(f)
-#         else
-#             # Lower and upper
-#             @printf(f, "  LO BOUND %s ", varname(m, col))
-#             (Base.Grisu).print_shortest(f, m.colLower[col])
-#             println(f)
-#             @printf(f, "  UP BOUND %s ", varname(m, col))
-#             (Base.Grisu).print_shortest(f, m.colUpper[col])
-#             println(f)
-#         end
-#     end
+        # Output each column
+        inintegergroup = false
+        print(f, "COLUMNS\n")
+        for var in JuMP.all_variables(m)
+            if JuMP.is_binary(var) || JuMP.is_integer(var) && !inintegergroup
+                print(f, "    MARKER    'MARKER'                 'INTORG'\n")
+                inintegergroup = true
+            elseif !JuMP.is_binary(var) && !JuMP.is_integer(var) && inintegergroup
+                print(f, "    MARKER    'MARKER'                 'INTEND'\n")
+                inintegergroup = false
+            end
+
+            for set_type in (JuMP.MOI.EqualTo{Float64}, JuMP.MOI.GreaterThan{Float64}, JuMP.MOI.LessThan{Float64}, JuMP.MOI.Interval{Float64})
+                for cstrRef in JuMP.all_constraints(m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type)
+                    con = JuMP.constraint_object(cstrRef)
+                    terms = JuMP.linear_terms(con.func)
+                    for (coeff, term) in terms
+                        if var == term
+                            print(f, "    $(_varname(var))  CON$(dictCstrIndex[cstrRef])  ") ; Base.Grisu.print_shortest(f, coeff) ; println(f)
+                        end
+                    end
+                end
+            end
+
+            for i = 1:length(md.objs)
+                for (coeff, term) in JuMP.linear_terms(md.objs[i])
+                    if var == term
+                        print(f,"    $(_varname(var))  OBJ$i  ") ; Base.Grisu.print_shortest(f, flippedObj[i] ? -coeff : coeff) ; println(f)
+                    end
+                end
+            end
+
+        end
+        if inintegergroup
+            print(f, "    MARKER    'MARKER'                 'INTEND'\n")
+        end
+
+        # RHSs
+        print(f, "RHS\n")
+
+        # TODO : write objectives constant
+
+        cstr_index = 1
+        for cstrRef in cstrLessThan
+            con = JuMP.constraint_object(cstrRef)
+            rhs = con.set.upper
+            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            cstr_index += 1
+        end
+        for cstrRef in cstrEqualTo
+            con = JuMP.constraint_object(cstrRef)
+            rhs = con.set.value
+            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            cstr_index += 1
+        end
+        for cstrRef in cstrGreaterThan
+            con = JuMP.constraint_object(cstrRef)
+            rhs = con.set.lower
+            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            cstr_index += 1
+        end
+        for cstrRef in cstrInterval
+            con = JuMP.constraint_object(cstrRef)
+            rhs = con.set.lower
+            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            cstr_index += 1
+        end
+
+        # RANGES
+        if length(cstrInterval) > 0
+            print(f, "RANGES\n")
+            cstr_index = numRows - length(cstrInterval)
+            for cstrRef in cstrInterval
+                con = JuMP.constraint_object(cstrRef)
+                lb = con.set.lower
+                ub = con.set.upper
+                print(f, "    rhs    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, ub - lb) ; println(f)
+            end
+        end
+
+        # BOUNDS
+        print(f, "BOUNDS\n")
+        for var in JuMP.all_variables(m)
+            if JuMP.has_lower_bound(var) && JuMP.lower_bound(var) == 0 && JuMP.has_upper_bound(var) && JuMP.upper_bound(var) != Inf
+                # Default lower 0, and an upper
+                print(f, "  UP BOUND $(_varname(var))") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+            elseif JuMP.has_lower_bound(var) && JuMP.lower_bound(var) == 0 && (!JuMP.has_upper_bound(var) || JuMP.upper_bound(var) == Inf)
+                # Default bounds.
+                print(f, "  PL BOUND $(_varname(var))")
+                println(f)
+            elseif (!JuMP.has_lower_bound(var) || JuMP.lower_bound(var) == -Inf) && (!JuMP.has_upper_bound(var) || JuMP.upper_bound(var) == Inf)
+                # Free
+                print(f, "  FR BOUND $(_varname(var))\n")
+            elseif JuMP.has_lower_bound(var) && JuMP.lower_bound(var) != -Inf && (!JuMP.has_upper_bound(var) || JuMP.upper_bound(var) == +Inf)
+                # No upper, but a lower
+                print(f, "  PL BOUND $(_varname(var))\n")
+                print(f, "  LO BOUND $(_varname(var))") ; Base.Grisu.print_shortest(f, JuMP.lower_bound(var)) ; println(f)
+            elseif (!JuMP.has_lower_bound(var) || JuMP.lower_bound(var) == -Inf) && JuMP.has_upper_bound(var) && JuMP.upper_bound(var) != +Inf
+                # No lower, but a upper
+                print(f, "  MI BOUND $(_varname(var))\n")
+                print(f, "  UP BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+            else
+                # Lower and upper
+                print(f, "  LO BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.lower_bound(var)) ; println(f)
+                print(f, "  UP BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+            end
+        end
     
-#     write(f,"ENDATA\n")
-#     close(f)
-#     nothing
-# end
+        print(f, "ENDATA\n")
+    end
+    nothing
+end
 
-function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing)
+function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing,JuMP.OptimizerFactory} = nothing)
     
     m = vModel(optimizer_factory)
-    nextline = (f) -> split(chomp(readline(f)), ' ', keepempty=false)
+    nextline = (f) -> split(chomp(readline(f)), ' ', keepempty = false)
 
     open(fname) do f
         ln = nextline(f)
@@ -192,7 +197,7 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
 
         if ln[1] == "ROWS"
             ln = nextline(f)
-            dictExpr = Dict{String, Tuple{JuMP.GenericAffExpr, Symbol}}()
+            dictExpr = Dict{String,Tuple{JuMP.GenericAffExpr,Symbol}}()
             objOrder = Vector{String}()
             while ln[1] != "COLUMNS"
                 push!(dictExpr, ln[2] => (JuMP.AffExpr(), Symbol(ln[1])))
@@ -203,7 +208,7 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
 
         if ln[1] == "COLUMNS"
             ln = nextline(f)
-            dictVar = Dict{String, JuMP.VariableRef}()
+            dictVar = Dict{String,JuMP.VariableRef}()
             isInt = false
             while ln[1] != "RHS"
                 if ln[3] == "'INTORG'"
@@ -212,7 +217,7 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
                     isInt = false
                 else
                     if !(ln[1] in keys(dictVar))
-                        v = JuMP.@variable(m, integer=isInt, base_name=String(ln[1]), lower_bound=0.0)
+                        v = JuMP.@variable(m, integer = isInt, base_name = String(ln[1]), lower_bound = 0.0)
                         push!(dictVar, ln[1] => v)
                     end
                     expr, expr_type = dictExpr[ln[2]]
@@ -225,13 +230,13 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
             end
         end
 
-        dictObj = Dict{String, JuMP.GenericAffExpr}()
+        dictObj = Dict{String,JuMP.GenericAffExpr}()
         for (k, (expr, expr_type)) in dictExpr
             if expr_type == :N
                 push!(dictObj, k => expr)
             end
         end
-        filter!(p -> p |> last |> last != :N, dictExpr)
+        filter!(p->p |> last |> last != :N, dictExpr)
         
         md = m.ext[:vOpt]
         for key in objOrder
@@ -239,12 +244,14 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
             push!(md.objSenses, objSense)
         end
         
-        dictRHS = Dict{String, Float64}()
+        # TODO : read objectives constant
+        dictRHS = Dict{String,Float64}()
         if ln[1] == "RHS"
             ln = nextline(f)
             while length(ln) > 1
                 cstr_name = ln[2]
                 rhs = parse(Float64, ln[3])
+                cstr_name == "nonS@800" && error()
                 push!(dictRHS, cstr_name => rhs)
                 ln = nextline(f)
             end
@@ -287,42 +294,47 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, JuMP.
             delete!(dictExpr, cstr_name)
         end
 
+        undeclared_variables = String[]
         if ln[1] == "BOUNDS"
             ln = nextline(f)
             while length(ln) > 1 
                 boundType, varName = ln[1], ln[3]
                 val = length(ln) > 3 ? parse(Float64, ln[4]) : 0.
-                haskey(dictVar, varName) || error("Undeclared variable in section BOUNDS : $varName")
-                var = dictVar[varName]
-                if boundType == "LO"
-                    JuMP.set_lower_bound(var, val)
-                elseif boundType == "UP"
-                    JuMP.set_upper_bound(var, val)
-                elseif boundType == "FX"
-                    JuMP.set_upper_bound(var, val)
-                    JuMP.set_lower_bound(var, val)
-                elseif boundType == "FR"
-                    JuMP.set_upper_bound(var, Inf)
-                    JuMP.set_lower_bound(var, -Inf)
-                elseif boundType == "MI"
-                    JuMP.set_lower_bound(var, -Inf)
-                elseif boundType == "PL"
-                    JuMP.set_upper_bound(var, Inf)
-                elseif boundType == "BV"
-                    JuMP.set_binary(var, :Bin)
-                elseif boundType == "LI"
-                    JuMP.set_lower_bound(var, val)
-                elseif boundType == "UI"
-                    JuMP.set_upper_bound(var, val)
-                elseif boundType == "SC"
-                    error("Semi-continuous variables are not supported by vOptGeneric")
-                else
-                    error("Unrecognised bound type : $boundType")
+                if haskey(dictVar, varName) 
+                    var = dictVar[varName]
+                    if boundType == "LO"
+                        JuMP.set_lower_bound(var, val)
+                    elseif boundType == "UP"
+                        JuMP.set_upper_bound(var, val)
+                    elseif boundType == "FX"
+                        JuMP.set_upper_bound(var, val)
+                        JuMP.set_lower_bound(var, val)
+                    elseif boundType == "FR"
+                        JuMP.set_upper_bound(var, Inf)
+                        JuMP.set_lower_bound(var, -Inf)
+                    elseif boundType == "MI"
+                        JuMP.set_lower_bound(var, -Inf)
+                    elseif boundType == "PL"
+                        JuMP.set_upper_bound(var, Inf)
+                    elseif boundType == "BV"
+                        JuMP.set_binary(var, :Bin)
+                    elseif boundType == "LI"
+                        JuMP.set_lower_bound(var, val)
+                    elseif boundType == "UI"
+                        JuMP.set_upper_bound(var, val)
+                    elseif boundType == "SC"
+                        error("Semi-continuous variables are not supported by vOptGeneric")
+                    else
+                        error("Unrecognised bound type : $boundType")
+                    end
+                else 
+                    push!(undeclared_variables, varName)
                 end
                 ln = nextline(f)
             end
         end
-        isempty(dictExpr) || @warn "Some constraints are missing a RHS and were not added to the model" keys=keys(dictExpr)|>collect
+        isempty(undeclared_variables) || @warn "Some variables were declared in BOUNDS but were never used, they were not added to the model" variables = undeclared_variables 
+        isempty(dictExpr) || @warn "Some constraints are missing a RHS and were not added to the model" constraints = keys(dictExpr) |> collect
     end
 
     return m
