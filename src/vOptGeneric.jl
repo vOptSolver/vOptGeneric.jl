@@ -9,20 +9,19 @@ export vModel,
     printX_E,
     getY_N,
     vSolve,
-    @addobjective
+    @addobjective,
+    parseMOP
     # writeMOP,
-    # parseMOP,
     
-# include("MOP.jl")
+include("MOP.jl")
 include("algorithms.jl")
 
 mutable struct vOptData
-    objs::Vector{JuMP.GenericAffExpr}    #Objectives
-	objSenses::Vector{JuMP.MOI.OptimizationSense}           #Objective Senses
-    Y_N::Vector{Vector{Float64}}                            #Objective values for each point
-    X_E::Vector{Vector{Float64}}                            #Variable values for each point
+    objs::Vector{JuMP.GenericAffExpr}               #Objectives
+	objSenses::Vector{JuMP.MOI.OptimizationSense}   #Objective Senses
+    Y_N::Vector{Vector{Float64}}                    #Objective values for each point
+    X_E::Vector{Vector{Float64}}                    #Variable values for each point
 end
-
 vOptData() = vOptData([], [], [], [])
 
 function JuMP.copy_extension_data(data::vOptData, new_model::JuMP.AbstractModel, model::JuMP.AbstractModel)
@@ -35,8 +34,8 @@ function getvOptData(m::JuMP.Model)
     return m.ext[:vOpt]::vOptData
 end
 
-function vModel(optimizer_factory::JuMP.OptimizerFactory; args...)
-    m = JuMP.Model(optimizer_factory ; args...)
+function vModel(optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing; args...)
+    m = optimizer_factory === nothing ? JuMP.Model(; args...) : JuMP.Model(optimizer_factory ; args...)
     m.optimize_hook = vSolve
     # m.printhook = printhook
     m.ext[:vOpt] = vOptData()
@@ -86,7 +85,7 @@ macro addobjective(m, args...)
     sense = args[1] == :Min ? JuMP.MOI.MIN_SENSE : JuMP.MOI.MAX_SENSE
     expr = esc(args[2])
     return quote
-        f = JuMP.@expression($m, $expr * 1.) # dirty fix, find a way to convert VariableRef to AffExpr
+        f = JuMP.AffExpr() + JuMP.@expression($m, $expr)
         !isa(f, JuMP.GenericAffExpr) && error("in @addobjective : vOptGeneric only supports linear objectives")
         vd = $m.ext[:vOpt]
         push!(vd.objSenses, $(esc(sense)))
