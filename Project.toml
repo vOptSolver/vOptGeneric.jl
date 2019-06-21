@@ -1,5 +1,6 @@
 name = "vOptGeneric"
 uuid = "d80f1e47-7c1f-50ef-848d-735630893f00"
+version = "0.2.1"
 
 [deps]
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
