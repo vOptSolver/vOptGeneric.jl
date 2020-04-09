@@ -67,4 +67,4 @@ vOptGeneric is ready. See examples for further informations and have fun with th
 The folder `examples` provides (1) source code of problems ready to be solved and (2) selected datafiles into different formats.
 
 ## Limitations
-No special limitation; the solving strength of vOptGeneric is currently provided by the MILP solver (GLPK, Clp/Cbc, CPLEX, GUROBI, etc.) invoked.
+No special limitation; the solving strength of vOptGeneric is currently provided by the MILP solver (GLPK, Clp/Cbc, Cbc, GUROBI, etc.) invoked.

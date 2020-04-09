@@ -2,7 +2,8 @@
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
 __precompile__()
 module vOptGeneric
-import JuMP, Combinatorics
+import JuMP, MathOptInterface, Combinatorics
+const MOI = MathOptInterface
 
 export vModel,
     getvOptData,
@@ -17,12 +18,12 @@ include("MOP.jl")
 include("algorithms.jl")
 
 mutable struct vOptData
-    objs::Vector{JuMP.GenericAffExpr}               #Objectives
-	objSenses::Vector{JuMP.MOI.OptimizationSense}   #Objective Senses
-    Y_N::Vector{Vector{Float64}}                    #Objective values for each point
-    X_E::Vector{Vector{Float64}}                    #Variable values for each point
+    objs::Vector{JuMP.GenericAffExpr}          #Objectives
+	objSenses::Vector{MOI.OptimizationSense}   #Objective Senses
+    Y_N::Vector{Vector{Float64}}               #Objective values for each point
+    X_E::Vector{Vector{Float64}}               #Variable values for each point
 end
-vOptData() = vOptData([], [], [], [])
+vOptData() = vOptData([], [], [], [])   
 
 function JuMP.copy_extension_data(data::vOptData, new_model::JuMP.AbstractModel, model::JuMP.AbstractModel)
     new_objs = [JuMP.copy(obj, new_model) for obj in data.objs]
@@ -34,7 +35,7 @@ function getvOptData(m::JuMP.Model)
     return m.ext[:vOpt]::vOptData
 end
 
-function vModel(optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing; args...)
+function vModel(optimizer_factory=nothing; args...)
     m = optimizer_factory === nothing ? JuMP.Model(; args...) : JuMP.Model(optimizer_factory ; args...)
     m.optimize_hook = vSolve
     # m.printhook = printhook
@@ -42,7 +43,7 @@ function vModel(optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing
     return m
 end
 
-function vSolve(m::JuMP.Model, optimizer_factory::Union{Nothing, JuMP.OptimizerFactory}=nothing ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
+function vSolve(m::JuMP.Model, optimizer_factory=nothing ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
 
     vd = getvOptData(m)
 
@@ -82,7 +83,7 @@ macro addobjective(m, args...)
     end
     m = esc(m)
     args[1] != :Min && args[1] != :Max && error("in @addobjective: expected Max or Min for objective sense, got $(args[1])")
-    sense = args[1] == :Min ? JuMP.MOI.MIN_SENSE : JuMP.MOI.MAX_SENSE
+    sense = args[1] == :Min ? MOI.MIN_SENSE : MOI.MAX_SENSE
     expr = esc(args[2])
     return quote
         f = JuMP.AffExpr() + JuMP.@expression($m, $expr)

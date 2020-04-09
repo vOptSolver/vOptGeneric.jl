@@ -15,7 +15,8 @@ p2 =   [M 3 1 M M M;
         M M M M M 2;
         M M M M M M]
 
-m = vModel(with_optimizer(Cbc.Optimizer, logLevel=0))
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+
 @variable(m, x[1:6,1:6], Bin)
 
 @addobjective(m, Min , sum(x[i,j]*p1[i,j] for i=1:6, j=1:6))

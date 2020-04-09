@@ -15,13 +15,13 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
         print(f, "NAME   vOptModel\n")
     
         cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [JuMP.all_constraints(m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
-        for set_type in (JuMP.MOI.EqualTo{Float64}, JuMP.MOI.GreaterThan{Float64}, JuMP.MOI.LessThan{Float64}, JuMP.MOI.Interval{Float64})]
+            for set_type in (MOI.EqualTo{Float64}, MOI.GreaterThan{Float64}, MOI.LessThan{Float64}, MOI.Interval{Float64})]
         numRows = sum(length, (cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval))
 
         md = getvOptData(m)
 
         print(f, "OBJSENSE\n")
-        if md.objSenses[1] == JuMP.MOI.MIN_SENSE
+        if md.objSenses[1] == MOI.MIN_SENSE
             print(f, " MIN\n")
         else
             print(f, " MAX\n")
@@ -73,7 +73,7 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
                 inintegergroup = false
             end
 
-            for set_type in (JuMP.MOI.EqualTo{Float64}, JuMP.MOI.GreaterThan{Float64}, JuMP.MOI.LessThan{Float64}, JuMP.MOI.Interval{Float64})
+            for set_type in (MOI.EqualTo{Float64}, MOI.GreaterThan{Float64}, MOI.LessThan{Float64}, MOI.Interval{Float64})
                 for cstrRef in JuMP.all_constraints(m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type)
                     con = JuMP.constraint_object(cstrRef)
                     terms = JuMP.linear_terms(con.func)
@@ -174,9 +174,9 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
     nothing
 end
 
-function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing,JuMP.OptimizerFactory} = nothing)
+function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, MOI.AbstractOptimizer} = nothing)
     
-    m = vModel(optimizer_factory)
+    m = vModel(optimizer_factory) ; set_silent(m)
     nextline = (f) -> split(chomp(readline(f)), ' ', keepempty = false)
 
     open(fname) do f
@@ -185,12 +185,12 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing,JuMP.O
             ln = nextline(f)
         end
 
-        objSense = JuMP.MOI.MIN_SENSE
+        objSense = MOI.MIN_SENSE
         ln = nextline(f)
         if ln[1] == "OBJSENSE"
             ln = nextline(f)
             if ln[1] == "MAXIMIZE" || ln[1] == "MAX"
-                objSense = JuMP.MOI.MAX_SENSE
+                objSense = MOI.MAX_SENSE
             end
             ln = nextline(f)
         end

@@ -1,7 +1,8 @@
 using JuMP, vOptGeneric, Cbc, Combinatorics
 using Test, LinearAlgebra
 
-m = vModel(with_optimizer(Cbc.Optimizer, logLevel=0))
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+
 @variable(m, x[1:6,1:6], Bin)
 @variable(m, y, Bin)
 M = 50
@@ -37,7 +38,7 @@ printX_E(m)
 # to test once https://github.com/JuliaOpt/JuMP.jl/issues/1956 is fixed
 @test_broken begin
     m_copy = copy(m)        
-    # vSolve(m_copy, with_optimizer(Cbc.Optimizer, logLevel=0), method=:epsilon)
+    # vSolve(m_copy, Cbc.Optimizer, method=:epsilon)
     # Y_N = getY_N(m)
     # f1 = map(x -> x[1], Y_N) ; f2 = map(x -> x[2], Y_N)
     # @test f1 == [8.0,10.0,11.0,13.0] && f2 == [9.0,7.0,5.0,4.0]
@@ -50,7 +51,8 @@ end
 # tests DenseAxisArrays indexing
 # http://www.juliaopt.org/JuMP.jl/v0.19.1/variables/#variable_jump_arrays-1
 
-m = vModel(with_optimizer(Cbc.Optimizer, logLevel=0))
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+# JuMP.set_optimizer_attribute(m, "logLevel", 0)
 cities = ["Paris", "New-York", "Madrid"]
 @variable(m, x[cities], Bin)
 @constraint(m, constr, x["Paris"] >= 1)
@@ -69,7 +71,7 @@ vSolve(m, method=:epsilon)
 
 ######################
 
-# TODO : re-implement wirteMOP and parseMOP
+# TODO : re-implement writeMOP and parseMOP
 # writeMOP(m, "test.txt")
 # m = parseMOP("test.txt", solver = GLPKSolverMIP())
 # solve(m, method=:dichotomy)
@@ -81,7 +83,8 @@ vSolve(m, method=:epsilon)
 
 ######################
 
-m = vModel(with_optimizer(Cbc.Optimizer, logLevel=0))
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+# JuMP.set_optimizer_attribute(m, "logLevel", 0)
 
 p1 = [77,94,71,63,96,82,85,75,72,91,99,63,84,87,79,94,90,60,69,62]
 p2 = [65,90,90,77,95,84,70,94,66,92,74,97,60,60,65,97,93,60,69,74]
@@ -114,7 +117,9 @@ f1, f2 = first.(Y_N), last.(Y_N)
 
 ########################
 
-m = vModel(with_optimizer(Cbc.Optimizer, logLevel=0))
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+# JuMP.set_optimizer_attribute(m, "logLevel", 0)
+
 @variable(m, 0 <= x[1:4] <= 2, Int)
 @addobjective(m, Max, sum(x))
 @addobjective(m, Min, sum(x))
