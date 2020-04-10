@@ -12,6 +12,9 @@ end
 function writeMOP(m, fname::AbstractString, genericnames = false)
 
     open(fname, "w") do f
+
+        print_short = x -> Base.Grisu.print_shortest(f, x)
+
         print(f, "NAME   vOptModel\n")
     
         cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [JuMP.all_constraints(m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
@@ -79,7 +82,7 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
                     terms = JuMP.linear_terms(con.func)
                     for (coeff, term) in terms
                         if var == term
-                            print(f, "    $(_varname(var))  CON$(dictCstrIndex[cstrRef])  ") ; Base.Grisu.print_shortest(f, coeff) ; println(f)
+                            print(f, "    $(_varname(var))  CON$(dictCstrIndex[cstrRef])  ") ; print_short(coeff) ; println(f)
                         end
                     end
                 end
@@ -88,7 +91,7 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
             for i = 1:length(md.objs)
                 for (coeff, term) in JuMP.linear_terms(md.objs[i])
                     if var == term
-                        print(f,"    $(_varname(var))  OBJ$i  ") ; Base.Grisu.print_shortest(f, flippedObj[i] ? -coeff : coeff) ; println(f)
+                        print(f,"    $(_varname(var))  OBJ$i  ") ; print_short(flippedObj[i] ? -coeff : coeff) ; println(f)
                     end
                 end
             end
@@ -107,25 +110,25 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
         for cstrRef in cstrLessThan
             con = JuMP.constraint_object(cstrRef)
             rhs = con.set.upper
-            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            print(f, "    RHS    CON$cstr_index    ") ; print_short(rhs) ; println(f)
             cstr_index += 1
         end
         for cstrRef in cstrEqualTo
             con = JuMP.constraint_object(cstrRef)
             rhs = con.set.value
-            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            print(f, "    RHS    CON$cstr_index    ") ; print_short(rhs) ; println(f)
             cstr_index += 1
         end
         for cstrRef in cstrGreaterThan
             con = JuMP.constraint_object(cstrRef)
             rhs = con.set.lower
-            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            print(f, "    RHS    CON$cstr_index    ") ; print_short(rhs) ; println(f)
             cstr_index += 1
         end
         for cstrRef in cstrInterval
             con = JuMP.constraint_object(cstrRef)
             rhs = con.set.lower
-            print(f, "    RHS    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, rhs) ; println(f)
+            print(f, "    RHS    CON$cstr_index    ") ; print_short(rhs) ; println(f)
             cstr_index += 1
         end
 
@@ -137,16 +140,22 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
                 con = JuMP.constraint_object(cstrRef)
                 lb = con.set.lower
                 ub = con.set.upper
-                print(f, "    rhs    CON$cstr_index    ") ; Base.Grisu.print_shortest(f, ub - lb) ; println(f)
+                print(f, "    rhs    CON$cstr_index    ") ; print_short(ub - lb) ; println(f)
             end
         end
 
         # BOUNDS
         print(f, "BOUNDS\n")
         for var in JuMP.all_variables(m)
-            if JuMP.has_lower_bound(var) && JuMP.lower_bound(var) == 0 && JuMP.has_upper_bound(var) && JuMP.upper_bound(var) != Inf
+            if JuMP.is_binary(var)
+                #Binary
+                print(f, "  BV BOUND $(_varname(var))") ; println(f)
+            elseif JuMP.is_fixed(var)
+                # Fixed variable
+                print(f, "  FX BOUND $(_varname(var)) ") ; print_short(JuMP.fix_value(var)) ; println(f)
+            elseif JuMP.has_lower_bound(var) && JuMP.lower_bound(var) == 0 && JuMP.has_upper_bound(var) && JuMP.upper_bound(var) != Inf
                 # Default lower 0, and an upper
-                print(f, "  UP BOUND $(_varname(var))") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+                print(f, "  UP BOUND $(_varname(var))") ; print_short(JuMP.upper_bound(var)) ; println(f)
             elseif JuMP.has_lower_bound(var) && JuMP.lower_bound(var) == 0 && (!JuMP.has_upper_bound(var) || JuMP.upper_bound(var) == Inf)
                 # Default bounds.
                 print(f, "  PL BOUND $(_varname(var))")
@@ -157,15 +166,15 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
             elseif JuMP.has_lower_bound(var) && JuMP.lower_bound(var) != -Inf && (!JuMP.has_upper_bound(var) || JuMP.upper_bound(var) == +Inf)
                 # No upper, but a lower
                 print(f, "  PL BOUND $(_varname(var))\n")
-                print(f, "  LO BOUND $(_varname(var))") ; Base.Grisu.print_shortest(f, JuMP.lower_bound(var)) ; println(f)
+                print(f, "  LO BOUND $(_varname(var))") ; print_short(JuMP.lower_bound(var)) ; println(f)
             elseif (!JuMP.has_lower_bound(var) || JuMP.lower_bound(var) == -Inf) && JuMP.has_upper_bound(var) && JuMP.upper_bound(var) != +Inf
                 # No lower, but a upper
                 print(f, "  MI BOUND $(_varname(var))\n")
-                print(f, "  UP BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+                print(f, "  UP BOUND $(_varname(var)) ") ; print_short(JuMP.upper_bound(var)) ; println(f)
             else
                 # Lower and upper
-                print(f, "  LO BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.lower_bound(var)) ; println(f)
-                print(f, "  UP BOUND $(_varname(var)) ") ; Base.Grisu.print_shortest(f, JuMP.upper_bound(var)) ; println(f)
+                print(f, "  LO BOUND $(_varname(var)) ") ; print_short(JuMP.lower_bound(var)) ; println(f)
+                print(f, "  UP BOUND $(_varname(var)) ") ; print_short(JuMP.upper_bound(var)) ; println(f)
             end
         end
     
@@ -174,9 +183,9 @@ function writeMOP(m, fname::AbstractString, genericnames = false)
     nothing
 end
 
-function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, MOI.AbstractOptimizer} = nothing)
+function parseMOP(fname::AbstractString, optimizer_factory = nothing)
     
-    m = vModel(optimizer_factory) ; set_silent(m)
+    m = vModel(optimizer_factory) ; JuMP.set_silent(m)
     nextline = (f) -> split(chomp(readline(f)), ' ', keepempty = false)
 
     open(fname) do f
@@ -251,7 +260,7 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, MOI.A
             while length(ln) > 1
                 cstr_name = ln[2]
                 rhs = parse(Float64, ln[3])
-                cstr_name == "nonS@800" && error()
+                # cstr_name == "nonS@800" && error()
                 push!(dictRHS, cstr_name => rhs)
                 ln = nextline(f)
             end
@@ -307,8 +316,7 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, MOI.A
                     elseif boundType == "UP"
                         JuMP.set_upper_bound(var, val)
                     elseif boundType == "FX"
-                        JuMP.set_upper_bound(var, val)
-                        JuMP.set_lower_bound(var, val)
+                        JuMP.fix(var, val)
                     elseif boundType == "FR"
                         JuMP.set_upper_bound(var, Inf)
                         JuMP.set_lower_bound(var, -Inf)
@@ -317,7 +325,8 @@ function parseMOP(fname::AbstractString, optimizer_factory::Union{Nothing, MOI.A
                     elseif boundType == "PL"
                         JuMP.set_upper_bound(var, Inf)
                     elseif boundType == "BV"
-                        JuMP.set_binary(var, :Bin)
+                        JuMP.is_integer(var) && JuMP.unset_integer(var)
+                        JuMP.set_binary(var)
                     elseif boundType == "LI"
                         JuMP.set_lower_bound(var, val)
                     elseif boundType == "UI"
