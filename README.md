@@ -29,7 +29,7 @@ On macOS:
 
 ### Installation Instructions
 
-Before your first local or distant use, 
+Before your first use, 
 1. run Julia and when the terminal is ready with the prompt `julia` on screen, 
 2. add as follow the mandatory packages to your Julia distribution: 
 
