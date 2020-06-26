@@ -36,7 +36,7 @@ Before your first use,
 ```
 julia> using Pkg
 julia> Pkg.add("vOptGeneric")
-julia> Pkg.add("GLPK") ; Pkg.add("GLPKMathProgInterface")
+julia> Pkg.add("GLPK")
 ```
 
 That's all folk; at this point, vOptGeneric is properly installed.
@@ -49,7 +49,7 @@ When vOptGeneric is properly installed,
 2. invoke vOptGeneric and the MILP solver to activate in typing in the console:
 ```
 julia> using vOptGeneric
-julia> using GLPK ; using GLPKMathProgInterface
+julia> using GLPK
 ```
 vOptGeneric is ready. See examples for further informations and have fun with the solver! 
 
