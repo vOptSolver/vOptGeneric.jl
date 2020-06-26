@@ -1,5 +1,5 @@
 using vOptGeneric, JuMP
-using Cbc
+using GLPK
 
 M = 50
 p1 =   [M 4 5 M M M;
@@ -15,7 +15,7 @@ p2 =   [M 3 1 M M M;
         M M M M M 2;
         M M M M M M]
 
-m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+m = vModel(GLPK.Optimizer) ; JuMP.set_silent(m)
 
 @variable(m, x[1:6,1:6], Bin)
 
