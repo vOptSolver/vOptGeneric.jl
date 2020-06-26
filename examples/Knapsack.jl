@@ -1,8 +1,5 @@
-using vOptGeneric
-using GLPK,GLPKMathProgInterface
-m = vModel(solver = GLPKSolverMIP())
-# using CPLEX
-# m = vModel(solver = CplexSolver())
+using vOptGeneric, JuMP, Cbc, LinearAlgebra
+m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
 
 p1 = [77,94,71,63,96,82,85,75,72,91,99,63,84,87,79,94,90,60,69,62]
 p2 = [65,90,90,77,95,84,70,94,66,92,74,97,60,60,65,97,93,60,69,74]
@@ -15,12 +12,12 @@ size = length(p1)
 @addobjective(m, Max, dot(x, p2))
 @constraint(m, dot(x, w) <= c)
 
-solve(m, method=:dichotomy)
+vSolve(m, method=:dichotomy)
 
 Y_N = getY_N(m)
 for n = 1:length(Y_N)
-    X = getvalue(x, n)
-    print(find(X))
+    X = value.(x, n)
+    print(findall(elt -> elt ≈ 1, X))
     println("| z = ",Y_N[n])
 end
 
