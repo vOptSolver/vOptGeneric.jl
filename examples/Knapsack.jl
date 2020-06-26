@@ -1,5 +1,5 @@
-using vOptGeneric, JuMP, Cbc, LinearAlgebra
-m = vModel(Cbc.Optimizer) ; JuMP.set_silent(m)
+using vOptGeneric, JuMP, GLPK, LinearAlgebra
+m = vModel(GLPK.Optimizer) ; JuMP.set_silent(m)
 
 p1 = [77,94,71,63,96,82,85,75,72,91,99,63,84,87,79,94,90,60,69,62]
 p2 = [65,90,90,77,95,84,70,94,66,92,74,97,60,60,65,97,93,60,69,74]
