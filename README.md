@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/vOptSolver/vOptGeneric.jl.svg?branch=master)](https://travis-ci.org/vOptSolver/vOptGeneric.jl)
 [![codecov.io](http://codecov.io/github/vOptSolver/vOptGeneric.jl/coverage.svg?branch=master)](http://codecov.io/github/vOptSolver/vOptGeneric.jl?branch=master)
 
-**vOptSolver** is a solver of multiobjective linear optimization problems (MOCO, MOIP, MOMILP, MOLP).
-This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2-IP, p-ILP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows (local use), also on JuliaBox (distant use).
+**vOptSolver** is a solver of multiobjective linear optimization problems (MOMILP, MOLP, MOIP, MOCO).
+This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2-IP, p-ILP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows.
 
 We suppose you are familiar with vOptSolver; if not, read first this [presentation](https://voptsolver.github.io/vOptSolver/).
 
@@ -13,11 +13,11 @@ We suppose you are familiar with vOptSolver; if not, read first this [presentati
 For a local use, a working version of:
 - Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
 - your favorite MILP solver must be ready (GLPK is suggested); 
-  instructions for the installation are available [here](http://www.juliaopt.org/JuMP.jl/0.18/installation.html)
+  instructions for the installation are available [here](https://github.com/jump-dev/JuMP.jl)
   
 ### Run Julia
 
-On linux or in the cloud (JuliaBox):
+On linux:
 
 - open a console on your computer or in the cloud
 - when the prompt is ready, type in the console `julia`
@@ -29,7 +29,7 @@ On macOS:
 
 ### Installation Instructions
 
-Before your first local or distant use, 
+Before your first use, 
 1. run Julia and when the terminal is ready with the prompt `julia` on screen, 
 2. add as follow the mandatory packages to your Julia distribution: 
 
