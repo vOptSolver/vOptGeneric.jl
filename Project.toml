@@ -9,9 +9,9 @@ MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-Combinatorics = "≥ 1.0.0"
-JuMP = "≥ 0.21.0"
-julia = "≥ 1.0.0"
+Combinatorics = "1"
+JuMP = "0.21"
+julia = "1"
 
 [extras]
 GLPK = "60bf3e95-4087-53dc-ae20-288a0d20c6a6"
