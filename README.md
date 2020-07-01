@@ -4,8 +4,8 @@
 [![codecov.io](http://codecov.io/github/vOptSolver/vOptGeneric.jl/coverage.svg?branch=master)](http://codecov.io/github/vOptSolver/vOptGeneric.jl?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/vOptSolver/vOptGeneric.jl/badge.svg?branch=master)](https://coveralls.io/github/vOptSolver/vOptGeneric.jl?branch=master)
 
-**vOptSolver** is a solver of multiobjective linear optimization problems (MOMILP, MOLP, MOIP, MOCO).
-This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: 2-IP, p-ILP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows.
+**vOptSolver** is a solver of multiobjective linear optimization problems (MOMIP, MOLP, MOIP, MOCO).
+This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: MOIP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows.
 
 We suppose you are familiar with vOptSolver; if not, read first this [presentation](https://voptsolver.github.io/vOptSolver/).
 
@@ -13,7 +13,7 @@ We suppose you are familiar with vOptSolver; if not, read first this [presentati
 ## Instructions 
 For a local use, a working version of:
 - Julia must be ready; instructions for the installation are available [here](https://julialang.org/downloads/)
-- your favorite MILP solver must be ready (GLPK is suggested); 
+- your favorite MIP solver must be ready (GLPK is suggested); 
   instructions for the installation are available [here](https://github.com/jump-dev/JuMP.jl)
   
 ### Run Julia
@@ -58,14 +58,14 @@ vOptGeneric is ready. See examples for further informations and have fun with th
 
 | Problem | Description                          | Output    | Method                       | Parameter (if required)  | Name          |
 |:--------|:-------------------------------------|:---------:| ---------------------------: | ------------| :--------|
-| 2-ILP   | bi-objective Integer Linear Program  | Y_N     | **:epsilon**                 | step = *realValue*       | ϵ-constraint  | 
-| 2-ILP   | bi-objective Integer Linear Program  | Y_N     | **:chalmet** or **:Chalmet** | step = *realValue*       | Chalmet       |
-| 2-ILP   | bi-objective Integer Linear Program  | Y_{SN}  | **:dicho** or **:dichotomy** | (none)                   | Aneja & Nair  |
-| p-ILP | multi-objective Integer Linear Program | Y_{lex} | **:lex** or **:lexico**      | (none)                   | Lexicographic |
+| 2-IP    | bi-objective Integer Linear Program  | Y_N     | **:epsilon**                 | step = *realValue*       | ϵ-constraint  | 
+| 2-IP    | bi-objective Integer Linear Program  | Y_N     | **:chalmet** or **:Chalmet** | step = *realValue*       | Chalmet       |
+| 2-IP    | bi-objective Integer Linear Program  | Y_{SN}  | **:dicho** or **:dichotomy** | (none)                   | Aneja & Nair  |
+| p-IP  | multi-objective Integer Linear Program | Y_{lex} | **:lex** or **:lexico**      | (none)                   | Lexicographic |
 
 
 ## Examples
 The folder `examples` provides (1) source code of problems ready to be solved and (2) selected datafiles into different formats.
 
 ## Limitations
-No special limitation; the solving strength of vOptGeneric is currently provided by the MILP solver (GLPK, Clp/Cbc, Cbc, GUROBI, etc.) invoked.
+No special limitation; the solving strength of vOptGeneric is currently provided by the MIP solver (GLPK, Clp/Cbc, Cbc, GUROBI, etc.) invoked.
