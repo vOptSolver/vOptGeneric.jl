@@ -61,7 +61,7 @@ vOptGeneric is ready. See examples for further informations and have fun with th
 | 2-IP    | bi-objective Integer Linear Program  | Y_N     | **:epsilon**                 | step = *realValue*       | ϵ-constraint  | 
 | 2-IP    | bi-objective Integer Linear Program  | Y_N     | **:chalmet** or **:Chalmet** | step = *realValue*       | Chalmet       |
 | 2-IP    | bi-objective Integer Linear Program  | Y_{SN}  | **:dicho** or **:dichotomy** | (none)                   | Aneja & Nair  |
-| p-MIP  | multi-objective Integer Linear Program | Y_{lex} | **:lex** or **:lexico**      | (none)                   | Lexicographic |
+| p-MIP  | multi-objective Mixed Integer Linear Program | Y_{lex} | **:lex** or **:lexico**      | (none)                   | Lexicographic |
 
 
 ## Examples
