@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/vOptSolver/vOptGeneric.jl/badge.svg?branch=master)](https://coveralls.io/github/vOptSolver/vOptGeneric.jl?branch=master)
 
 **vOptSolver** is a solver of multiobjective linear optimization problems (MOMIP, MOLP, MOIP, MOCO).
-This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems** (currently available: MOIP). With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows.
+This repository concerns **vOptGeneric**, the part of vOptSolver devoted to **multiobjective non-structured problems**. With vOptGeneric, the problem is expressed using JuMP algebraic language extended to multiple objectives. vOptGeneric runs on macOS, linux-ubuntu, and windows.
 
 We suppose you are familiar with vOptSolver; if not, read first this [presentation](https://voptsolver.github.io/vOptSolver/).
 
@@ -48,7 +48,7 @@ That's all folk; at this point, vOptGeneric is properly installed.
 When vOptGeneric is properly installed,
 
 1. run Julia and when the terminal is ready with the prompt `julia` on screen, 
-2. invoke vOptGeneric and the MILP solver to activate in typing in the console:
+2. invoke vOptGeneric, JuMP and the MILP solver to activate in typing in the console:
 ```
 julia> using vOptGeneric
 julia> using JuMP
