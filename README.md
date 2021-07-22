@@ -67,7 +67,23 @@ vOptGeneric is ready. See examples for further informations and have fun with th
 
 
 ## Examples
-The folder `examples` provides (1) source code of problems ready to be solved and (2) selected datafiles into different formats.
+The folder `examples` provides source code of problems ready to be solved.
 
-## Limitations
-No special limitation; the solving strength of vOptGeneric is currently provided by the MIP solver (GLPK, Clp/Cbc, Cbc, GUROBI, etc.) invoked.
+## Validation 
+
+Tested the
+
+-    22-Jul-2021 
+
+with
+
+  -    Julia 1.6.2
+  -    JuMP 0.21.8
+  -    GLPK 4.65
+  -    Gurobi 9.1.2
+ 
+on
+
+  -    Linux ubuntu 18.04.5 LTS
+  -    macOS 11.4 (Big Sur)
+  -    Windows 10
