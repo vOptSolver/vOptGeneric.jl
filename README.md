@@ -20,7 +20,7 @@ For a local use, a working version of:
 
 On linux:
 
-- open a console on your computer or in the cloud
+- open a console on your computer
 - when the prompt is ready, type in the console `julia`
 
 On macOS:
