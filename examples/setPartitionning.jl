@@ -58,8 +58,23 @@ function computeYNfor2SPA(  nbvar::Int,
     vSolve(model, method=:epsilon, step = 0.5)
 
     # ---- Querying the results
+    start = time()
     Y_N = getY_N(model)
-    return Y_N
+    elapsedTime = time() - start
+    return Y_N, elapsedTime
+end
+
+
+# ---- Save an instance of 2-SPA (format of instances compliant with vOptLib)
+function saveInstance2SPA(fname::String, Y_N, elapsedTime::Float64)
+    way = "Y_N_"*fname
+    open(way, "w") do f
+        write(f, "$elapsedTime \n")
+        write(f, "$(length(Y_N)) \n")
+        for i in 1:length(Y_N)
+            write(f, "$(Y_N[i][1]) $(Y_N[i][2]) \n")
+        end
+    end
 end
 
 
@@ -75,7 +90,10 @@ function main(fname::String)
     nbobj = 2
 
     # compute the set of non-dominated points Y_N ------------------------------
-    Y_N = computeYNfor2SPA(nbvar, nbctr, A, c1, c2)
+    Y_N, elapsedTime = computeYNfor2SPA(nbvar, nbctr, A, c1, c2)
+
+    # save the result on a file
+    saveInstance2SPA(fname, Y_N, elapsedTime)
 end
 
 # ---- Example
