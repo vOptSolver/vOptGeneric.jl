@@ -77,3 +77,7 @@ function main(fname::String)
     # compute the set of non-dominated points Y_N ------------------------------
     Y_N = computeYNfor2SPA(nbvar, nbctr, A, c1, c2)
 end
+
+# ---- Example
+
+# main("biodidactic5.txt")
