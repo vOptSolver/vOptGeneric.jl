@@ -1,6 +1,6 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
-function solve_lexico(m::JuMP.Model, optimizer_factory, verbose; args...)
+function solve_lexico(m::JuMP.Model, verbose; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -11,7 +11,7 @@ function solve_lexico(m::JuMP.Model, optimizer_factory, verbose; args...)
     #Check that problem is feasible and that no objective is unbounded
     for i = 1:nbObj
         JuMP.set_objective(m, objSenses[i], objs[i])
-        JuMP.optimize!(m, i == 1 ? optimizer_factory : nothing, ignore_optimize_hook=true)
+        JuMP.optimize!(m, ignore_optimize_hook=true)
         status = JuMP.termination_status(m)
         if status != MOI.OPTIMAL
             return status
@@ -70,7 +70,7 @@ function solve_permutation(m::JuMP.Model, p, cstr_obj, cstr_rhs ; args...)
 
 end
 
-function solve_eps(m::JuMP.Model, optimizer_factory, ϵ::Float64, round_results, verbose ; args...)
+function solve_eps(m::JuMP.Model, ϵ::Float64, round_results, verbose ; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
@@ -90,7 +90,7 @@ function solve_eps(m::JuMP.Model, optimizer_factory, ϵ::Float64, round_results,
     eps = (f2Sense == MOI.MIN_SENSE) ? JuMP.@constraint(m, f2 <= RHS) : JuMP.@constraint(m, f2 >= RHS)
 
     #Solve with that objective
-    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    JuMP.optimize!(m, ignore_optimize_hook=true)
     status = JuMP.termination_status(m)
 
     if status == MOI.OPTIMAL
@@ -140,7 +140,7 @@ function solve_eps(m::JuMP.Model, optimizer_factory, ϵ::Float64, round_results,
     return MOI.OPTIMAL
 end
 
-function solve_dicho(m::JuMP.Model, optimizer_factory, round_results, verbose; args...)
+function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1, f2 = vd.objs
@@ -152,7 +152,7 @@ function solve_dicho(m::JuMP.Model, optimizer_factory, round_results, verbose; a
     verbose && println("solving for z1")
     
     #Solve with that objective
-    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    JuMP.optimize!(m, ignore_optimize_hook=true)
     status = JuMP.termination_status(m)
 
     #If a solution exists
@@ -245,7 +245,7 @@ function dichoRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, round_r
 
 end
 
-function solve_Chalmet(m::JuMP.Model, optimizer_factory, step, verbose ; args...)
+function solve_Chalmet(m::JuMP.Model, step, verbose ; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
     f1,f2 = vd.objs[1],vd.objs[2]
@@ -257,7 +257,7 @@ function solve_Chalmet(m::JuMP.Model, optimizer_factory, step, verbose ; args...
     verbose && println("solving for z1")
 
     #Solve with that objective
-    JuMP.optimize!(m, optimizer_factory, ignore_optimize_hook=true)
+    JuMP.optimize!(m, ignore_optimize_hook=true)
     status = JuMP.termination_status(m)
 
     #If a solution exists

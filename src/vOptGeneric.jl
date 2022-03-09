@@ -35,15 +35,23 @@ function getvOptData(m::JuMP.Model)
     return m.ext[:vOpt]::vOptData
 end
 
-function vModel(optimizer_factory=nothing; args...)
-    m = optimizer_factory === nothing ? JuMP.Model(; args...) : JuMP.Model(optimizer_factory ; args...)
+function vModel(optimizer_factory; args...)
+    m = JuMP.Model(optimizer_factory ; args...)
     m.optimize_hook = vSolve
     # m.printhook = printhook
     m.ext[:vOpt] = vOptData()
     return m
 end
 
-function vSolve(m::JuMP.Model, optimizer_factory=nothing ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
+function vModel(; args...)
+    m = JuMP.Model(; args...)
+    m.optimize_hook = vSolve
+    # m.printhook = printhook
+    m.ext[:vOpt] = vOptData()
+    return m
+end
+
+function vSolve(m::JuMP.Model ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
 
     vd = getvOptData(m)
 
@@ -52,13 +60,13 @@ function vSolve(m::JuMP.Model, optimizer_factory=nothing ; relax=false, method=n
     end
     
     if method == :epsilon
-        solve_eps(m, optimizer_factory, step, round_results, verbose ; relaxation=relax, args...)
+        solve_eps(m, step, round_results, verbose ; relaxation=relax, args...)
     elseif method == :dicho || method == :dichotomy
-        solve_dicho(m, optimizer_factory, round_results, verbose ; relaxation=relax, args...)
+        solve_dicho(m, round_results, verbose ; relaxation=relax, args...)
     elseif method == :Chalmet || method == :chalmet
-        solve_Chalmet(m, optimizer_factory, step, verbose ; relaxation=relax, args...)
+        solve_Chalmet(m, step, verbose ; relaxation=relax, args...)
     elseif method == :lex || method == :lexico
-        solve_lexico(m, optimizer_factory, verbose ; relaxation=relax, args...)
+        solve_lexico(m, verbose ; relaxation=relax, args...)
     else
         @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
     end
