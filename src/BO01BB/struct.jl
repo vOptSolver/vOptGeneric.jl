@@ -211,11 +211,13 @@ end
 #     # return Node(0, 0, Vector{Int64}(), 0, 0., RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE)
 # end
 
-function Base.empty!(node::Node)
+# function empty(node::Node)
     
-end
+# end
 
-function prune(node::Node)
-    
+function prune!(node::Node, reason::PrunedType)
+    node.isPruned = true
+    node.prunedType = reason
+    node.succs = Vector{Int64}()
 end
 

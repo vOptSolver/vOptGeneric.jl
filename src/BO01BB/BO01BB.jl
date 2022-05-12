@@ -1,7 +1,5 @@
 # This file contains main functions for the bi-objective 0-1 branch and bound algorithm.
 
-using DataStructures
-
 include("struct.jl")
 include("../algorithms.jl")
 
@@ -26,8 +24,7 @@ function iterative_procedure(node::Node, m::JuMP.Model, round_results, verbose; 
     vd = getvOptData(m)
 
     if size(vd.Y_N, 1) == 0
-        node.isPruned = true
-        node.prunedType = INFEASIBILITY
+        prune!(node, INFEASIBILITY)
         return
     end
 
@@ -39,6 +36,8 @@ function iterative_procedure(node::Node, m::JuMP.Model, round_results, verbose; 
 
     return node1, node2
 end
+
+
 
 """
 A bi-objective binary(0-1) branch and bound algorithm.
@@ -55,22 +54,22 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     # initialize the incumbent list by heuristics or with Inf
     incumbent = IncumbentSet()
 
-    BB_tree = Vector{Node}(undef, 0)
+    BB_tree = Vector{Node}()
 
     # by defaut, we take the breadth-first strategy (FIFO queue)
-    todo = Queue{Node}()
+    todo = Queue{Int64}()
 
     # step 0 : create the root and add to the todo list
     root = Node()
     push!(BB_tree, root)
-    enqueue!(todo, root)
+    enqueue!(todo, root.id)
 
     # step 1 : continue to fathom the node until todo list is empty
     while length(todo) > 0
-        node = dequeue!(todo)
-        node1, node2 = iterative_procedure(node, m, round_results, verbose; args...)
+        ind = dequeue!(todo)
+        node1, node2 = iterative_procedure(BB_tree[ind], m, round_results, verbose; args...)
         push!(BB_tree, node1); push!(BB_tree, node2)
-        enqueue!(todo, node1); enqueue!(todo, node2)
+        enqueue!(todo, node1.id); enqueue!(todo, node2.id)
     end
 
 end
