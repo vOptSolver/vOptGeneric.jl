@@ -16,6 +16,7 @@ export vModel,
     
 include("MOP.jl")
 include("algorithms.jl")
+include("BO01BB/BO01BB.jl")
 
 mutable struct vOptData
     objs::Vector{JuMP.GenericAffExpr}          #Objectives
@@ -67,8 +68,10 @@ function vSolve(m::JuMP.Model ; relax=false, method=nothing, step = 1., round_re
         solve_Chalmet(m, step, verbose ; relaxation=relax, args...)
     elseif method == :lex || method == :lexico
         solve_lexico(m, verbose ; relaxation=relax, args...)
+    elseif method == :bb || method == :branchbound
+        solve_branchbound(m, round_results, verbose ; args...)
     else
-        @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
+        @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico | branchbound) )")
     end
 
 end
