@@ -182,12 +182,20 @@ mutable struct RelaxedBoundSet
     segements::Vector{Vector{Int64}} # TODO : find a better structure
 end
 
+function RelaxedBoundSet()
+    return RelaxedBoundSet(NatrualOrderVector(), Vector{Vector{Int64}}())
+end
+
 
 """
 The incumbent set consists in feasible solutions/points.
 """
 mutable struct IncumbentSet
     sols::NatrualOrderVector
+end
+
+function IncumbentSet()
+    return IncumbentSet(NatrualOrderVector())
 end
 
 
@@ -207,17 +215,44 @@ mutable struct Node
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
 end
 
-# function Node()
-#     # return Node(0, 0, Vector{Int64}(), 0, 0., RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE)
-# end
-
-# function empty(node::Node)
-    
-# end
-
-function prune!(node::Node, reason::PrunedType)
-    node.isPruned = true
-    node.prunedType = reason
-    node.succs = Vector{Int64}()
+function Node()
+    return Node(0, 0, Vector{Int64}(), 0, 0.0, RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE)
 end
 
+"""
+Prune the given node, and return a list of successors to be released.
+"""
+function prune!(node::Node, reason::PrunedType)
+    if node.isPruned
+        return node.succs
+    end
+    node.isPruned = true
+    node.prunedType = reason
+    to_delete = node.succs
+    node.succs = Vector{Int64}()
+    return to_delete
+end
+
+
+"""
+The branch and bound tree.
+"""
+mutable struct BBTree
+    tree::Vector{Node}
+end
+
+function BBTree()
+    return BBTree(Vector{Node}())
+end
+
+"""
+Given a vector of nodes' indices, prune the subtrees induced by the given nodes.
+"""
+function release(BB_tree::BBTree, indices::Vector{Int64})
+    todo = indices
+    while length(todo) > 0
+        ind = pop!(todo)
+        to_delete = prune!(BB_tree[ind], NONE)
+        vcat(todo, to_delete)
+    end
+end
