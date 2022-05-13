@@ -9,7 +9,7 @@
 
 @enum PrunedType INFEASIBILITY OPTIMALITY DOMINANCE LEAVE NONE
 
-TOL = 10^(-6)
+TOL = 10^(-4)
 
 """
 Storage the statistics information of the BO01BB algorithm.
@@ -48,11 +48,41 @@ mutable struct BO01Problem
     vd::vOptData
     varArray::Array{VariableRef}
     m::JuMP.Model
+    param::BBparam
 end
 
+"""
+Given a patrial assignment of variables, remove the fixed bounding.
+"""
+function removeBounds(pb::BO01Problem, assignment::Vector{Int64})
+    for i = 1:length(assignment) 
+        if assignment[i] == 0
+            set_upper_bound(pb.varArray[i], 1)
+        else if assignment[i] == 1
+            set_lower_bound(pb.varArray[i], 0)
+        else
+            continue
+        end
+    end
+end
 
 """
-A Sol object consists of solution x in decision space and point y in objective space.
+Given a partial assignment on variables values, add the corresponding bounds.
+"""
+function setBounds(pb::BO01Problem, assignment::Vector{Int64})
+    for i = 1:length(assignment) 
+        if assignment[i] == 0
+            set_upper_bound(pb.varArray[i], 0)
+        else if assignment[i] == 1
+            set_lower_bound(pb.varArray[i], 1)
+        else
+            continue
+        end
+    end
+end
+
+"""
+A Sol object consists of a solution x in decision space and a point y in objective space.
 """
 mutable struct Sol
     x::Vector{Float64}
@@ -60,9 +90,28 @@ mutable struct Sol
     is_integer::Bool
 end
 
+"""
+A defaut constructor.
+"""
 function Sol()
     return Sol(Vector{Float64}(), Vector{Float64}(), false)
 end
+
+"""
+A constructor identifies whether the given parameters is an integer point.
+"""
+function Sol(x::Vector{Float64}, y::Vector{Float64})
+    is_integer = true
+    for i in 1:length(x)
+        if abs(x[i]-0.0) <= TOL || abs(x[i]-1.0) <= TOL
+            continue
+        else
+            is_integer = false; break
+        end
+    end
+    return Sol(x, y, is_integer)
+end
+
 
 """
 Overload operators for the dominance order between two solutions.
@@ -101,6 +150,10 @@ end
 
 function NatrualOrderVector()
     return NatrualOrderVector(Vector{Sol}())
+end
+
+function length(v::NatrualOrderVector)
+    return length(v.sol_vect)
 end
 
 """
@@ -166,7 +219,7 @@ function Base.push!(sols::NatrualOrderVector, s::Sol)
     if supp == tail
         sols.sol_vect = sols.sol_vect[1:ind]
     else if supp > ind
-        tmp = sols.sol_vect[supp+1:tail]
+        # tmp = sols.sol_vect[supp+1:tail]
         sols.sol_vect = vcat(sols.sol_vect[1:ind], sols.sol_vect[supp+1:tail])
     end
 
@@ -207,20 +260,21 @@ mutable struct Node
     pred::Int64                 # predecessor's indices
     succs::Vector{Int64}        # successors' indices
     var::Int64                  # indice of the chosen variable to be split
-    var_bound::Float64          # variable bound
+    var_bound::Int64            # variable bound
     RBS::RelaxedBoundSet        # local relaxed bound set
     pareto_sols::NatrualOrderVector    # pareto optimal solutions
     actived::Bool               # if the node is active
     isPruned::Bool              # if the node is pruned
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
+    assignment::Vector{Int64}   # a list of assignment/bounding on the variables
 end
 
 function Node()
-    return Node(0, 0, Vector{Int64}(), 0, 0.0, RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE)
+    return Node(0, 0, Vector{Int64}(), 0, 0, RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE, Vector{Int64}())
 end
 
 """
-Prune the given node, and return a list of successors to be released.
+Prune the given node (liberate attributes), and return a list of successors to be released.
 """
 function prune!(node::Node, reason::PrunedType)
     if node.isPruned
@@ -230,6 +284,11 @@ function prune!(node::Node, reason::PrunedType)
     node.prunedType = reason
     to_delete = node.succs
     node.succs = Vector{Int64}()
+    node.assignment = Vector{Int64}()
+    if reason == NONE
+        node.RBS = RelaxedBoundSet()
+        node.pareto_sols = NatrualOrderVector()
+    end
     return to_delete
 end
 
