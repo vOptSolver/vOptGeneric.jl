@@ -1,3 +1,9 @@
+# Bi-objective unidimensionnal 01 knapsack problem (biukp)
+#
+# Exercise 10.2 page 290 of
+# Multicriteria Optimization (2nd edt), M. Ehrgott, Springer 2005.
+
+
 # ---- Packages to use
 using JuMP, GLPK
 
@@ -48,3 +54,20 @@ vSolve( biukp, method=:bb, verbose=true )
 # solving for 1.0*f1 + 6.0*f2
 # X = [1, 2, 3, 5] | Z = [21.0, 38.0]
 # X = [1, 2, 3, 4] | Z = [27.0, 37.0]
+
+
+# method=:bb, verbose=true
+
+# Output : 
+
+# incumbent : NaturalOrderVector[
+# Solution( 
+#  xEquiv = [[1.0, 1.0, 1.0, 0.0, 1.0]]
+#  y = [21.0, 38.0]
+#  is_binary ? true )
+# Solution( 
+#  xEquiv = [[1.0, 1.0, 1.0, 1.0, 0.0]]
+#  y = [27.0, 37.0]
+#  is_binary ? true )
+# ]
+

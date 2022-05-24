@@ -134,6 +134,7 @@ function fullyExplicitDominanceTest(node_id::Int64, tree::BBTree, incumbent::Inc
     # if the LBS consists of segments and points
     # ----------------------------------------------
     nadir_pts = getNadirPoints(incumbent)
+
     for i=1:length(tree.tab[node_id].RBS.natural_order_vect)-1
         sol = tree.tab[node_id].RBS.natural_order_vect.sols[i]
 

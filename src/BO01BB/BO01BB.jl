@@ -132,6 +132,10 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     push!(tree.tab, root)
 
     if LPRelaxByDicho(root.id, tree, problem, round_results, verbose; args...) || updateIncumbent(root.id, tree, incumbent, verbose)
+        if converted
+            reversion(m, f, incumbent)
+        end
+        println("incumbent : ", incumbent.natural_order_vect)
         return
     end
 
@@ -147,6 +151,5 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     if converted
         reversion(m, f, incumbent)
     end
-
     println("incumbent : ", incumbent.natural_order_vect)
 end
