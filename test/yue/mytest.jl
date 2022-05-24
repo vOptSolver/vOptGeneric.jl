@@ -20,19 +20,31 @@ biukp = vModel( GLPK.Optimizer ) #; JuMP.set_silent( biukp )
 @constraint( biukp, sum( w[j]*x[j] for j=1:n ) <= c )
 
 
-# # ---- Invoking the solver (branch and bound method)
-# vSolve( biukp, method=:bb, verbose=true )
+# ---- Invoking the solver (branch and bound method)
+vSolve( biukp, method=:bb, verbose=true )
 
-# ---- Invoking the solver (dichotomic method)
-vSolve( biukp, method=:dicho, verbose=true )
+# # ---- Invoking the solver (dichotomy method)
+# vSolve( biukp, method=:dicho, verbose=true )
 
-# ---- Querying the results
-Y_N = getY_N( biukp )
+# # ---- Querying the results
+# Y_N = getY_N( biukp )
 
 
-# ---- Displaying the results (X_{SE} and Y_{SN})
-for i = 1:length(Y_N)
-    X = value.(x, i)
-    print("X = ", findall(elt -> elt ≈ 1, X))
-    println(" | Z = ",Y_N[i])
-end
+# # ---- Displaying the results (X_{SE} and Y_{SN})
+# for i = 1:length(Y_N)
+#     X = value.(x, i)
+#     print("X = ", findall(elt -> elt ≈ 1, X))
+#     println(" | Z = ",Y_N[i])
+# end
+
+
+
+# method=:dicho, verbose=true
+
+# Output : 
+
+# solving for z1
+# solving for z2
+# solving for 1.0*f1 + 6.0*f2
+# X = [1, 2, 3, 5] | Z = [21.0, 38.0]
+# X = [1, 2, 3, 4] | Z = [27.0, 37.0]

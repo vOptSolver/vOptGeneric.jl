@@ -7,7 +7,7 @@
               x∈{0,1}
 """
 
-@enum PrunedType INFEASIBILITY OPTIMALITY DOMINANCE LEAVE NONE
+@enum PrunedType INFEASIBILITY OPTIMALITY DOMINANCE NONE
 
 TOL = 10^(-4)
 
@@ -31,7 +31,7 @@ Some parameters used in the B&B algorithm.
 """
 mutable struct BBparam
     time_limit::Float64     # time limit for B&B algo
-    tol::Float64            # numerical precision
+    ϵ::Float64              # numerical precision
     traverse::Symbol        # traverse strategy such as dfs, bfs...
     branching::Symbol       # branching strategy
 end
@@ -45,182 +45,197 @@ end
 Storage the components definning a bi-objective 0-1 linear program.
 """
 mutable struct BO01Problem
-    vd::vOptData
-    varArray::Array{VariableRef}
+    varArray::Array{JuMP.VariableRef}
     m::JuMP.Model
     param::BBparam
+    info::StatInfo
 end
 
-"""
-Given a patrial assignment of variables, remove the fixed bounding.
-"""
-function removeBounds(pb::BO01Problem, assignment::Vector{Int64})
-    for i = 1:length(assignment) 
-        if assignment[i] == 0
-            set_upper_bound(pb.varArray[i], 1)
-        else if assignment[i] == 1
-            set_lower_bound(pb.varArray[i], 0)
-        else
-            continue
-        end
-    end
-end
 
 """
-Given a partial assignment on variables values, add the corresponding bounds.
+A point `y` in the criteria space may be projected from a set of equivalent solutions `x`.
 """
-function setBounds(pb::BO01Problem, assignment::Vector{Int64})
-    for i = 1:length(assignment) 
-        if assignment[i] == 0
-            set_upper_bound(pb.varArray[i], 0)
-        else if assignment[i] == 1
-            set_lower_bound(pb.varArray[i], 1)
-        else
-            continue
-        end
-    end
-end
-
-"""
-A Sol object consists of a solution x in decision space and a point y in objective space.
-"""
-mutable struct Sol
-    x::Vector{Float64}
+mutable struct Solution
+    xEquiv::Vector{Vector{Float64}}            # a set of equivalent solutions x defining the same y
     y::Vector{Float64}
-    is_integer::Bool
+    is_binary::Bool
 end
 
-"""
-A defaut constructor.
-"""
-function Sol()
-    return Sol(Vector{Float64}(), Vector{Float64}(), false)
+function Solution()
+    return Solution(Vector{Vector{Float64}}(), Vector{Float64}(), false)
 end
 
-"""
-A constructor identifies whether the given parameters is an integer point.
-"""
-function Sol(x::Vector{Float64}, y::Vector{Float64})
-    is_integer = true
-    for i in 1:length(x)
-        if abs(x[i]-0.0) <= TOL || abs(x[i]-1.0) <= TOL
-            continue
-        else
-            is_integer = false; break
+function isApproxBinary(a::Float64)
+    return abs(a-0.0) ≈ TOL || abs(a-1.0) ≈ TOL
+end
+
+function Solution(x::Vector{Float64}, y::Vector{Float64})
+    is_binary = true
+    for i = 1:length(x)
+        if !(abs(x[i]-0.0) ≤ TOL || abs(x[i]-1.0) ≤ TOL)
+            is_binary = false; break
         end
     end
-    return Sol(x, y, is_integer)
+    return Solution([x], y, is_binary)
 end
 
+"""
+Add an equivalent solution associated to point `y`. 
+"""
+function addEquivX(sol::Solution, x::Vector{Float64})
+    @assert length(x) > 0 "x cannot be empty"
+
+    push!(sol.xEquiv, x)
+    # check if x is approximately binary
+    if !sol.is_binary
+        for i in 1:length(x)
+            if !(abs(x[i]-0.0) ≤ TOL || abs(x[i]-1.0) ≤ TOL)
+                return
+            end
+        end
+        sol.is_binary = true
+    end
+end
 
 """
 Overload operators for the dominance order between two solutions.
 """
-function Base.:<=(a::Sol, b::Sol)
-    @assert length(a.y) > 0
-    @assert length(b.y) > 0
-    return a.y[1]<=b.y[1] && a.y[2]<=b.y[2]
+function Base.:show(io::IO, s::Solution)
+    println(io, "Solution( \n xEquiv = ", s.xEquiv,
+    "\n y = ", s.y,
+    "\n is_binary ? ", s.is_binary, " )")
 end
 
-function Base.:>=(a::Sol, b::Sol)
+
+function Base.:<=(a::Solution, b::Solution)
     @assert length(a.y) > 0
     @assert length(b.y) > 0
-    return a.y[1]>=b.y[1] && a.y[2]>=b.y[2]
+    return a.y[1] ≤ b.y[1] && a.y[2] ≤ b.y[2]
 end
 
-function Base.:(==)(a::Sol, b::Sol)
+function Base.:<(a::Solution, b::Solution)
     @assert length(a.y) > 0
     @assert length(b.y) > 0
-    return a.y[1]==b.y[1] && a.y[2]==b.y[2]
+    return a.y[1] < b.y[1] && a.y[2] < b.y[2]
 end
 
-function Base.:(!=)(a::Sol, b::Sol)
+function Base.:>=(a::Solution, b::Solution)
     @assert length(a.y) > 0
     @assert length(b.y) > 0
-    return a.y[1]!=b.y[1] && a.y[2]!=b.y[2]
+    return a.y[1] ≥ b.y[1] && a.y[2] ≥ b.y[2]
+end
+
+function Base.:>(a::Solution, b::Solution)
+    @assert length(a.y) > 0
+    @assert length(b.y) > 0
+    return a.y[1]>b.y[1] && a.y[2]>b.y[2]
+end
+
+function Base.:(==)(a::Solution, b::Solution)
+    @assert length(a.y) > 0
+    @assert length(b.y) > 0
+    return abs(a.y[1] -b.y[1]) ≤ TOL && abs(a.y[2] - b.y[2]) ≤ TOL
+end
+
+function Base.:(!=)(a::Solution, b::Solution)
+    @assert length(a.y) > 0
+    @assert length(b.y) > 0
+    return abs(a.y[1] - b.y[1]) > TOL || abs(a.y[2] - b.y[2]) > TOL
+end
+
+"""
+Return `true` if solution `a` dominates sobution `b`; `false` otherwise.
+"""
+function dominate(a::Solution, b::Solution)
+    return a ≤ b && a ≠ b
 end
 
 
 """
-A vector of solutions in the natrual order (from left to right in bi-objective space).
+A vector of solutions in the natrual order (from left to right in bi-objective space). 
 """
-mutable struct NatrualOrderVector
-    sol_vect::Vector{Sol}
+mutable struct NaturalOrderVector
+    sols::Vector{Solution}
 end
 
-function NatrualOrderVector()
-    return NatrualOrderVector(Vector{Sol}())
+function NaturalOrderVector()
+    return NaturalOrderVector(Vector{Solution}())
 end
 
-function length(v::NatrualOrderVector)
-    return length(v.sol_vect)
+function Base.length(v::NaturalOrderVector)
+    return length(v.sols)
 end
 
-"""
-Push a solution into a vector of natrual ordered solutions, return true if it is successfully added;
-or false, if it is weakly dominated by one (or more) solution of the vector. 
+function Base.:show(io::IO, nov::NaturalOrderVector)
+    println(io, "NaturalOrderVector[")
+    for sol in nov.sols
+        print(io, sol)
+    end
+    println("]")
+end
 
-In case of successfully added, delete the old solutions that are weakly dominated by the new one, if have any.
+
 """
-function Base.push!(sols::NatrualOrderVector, s::Sol)
+Push a solution into a vector of natrual ordered solutions, return `true` if it is successfully added;
+or `false`, if it is weakly dominated by one (or more) solution(s) in the vector. 
+
+In case of successfully added and `filtered=true` (by defaut false), delete the old solutions that are weakly dominated by the new one.
+"""
+function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::Bool=false)
     # add s directly if sols is empty
-    if length(sols.sol_vect) == 0
-        push!(sols.sol_vect, s)
+    if length(natural_sols) == 0
+        push!(natural_sols.sols, sol)
         return true
     end
 
-    # find the right position (ind) to insert, keeping the natrual order
-    ind = 1
-    tail = length(sols.sol_vect)
-    for i in 1:tail
+    # a binary/dichotomy search finds the location to insert 
+    l = 1; r = length(natural_sols); m = 0
+    while l ≤ r
+        m = Int(floor((l+r)/2))
         # compare the first objective
-        if s.y[1] < sols.sol_vect[i].y[1]
-            ind += 1; continue
-        else if s.y[1] == sols.sol_vect[i].y[1]
-           # compare the second objective
-           if s.y[2] < sols.sol_vect[i].y[2]
-                break # s weakly dominates sol_vect[i]
-            else
-                return false # s is weakly dominated by sol_vect[i]
-           end
+        if sol.y[1] < natural_sols.sols[m].y[1]
+            l = m+1
+        elseif sol.y[1] > natural_sols.sols[m].y[1]
+            r = m-1
+        # in case of the equality on the first objective, compare the second obj
+        elseif sol.y[2] > natural_sols.sols[m].y[2]
+            l = m+1
+        elseif sol.y[2] < natural_sols.sols[m].y[2]
+            r  = m-1
+        # in case of equality
         else
-            break
+            return false
         end
     end
 
-    # insert s at position "ind"
-    if tail == ind
-        push!(sols.sol_vect, s)
-        return true
+    if r==0 # insert at top
+        natural_sols.sols = vcat([sol], natural_sols.sols)
+        m = 1
+    elseif l==length(natural_sols)+1 # insert at bottom
+        push!(natural_sols.sols, sol)
+        m = l
+    else # insert at m
+        natural_sols.sols = vcat(vcat(natural_sols.sols[1:m-1], sol), natural_sols.sols[m:end])
     end
 
-    # if s weakly dominates sol_vect[ind], replace it
-    if s <= sols.sol_vect[ind]
-        sols.solutions[ind] = s
-    else
-    # otherwise, insert s at position "ind"
-        push!(sols.sol_vect, s)
-        sols.solutions[ind+1:tail+1] = sols.solutions[ind:tail]
-        sols.solutions[ind] = s
-        return true
-    end
-
-    # find solutions (e.g. sol_vect[ind+1:supp]) weakly dominated by s (i.e. sol_vect[ind])
-    supp = ind
-    while supp < tail
-        # if sol_vect[ind] weakly dominates sol_vect[supp+1]
-        if sols.sol_vect[ind] <= sols.sol_vect[supp+1]
-            supp += 1
-        else
-            break
+    # find points weakly dominated by the new point and delete it/them
+    if filtered
+        # if sol dominates other solutions
+        inds = []
+        for i = 1:m-1 
+            if dominate(sol, natural_sols.sols[i])
+                push!(inds, i)
+            end
         end
-    end
+        deleteat!(natural_sols.sols, inds)
 
-    if supp == tail
-        sols.sol_vect = sols.sol_vect[1:ind]
-    else if supp > ind
-        # tmp = sols.sol_vect[supp+1:tail]
-        sols.sol_vect = vcat(sols.sol_vect[1:ind], sols.sol_vect[supp+1:tail])
+        # if sol is dominated
+        for i = m+1:length(natural_sols) 
+            if dominate(natural_sols.sols[i], sol)
+                deleteat!(natural_sols.sols, m)
+                return false
+            end
+        end
     end
 
     return true
@@ -228,90 +243,28 @@ end
 
 
 """
-The relaxed bound set consists of segements and points.
+The relaxed bound set consists of segments and natural ordered solutions. 
+
+Since all solutions are natural ordered, segments is defined by a dictionary where each point solution s is associated
+with a boolean if s and the next/adjacent point in right forms a segment.
 """
 mutable struct RelaxedBoundSet
-    sols::NatrualOrderVector
-    segements::Vector{Vector{Int64}} # TODO : find a better structure
+    natural_order_vect::NaturalOrderVector
+    segments::Dict{Solution, Bool}        
 end
 
 function RelaxedBoundSet()
-    return RelaxedBoundSet(NatrualOrderVector(), Vector{Vector{Int64}}())
+    return RelaxedBoundSet(NaturalOrderVector(), Dict{Solution, Bool}())
 end
 
 
 """
-The incumbent set consists in feasible solutions/points.
+The incumbent set consists in feasible solutions.
 """
 mutable struct IncumbentSet
-    sols::NatrualOrderVector
+    natural_order_vect::NaturalOrderVector
 end
 
 function IncumbentSet()
-    return IncumbentSet(NatrualOrderVector())
-end
-
-
-"""
-Definition of the node object in B&B tree.
-"""
-mutable struct Node
-    id::Int64                   # identify number (count)
-    pred::Int64                 # predecessor's indices
-    succs::Vector{Int64}        # successors' indices
-    var::Int64                  # indice of the chosen variable to be split
-    var_bound::Int64            # variable bound
-    RBS::RelaxedBoundSet        # local relaxed bound set
-    pareto_sols::NatrualOrderVector    # pareto optimal solutions
-    actived::Bool               # if the node is active
-    isPruned::Bool              # if the node is pruned
-    prunedType::PrunedType      # if the node is fathomed, restore pruned type
-    assignment::Vector{Int64}   # a list of assignment/bounding on the variables
-end
-
-function Node()
-    return Node(0, 0, Vector{Int64}(), 0, 0, RelaxedBoundSet(), NatrualOrderVector(), true, false, NONE, Vector{Int64}())
-end
-
-"""
-Prune the given node (liberate attributes), and return a list of successors to be released.
-"""
-function prune!(node::Node, reason::PrunedType)
-    if node.isPruned
-        return node.succs
-    end
-    node.isPruned = true
-    node.prunedType = reason
-    to_delete = node.succs
-    node.succs = Vector{Int64}()
-    node.assignment = Vector{Int64}()
-    if reason == NONE
-        node.RBS = RelaxedBoundSet()
-        node.pareto_sols = NatrualOrderVector()
-    end
-    return to_delete
-end
-
-
-"""
-The branch and bound tree.
-"""
-mutable struct BBTree
-    tree::Vector{Node}
-end
-
-function BBTree()
-    return BBTree(Vector{Node}())
-end
-
-"""
-Given a vector of nodes' indices, prune the subtrees induced by the given nodes.
-"""
-function release(BB_tree::BBTree, indices::Vector{Int64})
-    todo = indices
-    while length(todo) > 0
-        ind = pop!(todo)
-        to_delete = prune!(BB_tree[ind], NONE)
-        vcat(todo, to_delete)
-    end
+    return IncumbentSet(NaturalOrderVector())
 end

@@ -1,95 +1,95 @@
 # This file contains main functions for the bi-objective 0-1 branch and bound algorithm.
+include("../vOptData.jl")
+include("BBtree.jl")
+include("branching.jl")
+include("fathoming.jl")
 
-include("struct.jl")
-include("../algorithms.jl")
+
+function formatting(m::JuMP.Model)
+    converted = false; f = []
+    vd = m.ext[:vOpt]::vOptData
+    @assert length(vd.objSenses) == 2 "this algorithm requires 2 objective functions !"
+    for i = 1:2 
+       if vd.objSenses[i] == MOI.MAX_SENSE
+            vd.objSenses[i] = MOI.MIN_SENSE
+            vd.objs[i] *= -1
+            converted = true
+            push!(f, i)
+       end 
+    end
+    return converted, f
+end
+
+function reversion(m::JuMP.Model, f, incumbent::IncumbentSet)
+    vd = m.ext[:vOpt]::vOptData
+    for i in f
+        vd.objSenses[i] = MOI.MAX_SENSE
+        vd.objs[i] *= -1
+    end
+
+    for i=1:length(incumbent.natural_order_vect) 
+        incumbent.natural_order_vect.sols[i].y *= -1
+    end
+end
 
 """
-The BO01B&B procedure at each iteration.
-
+The BO01B&B procedure at each iteration. 
 Argument :
-    - node : actual node defining a subproblem
+    - ind : actual node's index in tree tableau
     - pb : BO01Problem 
 """
-function iterative_procedure(ind::Int64, BB_tree::BBTree, pb::BO01Problem, incumbent::Incumbent, round_results, verbose; args...)
+function iterative_procedure(todo, ind::Int64, tree::BBTree, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
+    if verbose
+        @info "we are at node ", ind
+    end
     # get the actual node
-    node = BB_tree.tree[ind]
-    node.actived = false
-    if node.var > 0
-        node.assignment[node.var] = node.var_bound
-    end
-    
-    #-----------------------------------------------------------
-    # STEP 1 : resolving the LP relaxation + check feasiblility
-    #-----------------------------------------------------------
-    undo_relax = relax_integrality(pb.m)
-    setBounds(pb, node.assignment)
-    solve_dicho(pb.m, round_results, verbose ; args...)
-    removeBounds(pb, node.assignment)
-    undo_relax()
-    vd_LP = getvOptData(pb.m)
-
-    if size(vd_LP.Y_N, 1) == 0
-        to_release = prune!(node, INFEASIBILITY)
-        release(BB_tree, to_release)
-        return 
-    end
-
-    # construct/complete the relaxed bound set
-    for i = 1:length(vd_LP.Y_N)
-        push!(node.RBS.sols, Sol(vd_LP.X_E[i], vd_LP.Y_N[i]))
-    end
-
-    #-----------------------------------------------------------
-    # STEP 2 : check optimality && update the incumbent set
-    #-----------------------------------------------------------
-    all_integer = true
-    for i = 1:length(node.RBS.sols)
-        if node.RBS.sols.sol_vect[i].is_integer
-            s = node.RBS.sols.sol_vect[i]
-            push!(incumbent.sols, s)
-        else
-            all_integer = false
-        end
-    end
-
-    if all_integer
-        to_release = prune!(node, OPTIMALITY)
-        release(BB_tree, to_release)
-        return
-    end
+    node = tree.tab[ind]
+    @assert node.activated == true "the actual node is not activated "
+    node.activated = false
 
     #---------------------------
     # STEP 3 : test dominance 
     #---------------------------
 
-    #------------------------------
-    # STEP 4 : branching variable 
-    #------------------------------
-    free_vars = [ind for ind in 1:length(pb.varArray) if node.assignment[ind] == -1]
-    var_split = free_vars[rand(1:length(free_vars))]
+    #-----------------------------------------
+    # branching variable + generate new nodes
+    #-----------------------------------------
+    var_split = pickUpAFreeVar(ind, tree, pb)
+    if tree.tab[ind].isLeaf
+        return
+    end
+
     node1 = Node(
-        length(BB_tree.tree) + 1,
-        node.id,
+        length(tree.tab) + 1,
+        tree.tab[ind].depth + 1, ind,
         Vector{Int64}(),
         var_split, 1,
-        RelaxedBoundSet(), NatrualOrderVector(),
-        true, false, NONE, node.assignment[:]
+        RelaxedBoundSet(),
+        true, false, false, NONE
     )
-    push!(BB_tree.tree, node1)
+    push!(tree.tab, node1)
+    if LPRelaxByDicho(node1.id, tree, pb, round_results, verbose; args...) || updateIncumbent(node1.id, tree, incumbent, verbose)
+        node1.activated = false
+    else
+        addTodo(todo, pb, node1.id)
+    end
 
     node2 = Node(
-        length(BB_tree.tree) + 1,
-        node.id,
+        length(tree.tab) + 1,
+        tree.tab[ind].depth + 1, ind,
         Vector{Int64}(),
         var_split, 0,
-        RelaxedBoundSet(), NatrualOrderVector(),
-        true, false, NONE, node.assignment[:]
+        RelaxedBoundSet(),
+        true, false, false, NONE
     )
-    push!(BB_tree.tree, node2)
+    push!(tree.tab, node2)
+    if LPRelaxByDicho(node2.id, tree, pb, round_results, verbose; args...) || updateIncumbent(node2.id, tree, incumbent, verbose)
+        node2.activated = false
+    else
+        addTodo(todo, pb, node2.id)
+    end
 
-    node.succs = [node1.id, node2.id]
-
-    return 
+    tree.tab[ind].succs = [node1.id, node2.id]
 end
 
 
@@ -99,44 +99,47 @@ A bi-objective binary(0-1) branch and bound algorithm.
 """
 function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
 
-    println("hello MO01BB :)")
+    println("hello BO01BB :)")
 
-    vd = getvOptData(m)
-    empty!(vd.Y_N) ; empty!(vd.X_E)
+    converted, f = formatting(m)
+
     varArray = JuMP.all_variables(m)
-    problem = BO01Problem(vd, varArray, m, BBparam())
+    problem = BO01Problem(varArray, m, BBparam(), StatInfo())
 
     # initialize the incumbent list by heuristics or with Inf
     incumbent = IncumbentSet()
 
-    BB_tree = BBTree()
+    tree = BBTree()
 
-    # by defaut, we take the breadth-first strategy (FIFO queue)
-    todo = Queue{Int64}()
+    # by default, we take the breadth-first strategy (FIFO queue)
+    todo = initQueue(problem)
 
     # step 0 : create the root and add to the todo list
     root = Node(
-        length(BB_tree.tree) + 1,
-        0, 
+        1, 0, 0, 
         Vector{Int64}(),
         0, 0,
-        RelaxedBoundSet(), NatrualOrderVector(),
-        true, false, NONE, 
-        [-1 for _ in 1:length(varArray)]
+        RelaxedBoundSet(),
+        true, false, false, NONE
     )
-    push!(BB_tree.tree, root)
-    enqueue!(todo, root.id)
+    push!(tree.tab, root)
+
+    if LPRelaxByDicho(root.id, tree, problem, round_results, verbose; args...) || updateIncumbent(root.id, tree, incumbent, verbose)
+        return
+    end
+
+    addTodo(todo, problem, root.id)
 
     # continue to fathom the node until todo list is empty
     while length(todo) > 0
-        ind = dequeue!(todo)
-        iterative_procedure(ind, BB_tree, problem, incumbent, round_results, verbose; args...)
-
-        # add successors of node at tree[ind] to the waitting queue
-        for id in BB_tree.tree[ind].succs
-            enqueue!(todo, id)
-        end
-
+        println("new iteration , ", todo)
+        ind = nextTodo(todo, problem)
+        iterative_procedure(todo, ind, tree, problem, incumbent, round_results, verbose; args...)
     end
 
+    if converted
+        reversion(m, f, incumbent)
+    end
+
+    println("incumbent : ", incumbent.natural_order_vect)
 end
