@@ -65,10 +65,6 @@ function Solution()
     return Solution(Vector{Vector{Float64}}(), Vector{Float64}(), false)
 end
 
-function isApproxBinary(a::Float64)
-    return abs(a-0.0) ≈ TOL || abs(a-1.0) ≈ TOL
-end
-
 function Solution(x::Vector{Float64}, y::Vector{Float64})
     is_binary = true
     for i = 1:length(x)
@@ -94,6 +90,12 @@ function addEquivX(sol::Solution, x::Vector{Float64})
             end
         end
         sol.is_binary = true
+    end
+end
+
+function addEquivX(sol::Solution, vecX::Vector{Vector{Float64}})
+    for x in vecX
+        addEquivX(sol, x)
     end
 end
 
@@ -204,14 +206,15 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
             r  = m-1
         # in case of equality
         else
-            return false
+            addEquivX(natural_sols.sols[m], sol.xEquiv)
+            return true
         end
     end
 
-    if r==0 # insert at top
+    if r==0 # insert at the top
         natural_sols.sols = vcat([sol], natural_sols.sols)
         m = 1
-    elseif l==length(natural_sols)+1 # insert at bottom
+    elseif l==length(natural_sols)+1 # insert at the bottom
         push!(natural_sols.sols, sol)
         m = l
     else # insert at m

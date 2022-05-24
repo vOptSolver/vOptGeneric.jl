@@ -40,16 +40,23 @@ Argument :
 """
 function iterative_procedure(todo, ind::Int64, tree::BBTree, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
-        @info "we are at node ", ind
+        @info "we are at node $ind"
     end
     # get the actual node
     node = tree.tab[ind]
     @assert node.activated == true "the actual node is not activated "
     node.activated = false
 
-    #---------------------------
-    # STEP 3 : test dominance 
-    #---------------------------
+    #--------------------
+    # test dominance 
+    #--------------------
+    if fullyExplicitDominanceTest(ind, tree, incumbent)
+        prune!(tree, ind, DOMINANCE)
+        if verbose
+            @info "node ", ind, "is fathomed by dominance !"
+        end
+        return
+    end
 
     #-----------------------------------------
     # branching variable + generate new nodes
