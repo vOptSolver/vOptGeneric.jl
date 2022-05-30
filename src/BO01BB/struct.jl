@@ -145,6 +145,13 @@ function Base.:(!=)(a::Solution, b::Solution)
     return abs(a.y[1] - b.y[1]) > TOL || abs(a.y[2] - b.y[2]) > TOL
 end
 
+function Base.isequal(a::Solution, b::Solution) # for hash table
+    @assert length(a.y) > 0
+    @assert length(b.y) > 0
+    return a == b
+end
+
+
 """
 Return `true` if solution `a` dominates sobution `b`; `false` otherwise.
 """

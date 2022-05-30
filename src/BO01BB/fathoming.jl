@@ -14,11 +14,11 @@ function LPRelaxByDicho(node_id::Int64, tree::BBTree, pb::BO01Problem, round_res
     #------------------------------------------------------------------------------
     undo_relax = JuMP.relax_integrality(pb.m)
     assignment = getPartialAssign(tree, node_id) 
-    if verbose
-        println("LP relax : at node ", node_id, " assignment is ", assignment)
-    end
+    # if verbose
+    #     println("LP relax : at node ", node_id, " assignment is ", assignment)
+    # end
     setBounds(pb, assignment)
-    solve_dicho(pb.m, round_results, verbose ; args...)
+    solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
     undo_relax()
     vd_LP = getvOptData(pb.m)
@@ -36,15 +36,15 @@ function LPRelaxByDicho(node_id::Int64, tree::BBTree, pb::BO01Problem, round_res
 
     # construct/complete the relaxed bound set
     for i = 1:length(vd_LP.Y_N)
-        s = Solution(vd_LP.X_E[i], vd_LP.Y_N[i])
-        push!(tree.tab[node_id].RBS.natural_order_vect, s)
-        if i < length(vd_LP.Y_N)
-            tree.tab[node_id].RBS.segments[s] = true
-        end
+        push!(tree.tab[node_id].RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
     end 
-    if verbose
-        println("RBS is ", tree.tab[node_id].RBS.natural_order_vect)
+    for i=1:length(tree.tab[node_id].RBS.natural_order_vect)-1
+        tree.tab[node_id].RBS.segments[tree.tab[node_id].RBS.natural_order_vect.sols[i]] = true
     end
+
+    # if verbose
+    #     println("RBS is ", tree.tab[node_id].RBS.natural_order_vect)
+    # end
     return false
 end
 

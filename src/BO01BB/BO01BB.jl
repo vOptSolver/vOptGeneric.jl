@@ -143,7 +143,6 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
 
     # continue to fathom the node until todo list is empty
     while length(todo) > 0
-        println("new iteration , ", todo)
         ind = nextTodo(todo, problem)
         iterative_procedure(todo, ind, tree, problem, incumbent, round_results, verbose; args...)
     end
