@@ -19,10 +19,13 @@ mutable struct StatInfo
     nb_nodes::Int64
     nb_nodes_pruned::Int64
     Gap::Float64
+    relaxation_time::Float64
+    test_dom_time::Float64
+    update_incumb_time::Float64
 end
 
 function StatInfo()
-    return StatInfo(0, 0, 0, 0)
+    return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0)
 end
 
 

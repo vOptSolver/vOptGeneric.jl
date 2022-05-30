@@ -9,14 +9,12 @@ Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)pro
 Return `true` if the node is pruned by infeasibility.
 """
 function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
+    start = time()
     #------------------------------------------------------------------------------
     # solve the LP relaxation by dichotomy method including the partial assignment
     #------------------------------------------------------------------------------
     undo_relax = JuMP.relax_integrality(pb.m)
     assignment = getPartialAssign(node) 
-    # if verbose
-    #     println("LP relax : at node ", node_id, " assignment is ", assignment)
-    # end
     setBounds(pb, assignment)
     solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
@@ -31,6 +29,8 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         if verbose
             @info "node $(node.num) is unfeasible !"
         end
+        pb.info.nb_nodes_pruned += 1
+        pb.info.relaxation_time += round(time() - start, digits = 2)
         return true
     end
 
@@ -42,9 +42,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
     end
 
-    # if verbose
-    #     println("RBS is ", tree.tab[node_id].RBS.natural_order_vect)
-    # end
+    pb.info.relaxation_time += round(time() - start, digits = 2)
     return false
 end
 
@@ -55,6 +53,7 @@ At the given node, update (filtered by dominance) the global incumbent set.
 Return `true` if the node is pruned by optimality.
 """
 function updateIncumbent(node::Node, incumbent::IncumbentSet, verbose)
+    start = time()
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
     #-----------------------------------------------------------
@@ -74,8 +73,11 @@ function updateIncumbent(node::Node, incumbent::IncumbentSet, verbose)
         if verbose
             @info "node $(node.num) is fathomed by optimality !"
         end
+        pb.info.nb_nodes_pruned += 1
+        pb.info.update_incumb_time += round(time() - start, digits = 2)
         return true
     end
+    pb.info.update_incumb_time += round(time() - start, digits = 2)
     return false
 end
 

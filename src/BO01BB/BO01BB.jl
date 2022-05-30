@@ -49,13 +49,18 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #--------------------
     # test dominance 
     #--------------------
+    start = time()
     if fullyExplicitDominanceTest(node, incumbent)
         prune!(node, DOMINANCE)
         if verbose
             @info "node $(node.num) is fathomed by dominance !"
         end
+        problem.info.nb_nodes_pruned += 1
+        pb.info.test_dom_time += round(time() - start, digits = 2)
         return
     end
+    pb.info.test_dom_time += round(time() - start, digits = 2)
+
 
     #-----------------------------------------
     # branching variable + generate new nodes
@@ -88,9 +93,20 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     end
 
     node.succs = [node1, node2]
+    pb.info.nb_nodes += 1
 end
 
+function post_processing(m::JuMP.Model, incumbent::IncumbentSet, round_results, verbose; args...)
+    vd = getvOptData(m)
+    empty!(vd.Y_N) ; empty!(vd.X_E)
 
+    for sol in incumbent.natural_order_vect.sols
+        for x in sol.xEquiv
+            push!(vd.Y_N, round_results ? round.(sol.y) : sol.y)
+            push!(vd.X_E, x)
+        end
+    end
+end
 
 """
 A bi-objective binary(0-1) branch and bound algorithm.
@@ -113,15 +129,16 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
 
     # step 0 : create the root and add to the todo list
     root = Node(1, 0)
+    problem.info.nb_nodes += 1
 
     if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, incumbent, verbose)
         if converted
             reversion(m, f, incumbent)
         end
-        println("incumbent : ", incumbent.natural_order_vect)
-        total_time = round(time() - start, digits = 2)
-        println("total_time : ", total_time)
-        return
+        post_processing(m, incumbent, round_results, verbose; args...)
+        problem.info.total_times = round(time() - start, digits = 2)
+        # println("incumbent : ", incumbent.natural_order_vect)
+        return problem.info
     end
 
     addTodo(todo, problem, root)
@@ -140,7 +157,8 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     if converted
         reversion(m, f, incumbent)
     end
-    println("incumbent : ", incumbent.natural_order_vect)
-    total_time = round(time() - start, digits = 2)
-    println("total_time : ", total_time)
+    post_processing(m, incumbent, round_results, verbose; args...)
+    problem.info.total_times = round(time() - start, digits = 2)
+    # println("incumbent : ", incumbent.natural_order_vect)
+    return problem.info
 end
