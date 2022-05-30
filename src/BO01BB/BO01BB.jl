@@ -38,22 +38,21 @@ Argument :
     - ind : actual node's index in tree tableau
     - pb : BO01Problem 
 """
-function iterative_procedure(todo, ind::Int64, tree::BBTree, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
+function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
-        @info "we are at node $ind"
+        @info "we are et node $(node.num)"
     end
     # get the actual node
-    node = tree.tab[ind]
     @assert node.activated == true "the actual node is not activated "
     node.activated = false
 
     #--------------------
     # test dominance 
     #--------------------
-    if fullyExplicitDominanceTest(ind, tree, incumbent)
-        prune!(tree, ind, DOMINANCE)
+    if fullyExplicitDominanceTest(node, incumbent)
+        prune!(node, DOMINANCE)
         if verbose
-            @info "node ", ind, "is fathomed by dominance !"
+            @info "node $(node.num) is fathomed by dominance !"
         end
         return
     end
@@ -61,42 +60,34 @@ function iterative_procedure(todo, ind::Int64, tree::BBTree, pb::BO01Problem, in
     #-----------------------------------------
     # branching variable + generate new nodes
     #-----------------------------------------
-    var_split = pickUpAFreeVar(ind, tree, pb)
-    if tree.tab[ind].isLeaf
-        return
-    end
+    var_split = pickUpAFreeVar(node, pb)
+    if var_split == 0 return end       # is a leaf
 
     node1 = Node(
-        length(tree.tab) + 1,
-        tree.tab[ind].depth + 1, ind,
-        Vector{Int64}(),
-        var_split, 1,
-        RelaxedBoundSet(),
-        true, false, false, NONE
+        node.num+1, node.depth + 1, 
+        pred = node,
+        var = var_split, var_bound = 1
     )
-    push!(tree.tab, node1)
-    if LPRelaxByDicho(node1.id, tree, pb, round_results, verbose; args...) || updateIncumbent(node1.id, tree, incumbent, verbose)
+
+    if LPRelaxByDicho(node1, pb, round_results, verbose; args...) || updateIncumbent(node1, incumbent, verbose)
         node1.activated = false
     else
-        addTodo(todo, pb, node1.id)
+        addTodo(todo, pb, node1)
     end
 
     node2 = Node(
-        length(tree.tab) + 1,
-        tree.tab[ind].depth + 1, ind,
-        Vector{Int64}(),
-        var_split, 0,
-        RelaxedBoundSet(),
-        true, false, false, NONE
+        node.num+2, node.depth + 1,
+        pred = node, 
+        var = var_split, var_bound = 0
     )
-    push!(tree.tab, node2)
-    if LPRelaxByDicho(node2.id, tree, pb, round_results, verbose; args...) || updateIncumbent(node2.id, tree, incumbent, verbose)
+
+    if LPRelaxByDicho(node2, pb, round_results, verbose; args...) || updateIncumbent(node2, incumbent, verbose)
         node2.activated = false
     else
-        addTodo(todo, pb, node2.id)
+        addTodo(todo, pb, node2)
     end
 
-    tree.tab[ind].succs = [node1.id, node2.id]
+    node.succs = [node1, node2]
 end
 
 
@@ -105,6 +96,7 @@ end
 A bi-objective binary(0-1) branch and bound algorithm.
 """
 function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
+    start = time()
 
     println("hello BO01BB :)")
 
@@ -116,39 +108,39 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     # initialize the incumbent list by heuristics or with Inf
     incumbent = IncumbentSet()
 
-    tree = BBTree()
-
     # by default, we take the breadth-first strategy (FIFO queue)
     todo = initQueue(problem)
 
     # step 0 : create the root and add to the todo list
-    root = Node(
-        1, 0, 0, 
-        Vector{Int64}(),
-        0, 0,
-        RelaxedBoundSet(),
-        true, false, false, NONE
-    )
-    push!(tree.tab, root)
+    root = Node(1, 0)
 
-    if LPRelaxByDicho(root.id, tree, problem, round_results, verbose; args...) || updateIncumbent(root.id, tree, incumbent, verbose)
+    if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, incumbent, verbose)
         if converted
             reversion(m, f, incumbent)
         end
         println("incumbent : ", incumbent.natural_order_vect)
+        total_time = round(time() - start, digits = 2)
+        println("total_time : ", total_time)
         return
     end
 
-    addTodo(todo, problem, root.id)
+    addTodo(todo, problem, root)
 
     # continue to fathom the node until todo list is empty
     while length(todo) > 0
-        ind = nextTodo(todo, problem)
-        iterative_procedure(todo, ind, tree, problem, incumbent, round_results, verbose; args...)
+        node_ref = nextTodo(todo, problem)
+        
+        if node_ref[].deleted
+            finalize(node_ref[])
+        else
+            iterative_procedure(todo, node_ref[], problem, incumbent, round_results, verbose; args...)
+        end
     end
 
     if converted
         reversion(m, f, incumbent)
     end
     println("incumbent : ", incumbent.natural_order_vect)
+    total_time = round(time() - start, digits = 2)
+    println("total_time : ", total_time)
 end

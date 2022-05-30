@@ -8,12 +8,12 @@ Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)pro
 
 Return `true` if the node is pruned by infeasibility.
 """
-function LPRelaxByDicho(node_id::Int64, tree::BBTree, pb::BO01Problem, round_results, verbose ; args...)
+function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
     #------------------------------------------------------------------------------
     # solve the LP relaxation by dichotomy method including the partial assignment
     #------------------------------------------------------------------------------
     undo_relax = JuMP.relax_integrality(pb.m)
-    assignment = getPartialAssign(tree, node_id) 
+    assignment = getPartialAssign(node) 
     # if verbose
     #     println("LP relax : at node ", node_id, " assignment is ", assignment)
     # end
@@ -27,19 +27,19 @@ function LPRelaxByDicho(node_id::Int64, tree::BBTree, pb::BO01Problem, round_res
     # in case of the LP relaxed (sub) problem is infeasible, prune the actual node
     #-------------------------------------------------------------------------------
     if size(vd_LP.Y_N, 1) == 0
-        prune!(tree, node_id, INFEASIBILITY)
+        prune!(node, INFEASIBILITY)
         if verbose
-            @info "node ", node_id, "is unfeasible !"
+            @info "node $(node.num) is unfeasible !"
         end
         return true
     end
 
     # construct/complete the relaxed bound set
     for i = 1:length(vd_LP.Y_N)
-        push!(tree.tab[node_id].RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
+        push!(node.RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
     end 
-    for i=1:length(tree.tab[node_id].RBS.natural_order_vect)-1
-        tree.tab[node_id].RBS.segments[tree.tab[node_id].RBS.natural_order_vect.sols[i]] = true
+    for i=1:length(node.RBS.natural_order_vect)-1
+        node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
     end
 
     # if verbose
@@ -54,11 +54,10 @@ At the given node, update (filtered by dominance) the global incumbent set.
 
 Return `true` if the node is pruned by optimality.
 """
-function updateIncumbent(node_id::Int64, tree::BBTree, incumbent::IncumbentSet, verbose)
+function updateIncumbent(node::Node, incumbent::IncumbentSet, verbose)
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
     #-----------------------------------------------------------
-    node = tree.tab[node_id]
     all_binary = true
 
     for i = 1:length(node.RBS.natural_order_vect)
@@ -71,9 +70,9 @@ function updateIncumbent(node_id::Int64, tree::BBTree, incumbent::IncumbentSet, 
     end
 
     if all_binary
-        prune!(tree, node_id, OPTIMALITY)
+        prune!(node, OPTIMALITY)
         if verbose
-            @info "node ", node_id, "is fathomed by optimality !"
+            @info "node $(node.num) is fathomed by optimality !"
         end
         return true
     end
@@ -106,8 +105,8 @@ A fully explicit dominance test, and prune the given node if it's fathomed by do
 
 Return `true` if the given node is fathomed by dominance.
 """
-function fullyExplicitDominanceTest(node_id::Int64, tree::BBTree, incumbent::IncumbentSet)
-    @assert length(tree.tab[node_id].RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $node_id"
+function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
+    @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $node_id"
 
     # we can't compare the LBS and UBS if the incumbent set is empty
     if length(incumbent.natural_order_vect) == 0 return false end
@@ -125,8 +124,8 @@ function fullyExplicitDominanceTest(node_id::Int64, tree::BBTree, incumbent::Inc
     # ------------------------------------------
     # if the LBS consists of a single point 
     # ------------------------------------------
-    if length(tree.tab[node_id].RBS.natural_order_vect) == 1
-        l = tree.tab[node_id].RBS.natural_order_vect.sols[1]
+    if length(node.RBS.natural_order_vect) == 1
+        l = node.RBS.natural_order_vect.sols[1]
         return weak_dom(l)
     end
 
@@ -135,12 +134,12 @@ function fullyExplicitDominanceTest(node_id::Int64, tree::BBTree, incumbent::Inc
     # ----------------------------------------------
     nadir_pts = getNadirPoints(incumbent)
 
-    for i=1:length(tree.tab[node_id].RBS.natural_order_vect)-1
-        sol = tree.tab[node_id].RBS.natural_order_vect.sols[i]
+    for i=1:length(node.RBS.natural_order_vect)-1
+        sol = node.RBS.natural_order_vect.sols[i]
 
         # in case of segment
-        if tree.tab[node_id].RBS.segments[sol]
-            sol2 = tree.tab[node_id].RBS.natural_order_vect.sols[i+1]
+        if node.RBS.segments[sol]
+            sol2 = node.RBS.natural_order_vect.sols[i+1]
             λ = [abs(sol.y[2] - sol2.y[2]), abs(sol.y[1] - sol2.y[1])]      # normal to the segment
 
             for u in incumbent.natural_order_vect.sols

@@ -7,7 +7,7 @@
               x∈{0,1}
 """
 
-@enum PrunedType INFEASIBILITY OPTIMALITY DOMINANCE NONE
+@enum PrunedType NONE INFEASIBILITY OPTIMALITY DOMINANCE
 
 TOL = 10^(-4)
 

@@ -2,18 +2,18 @@
 
 using DataStructures
 
-include("struct.jl")
+include("BBtree.jl")
 
 """
 Return an initialized todo list according to the fixed parameter.
 """
 function initQueue(pb::BO01Problem)
     if pb.param.traverse == :bfs
-        return Queue{Int64}()
+        return Queue{Base.RefValue{Node}}()
     elseif pb.param.traverse == :dfs
-        return Stack{Int64}() 
+        return Stack{Base.RefValue{Node}}() 
     elseif pb.param.traverse == :arbitrary
-        return Vector{Int64}()
+        return Vector{Base.RefValue{Node}}()
     else
         @error "Unknown traverse parameter !"
     end
@@ -23,13 +23,13 @@ end
 """
 Add a node identify in the todo list.
 """
-function addTodo(todo, pb::BO01Problem, node_id::Int64)
+function addTodo(todo, pb::BO01Problem, node::Node)
     if pb.param.traverse == :bfs
-        enqueue!(todo, node_id)
+        enqueue!(todo, Ref(node))
     elseif pb.param.traverse == :dfs
-        push!(todo, node_id) 
+        push!(todo, Ref(node)) 
     elseif pb.param.traverse == :arbitrary
-        push!(todo, node_id)
+        push!(todo, Ref(node))
     else
         @error "Unknown traverse parameter !"
     end
@@ -56,17 +56,12 @@ end
 """
 Pich up a free variable to be split according to the prefiexd strategy.
 """
-function pickUpAFreeVar(actual::Int64, tree::BBTree, pb::BO01Problem)
+function pickUpAFreeVar(actual::Node, pb::BO01Problem)
     if pb.param.branching == :arbitrary
         free_vars = [ind for ind in 1:length(pb.varArray)]
-        fixed_var = collect(keys(getPartialAssign(tree, actual)))
+        fixed_var = collect(keys(getPartialAssign(actual)))
         filter!(v -> v ∉ fixed_var, free_vars)
-        if length(free_vars) == 0
-            tree.tab[actual].isLeaf = true
-            return 0
-        else
-            return free_vars[rand(1:length(free_vars))]
-        end
+        return (length(free_vars) > 0) ? free_vars[rand(1:length(free_vars))] : 0
     else
         @error "Unknown branching parameter !"
     end
