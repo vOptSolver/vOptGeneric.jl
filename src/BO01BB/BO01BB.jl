@@ -56,10 +56,10 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
             @info "node $(node.num) is fathomed by dominance !"
         end
         pb.info.nb_nodes_pruned += 1
-        pb.info.test_dom_time += round(time() - start, digits = 2)
+        pb.info.test_dom_time += (time() - start)
         return
     end
-    pb.info.test_dom_time += round(time() - start, digits = 2)
+    pb.info.test_dom_time += (time() - start)
 
 
     #-----------------------------------------
@@ -97,7 +97,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     node.succs = [node1, node2]
 end
 
-function post_processing(m::JuMP.Model, incumbent::IncumbentSet, round_results, verbose; args...)
+function post_processing(m::JuMP.Model, problem::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
 
@@ -107,6 +107,10 @@ function post_processing(m::JuMP.Model, incumbent::IncumbentSet, round_results, 
             push!(vd.X_E, x)
         end
     end
+
+    problem.info.relaxation_time = round(problem.info.relaxation_time, digits = 2)
+    problem.info.test_dom_time = round(problem.info.test_dom_time, digits = 2)
+    problem.info.update_incumb_time = round(problem.info.update_incumb_time, digits = 2)
 end
 
 """
@@ -134,9 +138,8 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
         if converted
             reversion(m, f, incumbent)
         end
-        post_processing(m, incumbent, round_results, verbose; args...)
+        post_processing(m, problem, incumbent, round_results, verbose; args...)
         problem.info.total_times = round(time() - start, digits = 2)
-        # println("incumbent : ", incumbent.natural_order_vect)
         return problem.info
     end
 
@@ -156,8 +159,7 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     if converted
         reversion(m, f, incumbent)
     end
-    post_processing(m, incumbent, round_results, verbose; args...)
+    post_processing(m, problem, incumbent, round_results, verbose; args...)
     problem.info.total_times = round(time() - start, digits = 2)
-    # println("incumbent : ", incumbent.natural_order_vect)
     return problem.info
 end

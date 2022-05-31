@@ -7,20 +7,20 @@ using PyPlot
 
 # ------------------------------------------------------------------------------
 # kung Algorithm for extracting SN from a static set S of points
-function kungAlgorithm(S1, S2)
-    S = []
-    for i=1:length(S1)
-        push!(S, (S1[i] , S2[i]) )
-    end
-    sort!(S, by = x -> x[1])
-    SN=[] ; push!(SN, S[1]) ; minS2 = S[1][2]
-    for i=2:length(S1)
-        if S[i][2] < minS2
-            push!(SN, S[i]) ; minS2 = S[i][2]
-        end
-    end
-    return SN
-end
+# function kungAlgorithm(S1, S2)
+#     S = []
+#     for i=1:length(S1)
+#         push!(S, (S1[i] , S2[i]) )
+#     end
+#     sort!(S, by = x -> x[1])
+#     SN=[] ; push!(SN, S[1]) ; minS2 = S[1][2]
+#     for i=2:length(S1)
+#         if S[i][2] < minS2
+#             push!(SN, S[i]) ; minS2 = S[i][2]
+#         end
+#     end
+#     return SN
+# end
 
 # ------------------------------------------------------------------------------
 # compute the corner points of a set (S1,S2) and its lower envelop
@@ -37,7 +37,7 @@ end
 
 # ------------------------------------------------------------------------------
 # display different results
-function displayGraphics(fname,YN)
+function displayGraphics(fname,YN, output::String)
     PlotOrthonormedAxis = true  # Axis orthonormed or not
     DisplayYN   = true          # Non-dominated points corresponding to efficient solutions
     DisplayUBS  = false         # Points belonging to the Upper Bound Set
@@ -119,6 +119,8 @@ function displayGraphics(fname,YN)
 
     # --------------------------------------------------------------------------
     legend(bbox_to_anchor=[1,1], loc=0, borderaxespad=0, fontsize = "x-small")
+    savefig(output * ".png")
+    PyPlot.close()
 end
 
 # ==============================================================================

@@ -30,7 +30,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
             @info "node $(node.num) is unfeasible !"
         end
         pb.info.nb_nodes_pruned += 1
-        pb.info.relaxation_time += round(time() - start, digits = 2)
+        pb.info.relaxation_time += (time() - start)
         # pb.info.status = MOI.INFEASIBLE
         return true
     end
@@ -43,7 +43,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
     end
 
-    pb.info.relaxation_time += round(time() - start, digits = 2)
+    pb.info.relaxation_time += (time() - start)
     return false
 end
 
@@ -75,10 +75,10 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
             @info "node $(node.num) is fathomed by optimality ! and length = $(length(node.RBS.natural_order_vect))"
         end
         pb.info.nb_nodes_pruned += 1
-        pb.info.update_incumb_time += round(time() - start, digits = 2)
+        pb.info.update_incumb_time += (time() - start)
         return true
     end
-    pb.info.update_incumb_time += round(time() - start, digits = 2)
+    pb.info.update_incumb_time += (time() - start)
     return false
 end
 

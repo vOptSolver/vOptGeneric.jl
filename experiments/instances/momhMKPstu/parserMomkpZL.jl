@@ -28,9 +28,9 @@ function readInstanceMOMKPformatZL(verbose::Bool, fname::String)
     # Extract the problem dimensions from the file name ------------------------
     line=(split(fname,"."))
     #line = split(lines[1]," ")
-    m = parse(Int, line[3])
+    m = parse(Int, line[4])
     p = m
-    n = parse(Int, line[2])
+    n = parse(Int, line[3])
     momkp = _MOMKP(zeros(Int,p,n),zeros(Int,m,n),zeros(Int,m))
     !verbose ? nothing : println("Instance of MKP : ",m," couples objective/constraint and ",n," variables")
 
