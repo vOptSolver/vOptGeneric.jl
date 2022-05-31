@@ -1,0 +1,53 @@
+Instances of bi-objective bi-dimensional 01 knapsack problems (p=2 and m=2) 
+generated/reformated by Olga Perederieieva and Xavier Gandibleux.
+
+
+The problem to be solved is:
+ Max  sum{j=1,...,n} p(k,j)x(j)                k=1,...,p
+ st   sum{j=1,...,n} w(i,j)x(j) <= ω_{i}       i=1,...,m
+                     x(j) = 0 or 1
+
+
+Set 3: 
+
+Instances used as benchmark in:
+
+- Olga Perederieieva. Bound sets for bi-objective bi-dimensional knapsack problem. Master thesis, Université de Nantes, 2011.
+
+- Audrey Cerqueus. Bi-objective branch-and-cut algorithms applied to the binary knapsack problem. PhD thesis, Université de Nantes, 2015.
+
+
+
+Characteristics: 
+
+7 additional correlated instances with 105 variables, obtained following the rules described for the set 2. 
+
+W7BI-rnd1-1800, W7BI-rnd1-3000, W7BI-tube1-1800, W7BI-tube1-3000, W7BI-tube1-asyn, W7BI-tube2-1800, Wcollage-tube are summarized in the following Table:
+
+instance           (a)       (b)                (c)     (d)
+W7BI-rnd1-1800     Weing7    Osorio’s method    0.48    0.50 
+W7BI-rnd1-3000     Weing7    Osorio’s method    0.80    0.84 
+W7BI-tube1-1800    Weing7    anti-correlated    0.50    0.50 
+W7BI-tube1-3000    Weing7    anti-correlated    0.80    0.84 
+W7BI-tube1-asyn    Weing7    anti-correlated    0.80    0.20 
+W7BI-tube2-1800    Weing7    anti-correlated    0.48    0.50 
+Wcollage-tube      Weing1    anti-correlated    0.50    0.50
+
+Information about instances:
+- Column (a) gives the name of the original single-objective Bi-01BKP . 
+- Column (b) indicates the way to generate the second objective: negatively correlated with the first one or, done according to the method reported in (Osorio and Cuaya, 2005). 
+- Column (c) reports the ratio  ω_{1} / \sum_{j=1}^{n} w_{1,j} for the first constraint. 
+- Column (d) is similar to the column (c), for the second constraint.
+
+
+
+Format: 
+
+The format of these data files is:
+  number of variables (n) 
+  the constraint right-hand side ω_{1}
+  the constraint right-hand side ω_{2}
+  for each variable j (j=1,...,n) the coefficients:
+    p(1,j) p(2,j)   w(1,j) w(2,j)
+
+

@@ -31,6 +31,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         end
         pb.info.nb_nodes_pruned += 1
         pb.info.relaxation_time += round(time() - start, digits = 2)
+        # pb.info.status = MOI.INFEASIBLE
         return true
     end
 
@@ -52,7 +53,7 @@ At the given node, update (filtered by dominance) the global incumbent set.
 
 Return `true` if the node is pruned by optimality.
 """
-function updateIncumbent(node::Node, incumbent::IncumbentSet, verbose)
+function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, verbose)
     start = time()
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
@@ -68,10 +69,10 @@ function updateIncumbent(node::Node, incumbent::IncumbentSet, verbose)
         end
     end
 
-    if all_binary
+    if all_binary && length(node.RBS.natural_order_vect)==1
         prune!(node, OPTIMALITY)
         if verbose
-            @info "node $(node.num) is fathomed by optimality !"
+            @info "node $(node.num) is fathomed by optimality ! and length = $(length(node.RBS.natural_order_vect))"
         end
         pb.info.nb_nodes_pruned += 1
         pb.info.update_incumb_time += round(time() - start, digits = 2)

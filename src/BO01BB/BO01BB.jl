@@ -40,7 +40,7 @@ Argument :
 """
 function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
-        @info "we are et node $(node.num)"
+        @info "we are et node $(node.num) !"
     end
     # get the actual node
     @assert node.activated == true "the actual node is not activated "
@@ -55,7 +55,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
         if verbose
             @info "node $(node.num) is fathomed by dominance !"
         end
-        problem.info.nb_nodes_pruned += 1
+        pb.info.nb_nodes_pruned += 1
         pb.info.test_dom_time += round(time() - start, digits = 2)
         return
     end
@@ -69,31 +69,32 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     if var_split == 0 return end       # is a leaf
 
     node1 = Node(
-        node.num+1, node.depth + 1, 
+        pb.info.nb_nodes + 1, node.depth + 1, 
         pred = node,
         var = var_split, var_bound = 1
     )
+    pb.info.nb_nodes += 1
 
-    if LPRelaxByDicho(node1, pb, round_results, verbose; args...) || updateIncumbent(node1, incumbent, verbose)
+    if LPRelaxByDicho(node1, pb, round_results, verbose; args...) || updateIncumbent(node1, pb, incumbent, verbose)
         node1.activated = false
     else
         addTodo(todo, pb, node1)
     end
 
     node2 = Node(
-        node.num+2, node.depth + 1,
+        pb.info.nb_nodes + 1, node.depth + 1,
         pred = node, 
         var = var_split, var_bound = 0
     )
+    pb.info.nb_nodes += 1
 
-    if LPRelaxByDicho(node2, pb, round_results, verbose; args...) || updateIncumbent(node2, incumbent, verbose)
+    if LPRelaxByDicho(node2, pb, round_results, verbose; args...) || updateIncumbent(node2, pb, incumbent, verbose)
         node2.activated = false
     else
         addTodo(todo, pb, node2)
     end
 
     node.succs = [node1, node2]
-    pb.info.nb_nodes += 1
 end
 
 function post_processing(m::JuMP.Model, incumbent::IncumbentSet, round_results, verbose; args...)
@@ -114,8 +115,6 @@ A bi-objective binary(0-1) branch and bound algorithm.
 function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     start = time()
 
-    println("hello BO01BB :)")
-
     converted, f = formatting(m)
 
     varArray = JuMP.all_variables(m)
@@ -128,10 +127,10 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     todo = initQueue(problem)
 
     # step 0 : create the root and add to the todo list
-    root = Node(1, 0)
+    root = Node(problem.info.nb_nodes +1, 0)
     problem.info.nb_nodes += 1
 
-    if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, incumbent, verbose)
+    if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, problem, incumbent, verbose)
         if converted
             reversion(m, f, incumbent)
         end

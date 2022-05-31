@@ -22,10 +22,22 @@ mutable struct StatInfo
     relaxation_time::Float64
     test_dom_time::Float64
     update_incumb_time::Float64
+    # status::MOI.TerminationStatusCode 
 end
 
 function StatInfo()
     return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0)
+end
+
+function Base.:show(io::IO, info::StatInfo)
+    println(io, " # informations of B&B algorithm : \n",
+        "total_times_used = $(info.total_times) \n",
+        "total_nodes = $(info.nb_nodes) \n",
+        "pruned_nodes = $(info.nb_nodes_pruned) \n",
+        "GAP = $(info.Gap) \n",
+        "relaxation_time = $(info.relaxation_time) \n",
+        "test_dominance_time = $(info.test_dom_time) \n",
+        "update_incumbent_time = $(info.update_incumb_time) ")
 end
 
 

@@ -1,0 +1,45 @@
+Instances of bi-objective bi-dimensional 01 knapsack problems (p=2 and m=2) 
+generated/reformated by Olga Perederieieva and Xavier Gandibleux.
+
+
+The problem to be solved is:
+ Max  sum{j=1,...,n} p(k,j)x(j)                k=1,...,p
+ st   sum{j=1,...,n} w(i,j)x(j) <= ω_{i}       i=1,...,m
+                     x(j) = 0 or 1
+
+
+Set 2: 
+
+Instances used as benchmark in:
+
+- Olga Perederieieva. Bound sets for bi-objective bi-dimensional knapsack problem. Master thesis, Université de Nantes, 2011.
+
+- Audrey Cerqueus. Bi-objective branch-and-cut algorithms applied to the binary knapsack problem. PhD thesis, Université de Nantes, 2015.
+
+
+
+Characteristics: 
+
+15 correlated instances with 28 variables, introduced by Perederieieva (2011). 
+
+A1, A2, A3, A4, D1, D2, D3, D4, kp28W-ZL, kp28, kp28-2, kp28W, kp28W-Perm, kp28c1W-c2ZL and kp28cW-WZL are extention of 01BKP instances available on the OR-library where a second objective has been added with respect to several definitions of correlation to obtain a Bi-01BKP instance. 
+
+The second objective of kp28W-Perm is a permutation of the coefficients of the first objective function. 
+
+The second objective function is not correlated to the first objective function, neither the constraints for the instances kp28W-ZL, kp28, kp28-2, kp28W, kp28c1W-c2ZL. 
+
+For the other instances, the second objective is correlated with the first one. 
+
+Further details are given in (Perederieieva, 2011).
+
+
+Format: 
+
+The format of these data files is:
+  number of variables (n) 
+  the constraint right-hand side ω_{1}
+  the constraint right-hand side ω_{2}
+  for each variable j (j=1,...,n) the coefficients:
+    p(1,j) p(2,j)   w(1,j) w(2,j)
+
+

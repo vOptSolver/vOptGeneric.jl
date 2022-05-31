@@ -10,7 +10,7 @@ using .vOptGeneric
 
 # ---- Parser reading an instance of 2-SPA (format of instances compliant with vOptLib)
 function loadInstance2SPA(fname::String)
-
+    println("reading ", fname)
     f = open(fname)
     nbctr, nbvar = parse.(Int, split(readline(f))) # number of constraints , number of variables
     A = zeros(Int, nbctr, nbvar)                   # matrices of constraints

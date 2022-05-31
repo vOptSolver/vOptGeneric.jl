@@ -1,0 +1,43 @@
+Instances of bi-objective bi-dimensional 01 knapsack problems (p=2 and m=2) 
+generated/reformated by Olga Perederieieva and Xavier Gandibleux.
+
+
+The problem to be solved is:
+ Max  sum{j=1,...,n} p(k,j)x(j)                k=1,...,p
+ st   sum{j=1,...,n} w(i,j)x(j) <= ω_{i}       i=1,...,m
+                     x(j) = 0 or 1
+
+
+Set 1: 
+
+Instances used as benchmark in:
+
+- Olga Perederieieva. Bound sets for bi-objective bi-dimensional knapsack problem. Master thesis, Université de Nantes, 2011.
+
+- Audrey Cerqueus. Bi-objective branch-and-cut algorithms applied to the binary knapsack problem. PhD thesis, Université de Nantes, 2015.
+
+
+
+Characteristics: 
+
+6 instances of various sizes, randomly generated with the same generator, without any specific correlation. 
+
+ZL100, ZL250, ZL500 and ZL750 are 4 instances picked from the collection maintained by Zitzler and Laumanns (originally named respectively knapsack.100.2 knapsack.250.2 knapsack.500.2 and knapsack.750.2). 
+
+ZL28 and ZL105 are 2 additional instances derived respectively from ZL100 (knapsack.100.2) and ZL250 (knapsack.250.2), where 
+
+  ω_{i} ≈ 0.5 \sum_{j=1}^{n} 􏰆w_{i,j}, i = 1,...,m. 
+
+The number following ZL in the name gives the number of variables.
+
+
+Format: 
+
+The format of these data files is:
+  number of variables (n) 
+  the constraint right-hand side ω_{1}
+  the constraint right-hand side ω_{2}
+  for each variable j (j=1,...,n) the coefficients:
+    p(1,j) p(2,j)   w(1,j) w(2,j)
+
+

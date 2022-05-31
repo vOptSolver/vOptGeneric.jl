@@ -25,14 +25,16 @@ m = vModel( GLPK.Optimizer ) ; JuMP.set_silent(m)
 @constraint( m, dot(x, w) <= c )
 
 # ---- Invoking the solver (branch and bound method)
-vSolve( m, method=:bb, verbose=true )
+infos = vSolve( m, method=:bb, verbose=true )
+println("infos : ", infos)
 
 # # ---- Invoking the solver (epsilon constraint method)
 # vSolve( m, method=:epsilon, step=0.5, verbose=true )
 
 
-# # ---- Querying the results
-# Y_N = getY_N(m)
+# ---- Querying the results
+Y_N = getY_N(m)
+println("number Y_N = ", length(Y_N))
 
 
 # # ---- Displaying the results (X_E and Y_N)
