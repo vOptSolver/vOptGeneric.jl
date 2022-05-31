@@ -78,6 +78,9 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
   #   return
   # end
 
+  #TODO : debug B&B 
+  if method != :bb return end
+
   m, n = size(A)
 
   # ---- setting the model
