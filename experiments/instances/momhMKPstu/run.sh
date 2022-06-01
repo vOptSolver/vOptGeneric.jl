@@ -9,7 +9,7 @@ for subfolder in ./MOBKP/*; do
 done
 
 
-# for file in ./MOMKP/*; do
-#     echo "$file"
-#     julia vOptMomkp.jl "$file"
-# done
+for file in ./MOMKP/*; do
+    echo "$file"
+    julia vOptMomkp.jl "$file"
+done

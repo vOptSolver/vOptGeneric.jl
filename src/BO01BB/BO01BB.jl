@@ -3,6 +3,7 @@ include("../vOptData.jl")
 include("BBtree.jl")
 include("branching.jl")
 include("fathoming.jl")
+include("displayGraphic.jl")
 
 
 function formatting(m::JuMP.Model)

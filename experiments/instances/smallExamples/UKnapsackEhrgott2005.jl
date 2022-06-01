@@ -7,7 +7,7 @@
 # ---- Packages to use
 using JuMP, GLPK
 
-include("../../src/vOptGeneric.jl")
+include("../../../src/vOptGeneric.jl")
 using .vOptGeneric
 
 # ---- Values of the instance to solve
@@ -28,13 +28,14 @@ biukp = vModel( GLPK.Optimizer ) #; JuMP.set_silent( biukp )
 
 # ---- Invoking the solver (branch and bound method)
 infos = vSolve( biukp, method=:bb, verbose=true )
+println(infos)
 
 # # ---- Invoking the solver (dichotomy method)
 # vSolve( biukp, method=:dicho, verbose=true )
 
-# # ---- Querying the results
-# Y_N = getY_N( biukp )
-
+# ---- Querying the results
+Y_N = getY_N( biukp )
+println("length Y_N = ", length(Y_N))
 
 # # ---- Displaying the results (X_{SE} and Y_{SN})
 # for i = 1:length(Y_N)
