@@ -8,67 +8,78 @@
 using JuMP, GLPK
 
 include("../../../src/vOptGeneric.jl")
+include("../../../src/BO01BB/displayGraphic.jl")
 using .vOptGeneric
 
-# ---- Values of the instance to solve
-p1 = [10, 3,  6, 8, 2]  # coefficients's vector of the objective 1
-p2 = [12, 9, 11, 5, 6]  # coefficients's vector of the objective 2
-w  = [ 4, 5,  2, 5, 6]  # coefficients's vector of weights
-c  = 17                 # nominal capacity
-n  = length( p1 )       # number of items
+
+function writeResults(fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+
+    fout = open(outputName, "w")
+  
+    if method == :bb
+      println(fout, infos)
+    else
+      println(fout, "total_times_used = $total_time")
+    end
+    println(fout, "size_Y_N = ", length(Y_N))
+    println(fout, "Y_N = ", Y_N)
+  
+    close(fout)
+  
+    displayGraphics(fname,Y_N, outputName)
+end
+
+function vSolveBOUKP(method, fname)
+    
+    # ---- Values of the instance to solve
+    p1 = [10, 3,  6, 8, 2]  # coefficients's vector of the objective 1
+    p2 = [12, 9, 11, 5, 6]  # coefficients's vector of the objective 2
+    w  = [ 4, 5,  2, 5, 6]  # coefficients's vector of weights
+    c  = 17                 # nominal capacity
+    n  = length( p1 )       # number of items
 
 
-# ---- setting the model
-biukp = vModel( GLPK.Optimizer ) #; JuMP.set_silent( biukp )
-@variable( biukp, x[1:n], Bin )
-@addobjective( biukp, Max, sum( p1[j]*x[j] for j=1:n ) )
-@addobjective( biukp, Max, sum( p2[j]*x[j] for j=1:n ) )
-@constraint( biukp, sum( w[j]*x[j] for j=1:n ) <= c )
+    # ---- setting the model
+    biukp = vModel( GLPK.Optimizer ) #; JuMP.set_silent( biukp )
+    @variable( biukp, x[1:n], Bin )
+    @addobjective( biukp, Max, sum( p1[j]*x[j] for j=1:n ) )
+    @addobjective( biukp, Max, sum( p2[j]*x[j] for j=1:n ) )
+    @constraint( biukp, sum( w[j]*x[j] for j=1:n ) <= c )
+
+    if method == :bb
+        infos = vSolve( biukp, method=:bb, verbose=false )
+    elseif method == :dicho 
+        start = time()
+        vSolve( biukp, method=:dicho, verbose=false )
+        total_time = round(time() - start, digits = 2)
+    elseif method==:epsilon 
+        start = time()
+        vSolve( biukp, method=:epsilon, step=0.5, verbose=false )
+        total_time = round(time() - start, digits = 2)
+    else
+        @error "Unknown method parameter $(method) !"
+    end
+
+    # ---- Querying the results
+    Y_N = getY_N( biukp )
+
+    (method == :bb) ? writeResults("UKnapsackEhrgott2005", fname, method, Y_N; infos) : 
+                    writeResults("UKnapsackEhrgott2005", fname, method, Y_N; total_time)
+end
 
 
-# ---- Invoking the solver (branch and bound method)
-infos = vSolve( biukp, method=:bb, verbose=true )
-println(infos)
+function main()
+    folder = "../../results/smallExamples/"
+    for method in [:dicho, :epsilon, :bb]
+            result_dir = folder * "/" * string(method)
+            if !isdir(result_dir)
+                    mkdir(result_dir)
+            end
+            fname = result_dir * "/" * "UKnapsackEhrgott2005"
 
-# # ---- Invoking the solver (dichotomy method)
-# vSolve( biukp, method=:dicho, verbose=true )
-
-# ---- Querying the results
-Y_N = getY_N( biukp )
-println("length Y_N = ", length(Y_N))
-
-# # ---- Displaying the results (X_{SE} and Y_{SN})
-# for i = 1:length(Y_N)
-#     X = value.(x, i)
-#     print("X = ", findall(elt -> elt ≈ 1, X))
-#     println(" | Z = ",Y_N[i])
-# end
+            vSolveBOUKP(method, fname)
+    end
+end
 
 
-
-# method=:dicho, verbose=true
-
-# Output : 
-
-# solving for z1
-# solving for z2
-# solving for 1.0*f1 + 6.0*f2
-# X = [1, 2, 3, 5] | Z = [21.0, 38.0]
-# X = [1, 2, 3, 4] | Z = [27.0, 37.0]
-
-
-# method=:bb, verbose=true
-
-# Output : 
-
-# incumbent : NaturalOrderVector[
-# Solution( 
-#  xEquiv = [[1.0, 1.0, 1.0, 0.0, 1.0]]
-#  y = [21.0, 38.0]
-#  is_binary ? true )
-# Solution( 
-#  xEquiv = [[1.0, 1.0, 1.0, 1.0, 0.0]]
-#  y = [27.0, 37.0]
-#  is_binary ? true )
-# ]
-
+main()
