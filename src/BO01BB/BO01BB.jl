@@ -109,6 +109,9 @@ function post_processing(m::JuMP.Model, problem::BO01Problem, incumbent::Incumbe
         end
     end
 
+    s = sortperm(vd.Y_N, by = first)
+    vd.X_E, vd.Y_N = vd.X_E[s], vd.Y_N[s]
+
     problem.info.relaxation_time = round(problem.info.relaxation_time, digits = 2)
     problem.info.test_dom_time = round(problem.info.test_dom_time, digits = 2)
     problem.info.update_incumb_time = round(problem.info.update_incumb_time, digits = 2)
