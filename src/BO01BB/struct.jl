@@ -209,6 +209,13 @@ or `false`, if it is weakly dominated by one (or more) solution(s) in the vector
 In case of successfully added and `filtered=true` (by defaut false), delete the old solutions that are weakly dominated by the new one.
 """
 function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::Bool=false)
+    # #TODO : debug
+    # if filtered
+    #     @info "sol = $sol "
+    #     println(natural_sols)
+    # end
+
+
     # add s directly if sols is empty
     if length(natural_sols) == 0
         push!(natural_sols.sols, sol)
@@ -273,10 +280,12 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
                 push!(inds, i)
             elseif dominate(natural_sols.sols[i], sol)
                 deleteat!(natural_sols.sols, m)
+                # @info "sol is dominated by i=$i "
                 return false
             end
         end
         deleteat!(natural_sols.sols, inds)
+        # @info "sol dominates inds=$inds "
     end
 
     # TODO : debug
