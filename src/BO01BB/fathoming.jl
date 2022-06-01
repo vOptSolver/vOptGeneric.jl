@@ -93,8 +93,8 @@ function getNadirPoints(incumbent::IncumbentSet)
     for i = 1:length(incumbent.natural_order_vect)-1 
         push!(nadir_pts, Solution(
             Vector{Vector{Float64}}(),
-            [max(incumbent.natural_order_vect.sols[i].y[1], incumbent.natural_order_vect.sols[i+1].y[1]), 
-            max(incumbent.natural_order_vect.sols[i].y[2], incumbent.natural_order_vect.sols[i+1].y[2])],
+            [incumbent.natural_order_vect.sols[i].y[1], 
+            incumbent.natural_order_vect.sols[i+1].y[2]],
             false )
         )
     end
@@ -109,20 +109,25 @@ A fully explicit dominance test, and prune the given node if it's fathomed by do
 Return `true` if the given node is fathomed by dominance.
 """
 function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
-    @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $node_id"
+    @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $(node.num)"
 
     # we can't compare the LBS and UBS if the incumbent set is empty
     if length(incumbent.natural_order_vect) == 0 return false end
 
     # if there exists an upper bound u s.t. u≦l
     function weak_dom(l)
-        for u in incumbent.natural_order_vect.sols
-            if u <= l
+        for u ∈ incumbent.natural_order_vect.sols
+            if u ≤ l
                 return true
             end
         end
         return false
     end
+
+    # # TODO : debug
+    # println("test dominance ! ")
+    # println("LBS => ", node.RBS.natural_order_vect)
+    # println("UBS = > ", incumbent.natural_order_vect)
 
     # ------------------------------------------
     # if the LBS consists of a single point 
@@ -137,25 +142,38 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     # ----------------------------------------------
     nadir_pts = getNadirPoints(incumbent)
 
+    # #TODO : debug 
+    # @info "nadir_pts => $nadir_pts "
+
     for i=1:length(node.RBS.natural_order_vect)-1
         sol = node.RBS.natural_order_vect.sols[i]
+        dominated = false
 
         # in case of segment
         if node.RBS.segments[sol]
             sol2 = node.RBS.natural_order_vect.sols[i+1]
-            λ = [abs(sol.y[2] - sol2.y[2]), abs(sol.y[1] - sol2.y[1])]      # normal to the segment
+            λ = [sol2.y[2] - sol.y[2], sol.y[1] - sol2.y[1]]      # normal to the segment
 
-            for u in incumbent.natural_order_vect.sols
-                if λ'*u.y <= λ'*sol2.y
-                    return true
+            # println("segment i=$i , λ=$λ ")
+
+            for u ∈ nadir_pts
+                # println("u = $u ")
+
+                if λ'*u.y <= λ'*sol.y
+                    # print("λ'*u.y = ", λ'*u.y )
+                    # println("; λ'*sol2.y = ", λ'*sol.y)
+                    dominated = true
+                    break
                 end
             end
 
         # in case of isolated point
         elseif weak_dom(sol)
-            return true
+            dominated = true
         end
+
+        if !dominated return false end
     end
 
-    return false
+    return true
 end

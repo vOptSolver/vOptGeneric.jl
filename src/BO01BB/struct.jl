@@ -110,6 +110,9 @@ end
 
 function addEquivX(sol::Solution, vecX::Vector{Vector{Float64}})
     for x in vecX
+        for added_x in sol.xEquiv
+            if x == added_x return end
+        end
         addEquivX(sol, x)
     end
 end
@@ -262,22 +265,18 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
 
     # find points weakly dominated by the new point and delete it/them
     if filtered
-        # if sol dominates other solutions
         inds = []
-        for i = 1:m-1 
+        for i = 1:length(natural_sols)
+            if i == m continue end
+
             if dominate(sol, natural_sols.sols[i])
                 push!(inds, i)
-            end
-        end
-        deleteat!(natural_sols.sols, inds)
-
-        # if sol is dominated
-        for i = m+1:length(natural_sols) 
-            if dominate(natural_sols.sols[i], sol)
+            elseif dominate(natural_sols.sols[i], sol)
                 deleteat!(natural_sols.sols, m)
                 return false
             end
         end
+        deleteat!(natural_sols.sols, inds)
     end
 
     # TODO : debug

@@ -5,7 +5,26 @@
 using JuMP, GLPK
 
 include("../../../src/vOptGeneric.jl")
+include("../../../src/BO01BB/displayGraphic.jl")
 using .vOptGeneric
+
+
+function writeResults(fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+
+        fout = open(outputName, "w")
+      
+        if method == :bb
+          println(fout, infos)
+        else
+          println(fout, "total_times_used = $total_time")
+        end
+        println(fout, "size_Y_N = ", length(Y_N))
+        println(fout, "Y_N = ", Y_N)
+      
+        close(fout)
+      
+        displayGraphics(fname,Y_N, outputName)
+end
 
 
 # ---- Parser reading an instance of 2-SPA (format of instances compliant with vOptLib)
@@ -45,7 +64,8 @@ function computeYNfor2SPA(  nbvar::Int,
                             nbctr::Int,
                             A::Array{Int,2},
                             c1::Array{Int,1},
-                            c2::Array{Int,1}
+                            c2::Array{Int,1},
+                            method, fname
                          )
 
     # ---- setting the model
@@ -57,19 +77,26 @@ function computeYNfor2SPA(  nbvar::Int,
     @addobjective(model, Min, sum(c1[i]*x[i] for i in 1:nbvar))
     @addobjective(model, Min, sum(c2[i]*x[i] for i in 1:nbvar))
 
-    # ---- Invoking the solver (branch and bound method)
-    vSolve( model, method=:bb, verbose=true )
+    if method == :bb
+        infos = vSolve( model, method=:bb, verbose=false )
+    elseif method == :dicho 
+        start = time()
+        vSolve( model, method=:dicho, verbose=false )
+        total_time = round(time() - start, digits = 2)
+    elseif method==:epsilon 
+        start = time()
+        vSolve( model, method=:epsilon, step=0.5, verbose=false )
+        total_time = round(time() - start, digits = 2)
+    else
+        @error "Unknown method parameter $(method) !"
+    end
 
-    # # ---- Invoking the solver (epsilon constraint method)
-    # vSolve(model, method=:epsilon, step = 0.5, verbose=true)
+    # ---- Querying the results
+    Y_N = getY_N( model )
 
-    # # ---- Querying the results
-    # Y_N = getY_N(model)
-    # for i = 1:length(Y_N)
-    #     X = value.(x, i)
-    #     print("X = ", findall(elt -> elt ≈ 1, X))
-    #     println(" | Z = ",Y_N[i])
-    # end
+    (method == :bb) ? writeResults("setPartitionning", fname, method, Y_N; infos) : 
+                    writeResults("setPartitionning", fname, method, Y_N; total_time)
+
 end
 
 
@@ -84,39 +111,17 @@ function main(fname::String)
     nbvar = size(A,2)
     nbobj = 2
 
-    # compute the set of non-dominated points Y_N ------------------------------
-    computeYNfor2SPA(nbvar, nbctr, A, c1, c2)
+    folder = "../../results/smallExamples/"
+    for method in [:dicho, :epsilon, :bb]
+            result_dir = folder * "/" * string(method)
+            if !isdir(result_dir)
+                    mkdir(result_dir)
+            end
+            fname = result_dir * "/" * "setPartitionning"
+
+            computeYNfor2SPA(nbvar, nbctr, A, c1, c2, method, fname)
+    end    
 end
 
 # ---- Example
 main("biodidactic5.txt")
-
-# method=:epsilon, step = 0.5,
-
-# X = [3, 6, 7] | Z = [14.0, 48.0]
-# X = [3, 4, 6] | Z = [16.0, 39.0]
-# X = [1, 5, 7] | Z = [18.0, 16.0]
-# X = [1, 4, 5] | Z = [20.0, 7.0]
-# X = [5, 8] | Z = [21.0, 4.0]
-
-# method=:bb
-
-# incumbent : NaturalOrderVector[
-# Solution( 
-#  xEquiv = [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0]]
-#  y = [21.0, 4.0]
-#  is_binary ? true )
-# Solution( 
-#  xEquiv = [[1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]]
-#  y = [20.0, 7.0]
-#  is_binary ? true )
-# Solution( 
-#  xEquiv = [[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0]]
-#  y = [18.0, 16.0]
-#  is_binary ? true )
-# Solution( 
-#  xEquiv = [[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0]]
-#  y = [14.0, 48.0]
-#  is_binary ? true )
-# ]
-

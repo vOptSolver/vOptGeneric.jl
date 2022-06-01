@@ -87,10 +87,6 @@ function main()
                 end
                 fname = result_dir * "/" * "LinearAssignmentUlungu1994"
 
-                # if isfile(fname) && method != :bb 
-                #         continue
-                # end
-
                 vSolveBOLAP(method, fname)
         end
 end
