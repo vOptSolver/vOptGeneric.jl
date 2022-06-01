@@ -1,9 +1,9 @@
  # informations of B&B algorithm : 
-total_times_used = 5.58 
+total_times_used = 1.83 
 total_nodes = 11 
 pruned_nodes = 6 
 GAP = 0.0 
-relaxation_time = 5.17 
+relaxation_time = 1.36 
 test_dominance_time = 0.0 
 update_incumbent_time = 0.02 
 
