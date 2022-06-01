@@ -74,12 +74,12 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   outputName = folder * "/" * split(fname, "/")[end]
   # TODO : if a file already exists
-  # if isfile(outputName) # && method != :bb 
-  #   return
-  # end
+  if isfile(outputName) && method != :bb 
+    return
+  end
 
-  #TODO : debug B&B 
-  if method != :bb return end
+  # #TODO : debug B&B 
+  # if method != :bb return end
 
   m, n = size(A)
 

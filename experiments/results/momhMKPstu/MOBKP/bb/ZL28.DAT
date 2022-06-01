@@ -1,0 +1,11 @@
+ # informations of B&B algorithm : 
+total_times_used = 3.11 
+total_nodes = 1031 
+pruned_nodes = 516 
+GAP = 0.0 
+relaxation_time = 2.7 
+test_dominance_time = 0.0 
+update_incumbent_time = 0.02 
+
+size_Y_N = 8
+Y_N = [[909.0, 1124.0], [1117.0, 1122.0], [1119.0, 1118.0], [1136.0, 1065.0], [1138.0, 1018.0], [1147.0, 1007.0], [1167.0, 1005.0], [1219.0, 969.0]]

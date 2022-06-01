@@ -233,11 +233,6 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
         end
     end
 
-
-    # TODO : debug
-    println("in push! filtered=$filtered , insert m=$m (l=$l, r=$r)")
-
-
     if r==0 # insert at the top
         natural_sols.sols = vcat([sol], natural_sols.sols)
         m = 1
@@ -245,25 +240,25 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
         push!(natural_sols.sols, sol)
         m = l
     else # insert at m
-        m = Int(floor((l+r)/2))
+        m = m > Int(floor((l+r)/2)) ? m : m+1
         natural_sols.sols = vcat(vcat(natural_sols.sols[1:m-1], sol), natural_sols.sols[m:end])
     end
 
     # TODO : debug
     for i= 2:length(natural_sols.sols)
         if natural_sols.sols[i].y[1] > natural_sols.sols[i-1].y[1]
+            print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
             @info "insertion error (obj1) i=$i , sol=$sol \n\n"
             println(natural_sols)
             exit()
         end
         if natural_sols.sols[i].y[1] == natural_sols.sols[i-1].y[1] && natural_sols.sols[i].y[2] < natural_sols.sols[i-1].y[2]
+            print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
             @info "insertion error (obj2) i=$i , sol=$sol \n\n"
             println(natural_sols)
             exit()
         end
     end
-
-
 
     # find points weakly dominated by the new point and delete it/them
     if filtered
@@ -289,11 +284,13 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
     if filtered
         for i= 2:length(natural_sols.sols)
             if natural_sols.sols[i].y[1] > natural_sols.sols[i-1].y[1]
+                print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
                 @info "filter error (obj1) i=$i , sol=$sol \n\n"
                 println(natural_sols)
                 exit()
             end
             if natural_sols.sols[i].y[1] == natural_sols.sols[i-1].y[1] && natural_sols.sols[i].y[2] < natural_sols.sols[i-1].y[2]
+                print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
                 @info "filter error (obj2) i=$i , sol=$sol \n\n"
                 println(natural_sols)
                 exit()
