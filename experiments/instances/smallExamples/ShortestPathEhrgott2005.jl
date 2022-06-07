@@ -12,9 +12,11 @@ include("../../../src/BO01BB/displayGraphic.jl")
 using .vOptGeneric
 
 
-function writeResults(fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+
+function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
 
         fout = open(outputName, "w")
+        println(fout, "vars = $vars ; constr = $constr ")
       
         if method == :bb
           println(fout, infos)
@@ -29,7 +31,7 @@ function writeResults(fname::String, outputName::String, method, Y_N; total_time
         displayGraphics(fname,Y_N, outputName)
 end
 
-function vSolveBOSP(method, fname)
+function vSolveBOSP(method, fname; step=0.5)
         # ---- Values of the instance to solve
         M  = 50
         C1 =  [ M 4 5 M M M ;  # coefficients's vector for arc (i,j) of the objective 1
@@ -69,7 +71,7 @@ function vSolveBOSP(method, fname)
                 total_time = round(time() - start, digits = 2)
         elseif method==:epsilon 
                 start = time()
-                vSolve( bisp, method=:epsilon, step=0.5, verbose=false )
+                vSolve( bisp, method=:epsilon, step=step, verbose=false )
                 total_time = round(time() - start, digits = 2)
         else
                 @error "Unknown method parameter $(method) !"
@@ -78,16 +80,17 @@ function vSolveBOSP(method, fname)
         # ---- Querying the results
         Y_N = getY_N( bisp )
 
-        (method == :bb) ? writeResults("ShortestPathEhrgott2005", fname, method, Y_N; infos) : 
-                        writeResults("ShortestPathEhrgott2005", fname, method, Y_N; total_time)
+        (method == :bb) ? 
+                writeResults(n*n, n, "ShortestPathEhrgott2005", fname, method, Y_N; infos) : 
+                writeResults(n*n, n, "ShortestPathEhrgott2005", fname, method, Y_N; total_time)
 
 end
 
 
 function main()
         folder = "../../results/smallExamples/"
-        for method in [:dicho, :epsilon, :bb]
-                result_dir = folder * "/" * string(method)
+        for method in [ :bb] # :dicho, :epsilon,
+                result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
                 if !isdir(result_dir)
                         mkdir(result_dir)
                 end
@@ -97,5 +100,19 @@ function main()
         end
 end
 
+function run_epsilon_ctr(epsilon::String)
+        step = parse(Float64, epsilon)
+        folder = "../../results/smallExamples/"
+        method = :epsilon
+        result_dir = folder * "/" * string(method) * "/" * string(method) * "_" * string(step)
+        if !isdir(result_dir)
+                mkdir(result_dir)
+        end
+        fname = result_dir * "/" * "ShortestPathEhrgott2005"
+
+        vSolveBOSP(method, fname; step=step)
+end
+
+# run_epsilon_ctr(ARGS[1])
 
 main()

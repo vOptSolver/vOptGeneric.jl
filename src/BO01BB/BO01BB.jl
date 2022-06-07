@@ -41,7 +41,7 @@ Argument :
 """
 function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
-        @info "we are et node $(node.num) !"
+        @info "at node $(node.num) |Y_N| = $(length(incumbent.natural_order_vect))"
     end
     # get the actual node
     @assert node.activated == true "the actual node is not activated "
@@ -51,15 +51,15 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     # test dominance 
     #--------------------
     start = time()
-    if fullyExplicitDominanceTest(node, incumbent)
-        prune!(node, DOMINANCE)
-        if verbose
-            @info "node $(node.num) is fathomed by dominance !"
-        end
-        pb.info.nb_nodes_pruned += 1
-        pb.info.test_dom_time += (time() - start)
-        return
-    end
+    fullyExplicitDominanceTest(node, incumbent)
+        # prune!(node, DOMINANCE)
+        # if verbose
+        #     @info "node $(node.num) is fathomed by dominance !"
+        # end
+        # pb.info.nb_nodes_pruned += 1
+        # pb.info.test_dom_time += (time() - start)
+    #     return
+    # end
     pb.info.test_dom_time += (time() - start)
 
 
@@ -81,6 +81,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     else
         addTodo(todo, pb, node1)
     end
+
 
     node2 = Node(
         pb.info.nb_nodes + 1, node.depth + 1,
@@ -146,6 +147,8 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
         problem.info.total_times = round(time() - start, digits = 2)
         return problem.info
     end
+
+
 
     addTodo(todo, problem, root)
 

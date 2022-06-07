@@ -40,9 +40,11 @@ struct _bi01IP
   b  :: Vector{Int} # right-hand side, i=1..m
 end
 
-function writeResults(fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+
+function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
 
   fout = open(outputName, "w")
+  println(fout, "vars = $vars ; constr = $constr ")
 
   if method == :bb
     println(fout, infos)
@@ -102,7 +104,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
     total_time = round(time() - start, digits = 2)
   elseif method == :bb
-    infos = vSolve( Bi01IP, method=:bb, verbose=false )
+    infos = vSolve( Bi01IP, method=:bb, verbose=true )
     println(infos)
   end
 
@@ -112,7 +114,9 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
   println("length Y_N = ", length(Y_N))
 
   # ---- Writing the results
-  (method == :bb) ? writeResults(fname, outputName, method, Y_N; infos) : writeResults(fname, outputName, method, Y_N; total_time)
+  (method == :bb) ?
+    writeResults(n, m, fname, outputName, method, Y_N; infos) : 
+    writeResults(n, m, fname, outputName, method, Y_N; total_time)
 
   # return Y_N
 end
@@ -149,12 +153,5 @@ function main(fname::String)
 
 end
 
-# Example ----------------------------------------------------------------------
-# fname = "MOMKP/knapsack.100.2"
-
-# Example ----------------------------------------------------------------------
-# fname = "MOBKP/set1/ZL28.DAT" ./MOBKP/set1/ZL105.DAT
-# fname = "MOBKP/set2/kp28W-Perm.DAT"
-#fname = "MOBKP/set3/W7BI-rnd1-1800.DAT"
 
 main(ARGS[1])

@@ -71,6 +71,7 @@ function solve_permutation(m::JuMP.Model, p, cstr_obj, cstr_rhs ; args...)
 end
 
 function solve_eps(m::JuMP.Model, ϵ::Float64, round_results, verbose ; args...)
+    @info "ϵ = $ϵ"
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)

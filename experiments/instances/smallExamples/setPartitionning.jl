@@ -9,21 +9,22 @@ include("../../../src/BO01BB/displayGraphic.jl")
 using .vOptGeneric
 
 
-function writeResults(fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
 
-        fout = open(outputName, "w")
-      
-        if method == :bb
-          println(fout, infos)
-        else
-          println(fout, "total_times_used = $total_time")
-        end
-        println(fout, "size_Y_N = ", length(Y_N))
-        println(fout, "Y_N = ", Y_N)
-      
-        close(fout)
-      
-        displayGraphics(fname,Y_N, outputName)
+    fout = open(outputName, "w")
+    println(fout, "vars = $vars ; constr = $constr ")
+  
+    if method == :bb
+      println(fout, infos)
+    else
+      println(fout, "total_times_used = $total_time")
+    end
+    println(fout, "size_Y_N = ", length(Y_N))
+    println(fout, "Y_N = ", Y_N)
+  
+    close(fout)
+  
+    displayGraphics(fname,Y_N, outputName)
 end
 
 
@@ -65,7 +66,7 @@ function computeYNfor2SPA(  nbvar::Int,
                             A::Array{Int,2},
                             c1::Array{Int,1},
                             c2::Array{Int,1},
-                            method, fname
+                            method, fname; step=0.5
                          )
 
     # ---- setting the model
@@ -85,7 +86,7 @@ function computeYNfor2SPA(  nbvar::Int,
         total_time = round(time() - start, digits = 2)
     elseif method==:epsilon 
         start = time()
-        vSolve( model, method=:epsilon, step=0.5, verbose=false )
+        vSolve( model, method=:epsilon, step=step, verbose=false )
         total_time = round(time() - start, digits = 2)
     else
         @error "Unknown method parameter $(method) !"
@@ -94,8 +95,8 @@ function computeYNfor2SPA(  nbvar::Int,
     # ---- Querying the results
     Y_N = getY_N( model )
 
-    (method == :bb) ? writeResults("setPartitionning", fname, method, Y_N; infos) : 
-                    writeResults("setPartitionning", fname, method, Y_N; total_time)
+    (method == :bb) ? writeResults(nbvar, nbctr, "setPartitionning", fname, method, Y_N; infos) : 
+                    writeResults(nbvar, nbctr, "setPartitionning", fname, method, Y_N; total_time)
 
 end
 
@@ -112,8 +113,8 @@ function main(fname::String)
     nbobj = 2
 
     folder = "../../results/smallExamples/"
-    for method in [:dicho, :epsilon, :bb]
-            result_dir = folder * "/" * string(method)
+    for method in [ :bb] # :dicho, :epsilon,
+        result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
                     mkdir(result_dir)
             end
@@ -122,6 +123,32 @@ function main(fname::String)
             computeYNfor2SPA(nbvar, nbctr, A, c1, c2, method, fname)
     end    
 end
+
+
+function run_epsilon_ctr(epsilon::String)
+    fname = "biodidactic5.txt"
+
+    print("Compute Y_N with vOPtGeneric for a set partitionning problem with 2 objectives (2-SPA) \n\n")
+
+    # load a numerical instance of 2SPA ----------------------------------------
+    c1, c2, A = loadInstance2SPA(fname)
+    nbctr = size(A,1)
+    nbvar = size(A,2)
+    nbobj = 2
+
+    step = parse(Float64, epsilon)
+    folder = "../../results/smallExamples/"
+    method = :epsilon
+    result_dir = folder * "/" * string(method) * "/" * string(method) * "_" * string(step)
+    if !isdir(result_dir)
+            mkdir(result_dir)
+    end
+    fname = result_dir * "/" * "setPartitionning"
+    computeYNfor2SPA(nbvar, nbctr, A, c1, c2, method, fname; step=step)
+end
+
+# run_epsilon_ctr(ARGS[1])
+
 
 # ---- Example
 main("biodidactic5.txt")
