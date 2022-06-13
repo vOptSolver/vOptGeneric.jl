@@ -78,7 +78,7 @@ function comparisonThreeMethods(instances::String)
     latex = raw"""\bottomrule
     \end{tabular}
     % }%
-    \caption{.}
+    \caption{Comparison of the different algorithms performances.}
     \label{tab:table_compare}
     \end{table}
     """
@@ -147,9 +147,9 @@ function detailedComparisonMethods(instances::String)
         print(fout, "no & ")
         if isfile(dir * "/bb/fathom_false/" * file)
             include(dir * "/bb/fathom_false/" * file)
-            print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
+            print(fout, string(total_times_used)* " & " * string(size_Y_N))
         else
-            print(fout, "- & - & ")
+            print(fout, "- & - ")
         end
 
         println(fout, "\\\\")
@@ -158,7 +158,7 @@ function detailedComparisonMethods(instances::String)
     latex = raw"""\bottomrule
     \end{tabular}%
     }%
-    \caption{.}
+    \caption{The performance comparison between different algorithms with different settings.}
     \label{tab:table_compare2}
     \end{sidewaystable}
     """
@@ -209,7 +209,7 @@ function detailedMOBB(instances::String)
     latex = raw"""\bottomrule
     \end{tabular}%
     }%
-    \caption{.}
+    \caption{The detailed experimental information about BO01B\&B algorithm.}
     \label{tab:table_bb}
     \end{table}
     """

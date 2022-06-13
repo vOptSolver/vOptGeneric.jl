@@ -14,7 +14,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     # solve the LP relaxation by dichotomy method including the partial assignment
     #------------------------------------------------------------------------------
     undo_relax = JuMP.relax_integrality(pb.m)
-    assignment = getPartialAssign(node) 
+    assignment = getPartialAssign(node)
     setBounds(pb, assignment)
     solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
@@ -38,7 +38,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     # construct/complete the relaxed bound set
     for i = 1:length(vd_LP.Y_N)
         push!(node.RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
-    end 
+    end
     for i=1:length(node.RBS.natural_order_vect)-1
         node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
     end
@@ -49,7 +49,7 @@ end
 
 
 """
-At the given node, update (filtered by dominance) the global incumbent set. 
+At the given node, update (filtered by dominance) the global incumbent set.
 
 Return `true` if the node is pruned by optimality.
 """
@@ -83,20 +83,22 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
 end
 
 """
-Return a list of local nadir points (so-called cornor points) of the given incumbent set, or the single point it contains.
+Return local nadir points (so-called corner points) of the given incumbent set, or the single point it contains.
 """
 function getNadirPoints(incumbent::IncumbentSet)
+    nadir_pts = NaturalOrderVector()
     if length(incumbent.natural_order_vect) == 1
-        return [incumbent.natural_order_vect.sols[1]]
+        push!(nadir_pts, incumbent.natural_order_vect.sols[1])
+        return nadir_pts
     end
-    nadir_pts = Vector{Solution}()
-    for i = 1:length(incumbent.natural_order_vect)-1 
+
+    for i = 1:length(incumbent.natural_order_vect)-1
         push!(nadir_pts, Solution(
             Vector{Vector{Float64}}(),
-            [incumbent.natural_order_vect.sols[i].y[1], 
-            incumbent.natural_order_vect.sols[i+1].y[2],
+            [maximum([ incumbent.natural_order_vect.sols[i].y[1], incumbent.natural_order_vect.sols[i+1].y[1]]),
+            maximum([ incumbent.natural_order_vect.sols[i+1].y[2], incumbent.natural_order_vect.sols[i].y[2]])
             ],
-            true )
+            true ), filtered=true
         )
     end
 
@@ -126,7 +128,7 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     end
 
     # ------------------------------------------
-    # if the LBS consists of a single point 
+    # if the LBS consists of a single point
     # ------------------------------------------
     if length(node.RBS.natural_order_vect) == 1
         l = node.RBS.natural_order_vect.sols[1]
@@ -139,25 +141,20 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     if length(incumbent.natural_order_vect) == 1 return false end
     nadir_pts = getNadirPoints(incumbent)
 
-    for i=1:length(node.RBS.natural_order_vect)-1              # ∀ segment l ∈ LBS
-        sol = node.RBS.natural_order_vect.sols[i]
-        dominated = false
-        non_dominated = false
+    for u ∈ nadir_pts.sols
+        existence = false
 
-        sol2 = node.RBS.natural_order_vect.sols[i+1]
-        λ = [sol2.y[2] - sol.y[2], sol.y[1] - sol2.y[1]]      # normal to the segment
-
-        for u ∈ nadir_pts                                       # if ∃ a corner pt u ∈ UBS is under the segment l
-            if λ'*u.y <= λ'*sol2.y && λ'*u.y <= λ'*sol.y
-                dominated = true 
-            else
-                non_dominated = true                           
+        for i=1:length(node.RBS.natural_order_vect)-1              # ∀ segment l ∈ LBS 
+            sol_l = node.RBS.natural_order_vect.sols[i]
+            sol_r = node.RBS.natural_order_vect.sols[i+1]
+            λ = [sol_r.y[2] - sol_l.y[2], sol_l.y[1] - sol_r.y[1]]      # normal to the segment
+        
+            if λ'*u.y <= λ'*sol_r.y && λ'*u.y <= λ'*sol_l.y
+                existence = true
                 break
             end
         end
-
-        if non_dominated return false end
+        if !existence return false end
     end
     return true
-
 end

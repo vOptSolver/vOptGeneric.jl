@@ -49,7 +49,7 @@ function BOUKP(method, fname; step=0.5)
 
 
     if method == :bb
-        infos = vSolve( m, method=:bb, verbose=true )
+        infos = vSolve( m, method=:bb, verbose=false )
     elseif method == :dicho 
         start = time()
         vSolve( m, method=:dicho, verbose=false )
@@ -74,16 +74,14 @@ end
 
 function main()
     folder = "../../results/smallExamples/"
-    for method in [:bb] #  :dicho, 
+    for method in [:dicho, :bb] #  
         result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
-                    mkdir(result_dir)
+                mkdir(result_dir)
             end
             fname = result_dir * "/" * "UKnapsackExample2"
 
-            # # if method == :bb 
-                BOUKP(method, fname) 
-            # end
+            BOUKP(method, fname) 
     end
 end
 

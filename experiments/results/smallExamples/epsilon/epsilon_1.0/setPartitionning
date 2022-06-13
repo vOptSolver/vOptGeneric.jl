@@ -1,4 +1,4 @@
 vars = 8 ; constr = 4 
-total_times_used = 14.63
+total_times_used = 6.51
 size_Y_N = 5
 Y_N = [[14.0, 48.0], [16.0, 39.0], [18.0, 16.0], [20.0, 7.0], [21.0, 4.0]]
