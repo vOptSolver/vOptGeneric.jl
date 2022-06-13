@@ -46,13 +46,12 @@ Some parameters used in the B&B algorithm.
 """
 mutable struct BBparam
     time_limit::Float64     # time limit for B&B algo
-    ϵ::Float64              # numerical precision
     traverse::Symbol        # traverse strategy such as dfs, bfs...
     branching::Symbol       # branching strategy
 end
 
 function BBparam()
-    return BBparam(300, TOL, :bfs, :arbitrary)
+    return BBparam(300, :bfs, :arbitrary)
 end
 
 
@@ -209,13 +208,6 @@ or `false`, if it is weakly dominated by one (or more) solution(s) in the vector
 In case of successfully added and `filtered=true` (by defaut false), delete the old solutions that are weakly dominated by the new one.
 """
 function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::Bool=false)
-    # #TODO : debug
-    # if filtered
-    #     @info "sol = $sol "
-    #     println(natural_sols)
-    # end
-
-
     # add s directly if sols is empty
     if length(natural_sols) == 0
         push!(natural_sols.sols, sol)
@@ -254,56 +246,18 @@ function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::B
         natural_sols.sols = vcat(vcat(natural_sols.sols[1:m-1], sol), natural_sols.sols[m:end])
     end
 
-    # TODO : debug
-    for i= 2:length(natural_sols.sols)
-        if natural_sols.sols[i].y[1] > natural_sols.sols[i-1].y[1]
-            print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
-            @info "insertion error (obj1) i=$i , sol=$sol \n\n"
-            println(natural_sols)
-            exit()
-        end
-        if natural_sols.sols[i].y[1] == natural_sols.sols[i-1].y[1] && natural_sols.sols[i].y[2] < natural_sols.sols[i-1].y[2]
-            print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
-            @info "insertion error (obj2) i=$i , sol=$sol \n\n"
-            println(natural_sols)
-            exit()
-        end
-    end
-
     # find points weakly dominated by the new point and delete it/them
     if filtered
         inds = []
         for i = 1:length(natural_sols)
-            if i == m continue end
-
             if dominate(sol, natural_sols.sols[i])
                 push!(inds, i)
             elseif dominate(natural_sols.sols[i], sol)
                 deleteat!(natural_sols.sols, m)
-                # @info "sol is dominated by i=$i "
                 return false
             end
         end
         deleteat!(natural_sols.sols, inds)
-        # @info "sol dominates inds=$inds "
-    end
-
-    # TODO : debug
-    if filtered
-        for i= 2:length(natural_sols.sols)
-            if natural_sols.sols[i].y[1] > natural_sols.sols[i-1].y[1]
-                print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
-                @info "filter error (obj1) i=$i , sol=$sol \n\n"
-                println(natural_sols)
-                exit()
-            end
-            if natural_sols.sols[i].y[1] == natural_sols.sols[i-1].y[1] && natural_sols.sols[i].y[2] < natural_sols.sols[i-1].y[2]
-                print("in push! filtered=$filtered , insert m=$m (l=$l, r=$r) ")
-                @info "filter error (obj2) i=$i , sol=$sol \n\n"
-                println(natural_sols)
-                exit()
-            end
-        end
     end
     
     return true

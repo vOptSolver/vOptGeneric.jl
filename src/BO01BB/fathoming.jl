@@ -69,7 +69,7 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
         end
     end
 
-    if all_binary && length(node.RBS.natural_order_vect)==1
+    if length(node.RBS.natural_order_vect)==1 && all_binary
         prune!(node, OPTIMALITY)
         if verbose
             @info "node $(node.num) is fathomed by optimality ! and length = $(length(node.RBS.natural_order_vect))"
@@ -94,8 +94,9 @@ function getNadirPoints(incumbent::IncumbentSet)
         push!(nadir_pts, Solution(
             Vector{Vector{Float64}}(),
             [incumbent.natural_order_vect.sols[i].y[1], 
-            incumbent.natural_order_vect.sols[i+1].y[2]],
-            false )
+            incumbent.natural_order_vect.sols[i+1].y[2],
+            ],
+            true )
         )
     end
 
@@ -124,11 +125,6 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
         return false
     end
 
-    # # TODO : debug
-    # println("test dominance ! ")
-    # println("LBS => ", node.RBS.natural_order_vect)
-    # println("UBS = > ", incumbent.natural_order_vect)
-
     # ------------------------------------------
     # if the LBS consists of a single point 
     # ------------------------------------------
@@ -138,42 +134,30 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     end
 
     # ----------------------------------------------
-    # if the LBS consists of segments and points
+    # if the LBS consists of segments
     # ----------------------------------------------
+    if length(incumbent.natural_order_vect) == 1 return false end
     nadir_pts = getNadirPoints(incumbent)
 
-    # #TODO : debug 
-    # @info "nadir_pts => $nadir_pts "
-
-    for i=1:length(node.RBS.natural_order_vect)-1
+    for i=1:length(node.RBS.natural_order_vect)-1              # ∀ segment l ∈ LBS
         sol = node.RBS.natural_order_vect.sols[i]
         dominated = false
+        non_dominated = false
 
-        # in case of segment
-        if node.RBS.segments[sol]
-            sol2 = node.RBS.natural_order_vect.sols[i+1]
-            λ = [sol2.y[2] - sol.y[2], sol.y[1] - sol2.y[1]]      # normal to the segment
+        sol2 = node.RBS.natural_order_vect.sols[i+1]
+        λ = [sol2.y[2] - sol.y[2], sol.y[1] - sol2.y[1]]      # normal to the segment
 
-            # println("segment i=$i , λ=$λ ")
-
-            for u ∈ nadir_pts
-                # println("u = $u ")
-
-                if λ'*u.y <= λ'*sol.y
-                    # print("λ'*u.y = ", λ'*u.y )
-                    # println("; λ'*sol2.y = ", λ'*sol.y)
-                    dominated = true
-                    break
-                end
+        for u ∈ nadir_pts                                       # if ∃ a corner pt u ∈ UBS is under the segment l
+            if λ'*u.y <= λ'*sol2.y && λ'*u.y <= λ'*sol.y
+                dominated = true 
+            else
+                non_dominated = true                           
+                break
             end
-
-        # in case of isolated point
-        elseif weak_dom(sol)
-            dominated = true
         end
 
-        if !dominated return false end
+        if non_dominated return false end
     end
-
     return true
+
 end

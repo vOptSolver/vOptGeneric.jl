@@ -73,7 +73,7 @@ end
 
 function main()
     folder = "../../results/smallExamples/"
-    for method in [ :bb] # :dicho, :epsilon,
+    for method in [ :dicho, :bb] # 
         result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
                     mkdir(result_dir)
