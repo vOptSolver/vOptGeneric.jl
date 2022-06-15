@@ -75,13 +75,10 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
   end
 
   outputName = folder * "/" * split(fname, "/")[end]
-  # TODO : if a file already exists
-  if isfile(outputName) && method != :bb 
-    return
-  end
-
-  # #TODO : debug B&B 
-  # if method != :bb return end
+  # # TODO : if a file already exists
+  # if isfile(outputName)  && method != :bb 
+  #   return
+  # end
 
   m, n = size(A)
 
@@ -104,7 +101,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
     total_time = round(time() - start, digits = 2)
   elseif method == :bb
-    infos = vSolve( Bi01IP, method=:bb, verbose=true )
+    infos = vSolve( Bi01IP, method=:bb, verbose=false )
     println(infos)
   end
 
