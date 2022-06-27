@@ -2,7 +2,7 @@
 
 
 # ---- Packages to use
-using JuMP, GLPK
+using JuMP, CPLEX
 
 include("../../../src/vOptGeneric.jl")
 include("../../../src/BO01BB/displayGraphic.jl")
@@ -70,7 +70,7 @@ function computeYNfor2SPA(  nbvar::Int,
                          )
 
     # ---- setting the model
-    model = vModel( GLPK.Optimizer )
+    model = vModel( CPLEX.Optimizer )
     JuMP.set_silent(model)
 
     @variable(model, x[1:nbvar], Bin)

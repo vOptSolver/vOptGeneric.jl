@@ -95,10 +95,10 @@ function getNadirPoints(incumbent::IncumbentSet)
     for i = 1:length(incumbent.natural_order_vect)-1
         push!(nadir_pts, Solution(
             Vector{Vector{Float64}}(),
-            [maximum([ incumbent.natural_order_vect.sols[i].y[1], incumbent.natural_order_vect.sols[i+1].y[1]]),
-            maximum([ incumbent.natural_order_vect.sols[i+1].y[2], incumbent.natural_order_vect.sols[i].y[2]])
+            [incumbent.natural_order_vect.sols[i].y[1],
+            incumbent.natural_order_vect.sols[i+1].y[2]
             ],
-            true ), filtered=true
+            true ) #, filtered=true
         )
     end
 

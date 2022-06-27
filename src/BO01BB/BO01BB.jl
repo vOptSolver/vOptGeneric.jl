@@ -5,6 +5,8 @@ include("branching.jl")
 include("fathoming.jl")
 include("displayGraphic.jl")
 
+using TimerOutputs
+tmr = TimerOutput()
 
 function formatting(m::JuMP.Model)
     converted = false; f = []
@@ -51,7 +53,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     # test dominance 
     #--------------------
     start = time()
-    if fullyExplicitDominanceTest(node, incumbent)
+    if ( @timeit tmr "dominance" fullyExplicitDominanceTest(node, incumbent) )
         prune!(node, DOMINANCE)
         if verbose
             @info "node $(node.num) is fathomed by dominance ! |LBS|=$(length(node.RBS.natural_order_vect))" 
@@ -76,7 +78,8 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     )
     pb.info.nb_nodes += 1
 
-    if LPRelaxByDicho(node1, pb, round_results, verbose; args...) || updateIncumbent(node1, pb, incumbent, verbose)
+    if ( @timeit tmr "relax" LPRelaxByDicho(node1, pb, round_results, verbose; args...) ) || 
+        ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, verbose) )
         node1.activated = false
     else
         addTodo(todo, pb, node1)
@@ -89,7 +92,8 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     )
     pb.info.nb_nodes += 1
 
-    if LPRelaxByDicho(node2, pb, round_results, verbose; args...) || updateIncumbent(node2, pb, incumbent, verbose)
+    if ( @timeit tmr "relax" LPRelaxByDicho(node2, pb, round_results, verbose; args...) ) || 
+        ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, verbose) )
         node2.activated = false
     else
         addTodo(todo, pb, node2)
@@ -150,13 +154,15 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     addTodo(todo, problem, root)
 
     # continue to fathom the node until todo list is empty
-    while length(todo) > 0
-        node_ref = nextTodo(todo, problem)
-        
-        if node_ref[].deleted
-            finalize(node_ref[])
-        else
-            iterative_procedure(todo, node_ref[], problem, incumbent, round_results, verbose; args...)
+    @timeit tmr "BB loop" begin
+        while length(todo) > 0
+            @timeit tmr "next node" node_ref = nextTodo(todo, problem)
+            
+            if node_ref[].deleted
+                finalize(node_ref[])
+            else
+                @timeit tmr "iteration" iterative_procedure(todo, node_ref[], problem, incumbent, round_results, verbose; args...)
+            end
         end
     end
 
@@ -165,5 +171,8 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     end
     post_processing(m, problem, incumbent, round_results, verbose; args...)
     problem.info.total_times = round(time() - start, digits = 2)
+    
+    show(tmr)
+    
     return problem.info
 end

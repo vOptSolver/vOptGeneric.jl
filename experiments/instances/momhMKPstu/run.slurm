@@ -15,14 +15,14 @@
 for subfolder in ./MOBKP/*; do
     for file in $subfolder/*; do
         echo "$file"
-        ../../../../julia-1.7.3/bin/julia vOptMomkp.jl "$file"
+        julia vOptMomkp.jl "$file"
     done
 done
 
 
 for file in ./MOMKP/*; do
     echo "$file"
-    ../../../../julia-1.7.3/bin/julia vOptMomkp.jl "$file"
+    julia vOptMomkp.jl "$file"
 done
 
-#srun ../../../../julia-1.7.3/bin/julia latexWriter.jl
+srun julia latexWriter.jl

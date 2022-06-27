@@ -4,7 +4,7 @@
 
 
 # ---- Packages to use
-using JuMP, GLPK, LinearAlgebra
+using JuMP, CPLEX, LinearAlgebra
 
 include("../../../src/vOptGeneric.jl")
 include("../../../src/BO01BB/displayGraphic.jl")
@@ -41,7 +41,7 @@ function BOUKP(method, fname; step=0.5)
 
 
     # ---- setting the model
-    m = vModel( GLPK.Optimizer ) ; JuMP.set_silent(m)
+    m = vModel( CPLEX.Optimizer ) ; JuMP.set_silent(m)
     @variable( m, x[1:size], Bin )
     @addobjective( m, Max, dot(x, p1) )
     @addobjective( m, Max, dot(x, p2) )

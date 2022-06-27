@@ -15,7 +15,7 @@
 
 for file in ./*.jl; do
     echo "$file" 
-    srun ../../../../julia-1.7.3/bin/julia "$file"
+    srun julia "$file"
 done
 
 # for file in ./*.jl; do

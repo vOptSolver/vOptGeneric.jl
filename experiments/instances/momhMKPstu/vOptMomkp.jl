@@ -22,7 +22,7 @@ include("parserMomkpPG.jl")
 include("displayGraphic.jl")
 
 
-using JuMP, GLPK
+using JuMP, CPLEX
 include("../../../src/vOptGeneric.jl")
 using .vOptGeneric
 
@@ -143,7 +143,7 @@ function main(fname::String)
     @error "Unknown input file $fname"
   end
 
-  solverSelected = GLPK.Optimizer
+  solverSelected = CPLEX.Optimizer
   for method in [:dicho, :epsilon, :bb]
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end

@@ -5,7 +5,7 @@
 
 
 # ---- Packages to use
-using JuMP, GLPK
+using JuMP, CPLEX
 
 include("../../../src/vOptGeneric.jl")
 include("../../../src/BO01BB/displayGraphic.jl")
@@ -42,7 +42,7 @@ function vSolveBOUKP(method, fname; step=0.5)
 
 
     # ---- setting the model
-    biukp = vModel( GLPK.Optimizer ) #; JuMP.set_silent( biukp )
+    biukp = vModel( CPLEX.Optimizer ) #; JuMP.set_silent( biukp )
     @variable( biukp, x[1:n], Bin )
     @addobjective( biukp, Max, sum( p1[j]*x[j] for j=1:n ) )
     @addobjective( biukp, Max, sum( p2[j]*x[j] for j=1:n ) )

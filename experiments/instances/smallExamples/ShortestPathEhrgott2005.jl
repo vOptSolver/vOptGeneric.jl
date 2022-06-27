@@ -5,7 +5,7 @@
 
 
 # ---- Packages to use
-using JuMP, GLPK
+using JuMP, CPLEX
 
 include("../../../src/vOptGeneric.jl")
 include("../../../src/BO01BB/displayGraphic.jl")
@@ -51,7 +51,7 @@ function vSolveBOSP(method, fname; step=0.5)
         n  = size(C2,1)       # number of nodes
 
         # ---- setting the model
-        bisp = vModel( GLPK.Optimizer ) ; JuMP.set_silent( bisp )
+        bisp = vModel( CPLEX.Optimizer ) ; JuMP.set_silent( bisp )
 
         @variable( bisp, x[1:n,1:n], Bin )
 
