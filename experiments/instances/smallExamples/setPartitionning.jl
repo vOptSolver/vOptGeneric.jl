@@ -121,7 +121,11 @@ function main(fname::String)
             fname = result_dir * "/" * "setPartitionning"
 
             computeYNfor2SPA(nbvar, nbctr, A, c1, c2, method, fname)
-    end    
+    end  
+    
+    for step in ["0.1", "1", "5"]
+        run_epsilon_ctr(step)
+    end
 end
 
 

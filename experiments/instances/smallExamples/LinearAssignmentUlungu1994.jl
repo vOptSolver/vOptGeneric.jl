@@ -47,7 +47,7 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
 
 
         # ---- setting the model
-        bilap = vModel( CPLEX.Optimizer )
+        bilap = vModel( CPLEX.Optimizer ) ; JuMP.set_silent( bilap )
 
         @variable( bilap, x[1:n,1:n], Bin )
 
@@ -91,6 +91,10 @@ function main()
                 fname = result_dir * "/" * "LinearAssignmentUlungu1994"
 
                 vSolveBOLAP(method, fname)
+        end
+
+        for step in ["0.1", "1", "5"]
+                run_epsilon_ctr(step)
         end
 end
 

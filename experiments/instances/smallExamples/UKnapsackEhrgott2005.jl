@@ -42,7 +42,7 @@ function vSolveBOUKP(method, fname; step=0.5)
 
 
     # ---- setting the model
-    biukp = vModel( CPLEX.Optimizer ) #; JuMP.set_silent( biukp )
+    biukp = vModel( CPLEX.Optimizer ) ; JuMP.set_silent( biukp )
     @variable( biukp, x[1:n], Bin )
     @addobjective( biukp, Max, sum( p1[j]*x[j] for j=1:n ) )
     @addobjective( biukp, Max, sum( p2[j]*x[j] for j=1:n ) )
@@ -73,7 +73,7 @@ end
 
 function main()
     folder = "../../results/smallExamples/"
-    for method in [ :bb] # :dicho, 
+    for method in [:dicho, :bb] # 
         result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
                     mkdir(result_dir)
@@ -81,6 +81,10 @@ function main()
             fname = result_dir * "/" * "UKnapsackEhrgott2005"
 
             vSolveBOUKP(method, fname)
+    end
+
+    for step in ["0.1", "1", "5"]
+        run_epsilon_ctr(step)
     end
 end
 

@@ -98,6 +98,10 @@ function main()
 
                 vSolveBOSP(method, fname)
         end
+
+        for step in ["0.1", "1", "5"]
+                run_epsilon_ctr(step)
+        end
 end
 
 function run_epsilon_ctr(epsilon::String)

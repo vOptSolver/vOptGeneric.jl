@@ -185,7 +185,7 @@ end
 
 function parseMOP(fname::AbstractString, optimizer_factory = nothing)
     
-    m = vModel(optimizer_factory) ; #JuMP.set_silent(m)
+    m = vModel(optimizer_factory) ; JuMP.set_silent(m)
     nextline = (f) -> split(chomp(readline(f)), ' ', keepempty = false)
 
     open(fname) do f

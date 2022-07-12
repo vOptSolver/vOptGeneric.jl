@@ -64,7 +64,7 @@ function displayGraphics(fname,YN, output::String)
     end
     xlabel(L"z^1(x)")
     ylabel(L"z^2(x)")
-    PyPlot.title("Bi-01BKP | $fname")
+    PyPlot.title("Bi-01LP | $fname")
 
     # --------------------------------------------------------------------------
     # Display Non-Dominated points
