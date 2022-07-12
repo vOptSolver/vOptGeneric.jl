@@ -176,17 +176,17 @@ function detailedMOBB(instances::String)
     latex = raw"""\begin{table}[!h]
     \centering
     \resizebox{\columnwidth}{!}{%
-    \hspace*{-1cm}\begin{tabular}{lccccccccc}
+    \hspace*{-1cm}\begin{tabular}{lcccccccccc}
     \toprule
-    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{4}{c}{\textbf{Time(s)}} & \multicolumn{2}{c}{\textbf{Nodes}}  & \textbf{$|\mathcal{Y}_N|$}
+    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{4}{c}{\textbf{Time(s)}} & \multicolumn{2}{c}{\textbf{Nodes}}  & \textbf{Tree(MB)} & \textbf{$|\mathcal{Y}_N|$}
     \\
     \cmidrule(r){4-7} \cmidrule(r){8-9} 
-    ~ & ~ & ~ & \textbf{total} &\textbf{relax} & \textbf{dominance} & \textbf{incumbent} & \textbf{total} & \textbf{pruned} & ~ \\
+    ~ & ~ & ~ & \textbf{total} &\textbf{relax} & \textbf{dominance} & \textbf{incumbent} & \textbf{total} & \textbf{pruned} & ~ & ~\\
     \midrule
     """
     println(fout, latex)
 
-    for file in readdir(dir * "//bb/default/")
+    for file in readdir(dir * "/bb/default/")
         if split(file, ".")[end] == "png"
             continue
         end
@@ -200,7 +200,7 @@ function detailedMOBB(instances::String)
         print(fout, string(vars) * " & " * string(constr) * " & ")
         print(fout, string(total_times_used)* " & " * string(relaxation_time) * " & " *
             string(test_dominance_time) * " & " * string(update_incumbent_time) * " & " *
-            string(total_nodes) * " & " * string( pruned_nodes) * " & " * string(size_Y_N)
+            string(total_nodes) * " & " * string( pruned_nodes) * " & " * string(tree_size) * " & " * string(size_Y_N)
         )
 
         println(fout, "\\\\")

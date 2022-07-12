@@ -8,7 +8,13 @@
 # done
 
 
-for file in ./MOMKP/*; do
+# for file in ./MOMKP/*; do
+#     echo "$file"
+#     julia vOptMomkp.jl "$file"
+# done
+
+
+for file in ./MOBKP/set3/*; do
     echo "$file"
-    julia vOptMomkp.jl "$file"
+    julia perform.jl "$file"
 done

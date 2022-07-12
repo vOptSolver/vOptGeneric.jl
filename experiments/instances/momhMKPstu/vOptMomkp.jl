@@ -82,9 +82,12 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n = size(A)
 
+  # ratio = 0.5
+  # n = round(Int, n*ratio)
+
   # ---- setting the model
   println("Building...")
-  Bi01IP = vModel( solverSelected )
+  Bi01IP = vModel( solverSelected ) ; JuMP.set_silent(Bi01IP)
   @variable( Bi01IP, x[1:n], Bin )
   @addobjective( Bi01IP, Max, sum(C[1,j] * x[j] for j=1:n) )
   @addobjective( Bi01IP, Max, sum(C[2,j] * x[j] for j=1:n) )
@@ -101,7 +104,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
     total_time = round(time() - start, digits = 2)
   elseif method == :bb
-    infos = vSolve( Bi01IP, method=:bb, verbose=false )
+    infos = vSolve( Bi01IP, method=:bb, verbose=true )
     println(infos)
   end
 
@@ -144,7 +147,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:dicho, :epsilon, :bb]
+  for method in [:bb] # :dicho, :epsilon, 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 

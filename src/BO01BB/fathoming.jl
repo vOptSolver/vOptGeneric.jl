@@ -16,9 +16,13 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     undo_relax = JuMP.relax_integrality(pb.m)
     assignment = getPartialAssign(node)
     setBounds(pb, assignment)
+    println(pb.m)
+
     solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
     undo_relax()
+    println(pb.m)
+
     vd_LP = getvOptData(pb.m)
 
     #-------------------------------------------------------------------------------

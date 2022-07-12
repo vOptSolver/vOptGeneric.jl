@@ -27,3 +27,5 @@ done
 #     echo "$file"
 #     julia "$file" 1
 # done
+
+srun julia latexWriter.jl

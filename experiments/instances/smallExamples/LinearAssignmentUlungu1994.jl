@@ -5,7 +5,7 @@
 
 
 # ---- Packages to use
-using JuMP, GLPK
+using JuMP, CPLEX
 
 include("../../../src/vOptGeneric.jl")
 include("../../../src/BO01BB/displayGraphic.jl")
@@ -47,7 +47,7 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
 
 
         # ---- setting the model
-        bilap = vModel( GLPK.Optimizer )
+        bilap = vModel( CPLEX.Optimizer )
 
         @variable( bilap, x[1:n,1:n], Bin )
 
