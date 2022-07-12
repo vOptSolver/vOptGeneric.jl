@@ -107,11 +107,16 @@ function post_processing(m::JuMP.Model, problem::BO01Problem, incumbent::Incumbe
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
 
+    # for sol in incumbent.natural_order_vect.sols
+    #     for x in sol.xEquiv
+    #         push!(vd.Y_N, round_results ? round.(sol.y) : sol.y)
+    #         push!(vd.X_E, x)
+    #     end
+    # end
+
     for sol in incumbent.natural_order_vect.sols
-        for x in sol.xEquiv
-            push!(vd.Y_N, round_results ? round.(sol.y) : sol.y)
-            push!(vd.X_E, x)
-        end
+        push!(vd.Y_N, round_results ? round.(sol.y) : sol.y)
+        push!(vd.X_E, sol.xEquiv[1])
     end
 
     s = sortperm(vd.Y_N, by = first)

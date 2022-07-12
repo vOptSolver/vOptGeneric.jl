@@ -21,7 +21,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
     # undo_relax()
-    println(pb.m)
+    # println(pb.m)
 
     vd_LP = getvOptData(pb.m)
 

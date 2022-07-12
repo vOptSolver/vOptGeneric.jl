@@ -34,9 +34,9 @@ function comparisonThreeMethods(instances::String)
         # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
         push!(times, total_times_used); push!(pts, size_Y_N)
 
-        # write ϵ-constraint result (ϵ = 0.5 by default)
-        if isfile(dir * "/epsilon/epsilon_0.5/" * file)
-            include(dir * "/epsilon/epsilon_0.5/" * file)
+        # write ϵ-constraint result (ϵ = 1.0 by default)
+        if isfile(dir * "/epsilon/epsilon_1.0/" * file)
+            include(dir * "/epsilon/epsilon_1.0/" * file)
             # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
             push!(times, total_times_used); push!(pts, size_Y_N)
         else
@@ -126,7 +126,7 @@ function detailedComparisonMethods(instances::String)
         print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
 
         # write ϵ-constraint result 
-        for ϵ in [0.1, 0.5, 1.0]
+        for ϵ in [0.1, 1.0, 5.0]
             print(fout, string(ϵ) * " & ")
             if isfile(dir * "/epsilon/epsilon_$ϵ/" * file)
                 include(dir * "/epsilon/epsilon_$ϵ/" * file)

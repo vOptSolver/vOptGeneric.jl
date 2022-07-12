@@ -91,13 +91,13 @@ end
 
 function run_epsilon_ctr(epsilon::String)
     step = parse(Float64, epsilon)
-    folder = "../../results/smallExamples/"
+    folder = "../../results/smallExamples"
     method = :epsilon
-    result_dir = folder * "/" * string(method) * "/" * string(method) * "_" * string(step)
+    result_dir = folder * "/" * string(method) * "/" * string(method) * "_" * string(step) * "/"
     if !isdir(result_dir)
             mkdir(result_dir)
     end
-    fname = result_dir * "/" * "UKnapsackEhrgott2005"
+    fname = result_dir * "UKnapsackEhrgott2005"
 
     vSolveBOUKP(method, fname; step=step)  
 end

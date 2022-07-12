@@ -1,0 +1,23 @@
+\begin{table}[!h]
+\centering
+% \resizebox{\columnwidth}{!}{%
+\hspace*{-1cm}\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{2}{c}{\textbf{Branch-and-bound}}
+\\
+\cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
+~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} \\
+\midrule
+
+LinearAssignmentUlungu1994 & 4 & 8 & 6.85 & 4 &  \textcolor{blue2}{1.49} &  \textbf{6} & 2.61 &  \textbf{6} \\
+ShortestPathEhrgott2005 & 36 & 6 & 10.83 & 3 &  \textcolor{blue2}{1.11} &  \textbf{4} & 3.56 &  \textbf{4} \\
+UKnapsackEhrgott2005 & 5 & 1 & 9.46 &  \textbf{2} &  \textcolor{blue2}{0.05} &  \textbf{2} & 3.45 &  \textbf{2} \\
+UKnapsackExample2 & 20 & 1 & 40.78 & 4 & 470.44 &  \textbf{11} &  \textcolor{blue2}{11.74} &  \textbf{11} \\
+setPartitionning & 8 & 4 & 8.48 & 4 &  \textcolor{blue2}{0.35} &  \textbf{5} & 3.38 &  \textbf{5} \\
+\bottomrule
+\end{tabular}
+% }%
+\caption{Comparison of the different algorithms performances.}
+\label{tab:table_compare}
+\end{table}
+

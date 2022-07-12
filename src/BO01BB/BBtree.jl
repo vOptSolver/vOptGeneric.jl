@@ -37,7 +37,7 @@ mutable struct Node
         n.prunedType = NONE
         n.deleted = false
     
-        f(t) = @async println("Finalizing $(t.num).")
+        f(t) = @async println("Finalizing node $(t.num).")
         finalizer(f, n)
     
         # return n
