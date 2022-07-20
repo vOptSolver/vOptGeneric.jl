@@ -19,11 +19,10 @@ const graphic = true
 
 include("parserMomkpZL.jl")
 include("parserMomkpPG.jl")
-include("displayGraphic.jl")
-
 
 using JuMP, CPLEX
 include("../../../src/vOptGeneric.jl")
+include("../../../src/BO01BB/displayGraphic.jl")
 using .vOptGeneric
 
 
@@ -82,8 +81,8 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n = size(A)
 
-  # ratio = 0.5
-  # n = round(Int, n*ratio)
+  ratio = 0.75
+  n = round(Int, n*ratio)
 
   # ---- setting the model
   println("Building...")
@@ -91,7 +90,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
   @variable( Bi01IP, x[1:n], Bin )
   @addobjective( Bi01IP, Max, sum(C[1,j] * x[j] for j=1:n) )
   @addobjective( Bi01IP, Max, sum(C[2,j] * x[j] for j=1:n) )
-  @constraint( Bi01IP, cte[i=1:m], sum(A[i,j] * x[j] for j=1:n) <= B[i])
+  @constraint( Bi01IP, cte[i=1:m], sum(A[i,j] * x[j] for j=1:n) <= round(Int, B[i]*ratio))
 
   # ---- Invoking the solver (epsilon constraint method)
   println("Solving...")
@@ -101,7 +100,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     total_time = round(time() - start, digits = 2)
   elseif method == :epsilon
     start = time()
-    vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
+    vSolve( Bi01IP, method=:epsilon, step=1.0, verbose=false )
     total_time = round(time() - start, digits = 2)
   elseif method == :bb
     infos = vSolve( Bi01IP, method=:bb, verbose=true )
@@ -147,7 +146,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:bb] # :dicho, :epsilon, 
+  for method in [ :bb] # :dicho, :epsilon,
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 

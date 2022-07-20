@@ -37,11 +37,12 @@ end
 
 # ------------------------------------------------------------------------------
 # display different results
-function displayGraphics(fname,YN, output::String)
+function displayGraphics(fname,YN, output::String; LBS=[])
+    println("displayGraphics")
     PlotOrthonormedAxis = true  # Axis orthonormed or not
     DisplayYN   = true          # Non-dominated points corresponding to efficient solutions
     DisplayUBS  = false         # Points belonging to the Upper Bound Set
-    DisplayLBS  = false         # Points belonging to the Lower Bound Set
+    DisplayLBS  = true         # Points belonging to the Lower Bound Set
     DisplayInt  = false         # Points corresponding to integer solutions
     DisplayProj = false         # Points corresponding to projected solutions
     DisplayFea  = false         # Points corresponding to feasible solutions
@@ -49,33 +50,39 @@ function displayGraphics(fname,YN, output::String)
 
     YN_1=[];YN_2=[]
     for i in 1:length(YN)
-        push!(YN_1, YN[i][1])
         push!(YN_2, YN[i][2])
+        push!(YN_1, YN[i][1])
+    end
+
+    xL = []; yL = []
+    for i in 1:length(LBS)
+        push!(xL, LBS[i][1])
+        push!(yL, LBS[i][2])
     end
 
     # --------------------------------------------------------------------------
     # Setup
     figure("Project MOMH 2021",figsize=(6.5,5))
-    if PlotOrthonormedAxis
-        vmin = 0.99 * min(minimum(YN_1),minimum(YN_2))
-        vmax = 1.01 * max(maximum(YN_1),maximum(YN_2))
-        xlim(vmin,vmax)
-        ylim(vmin,vmax)
-    end
-    xlabel(L"z^1(x)")
-    ylabel(L"z^2(x)")
-    PyPlot.title("Bi-01LP | $fname")
+    # if PlotOrthonormedAxis
+    #     vmin = 0.99 * min(minimum(YN_1),minimum(YN_2))
+    #     vmax = 1.01 * max(maximum(YN_1),maximum(YN_2))
+    #     xlim(vmin,vmax)
+    #     ylim(vmin,vmax)
+    # end
+    xlabel(L"z^2(x)")
+    ylabel(L"z^1(x)")
+    PyPlot.title("Bi-01BKP | $fname")
 
     # --------------------------------------------------------------------------
     # Display Non-Dominated points
     if DisplayYN
         # display only the points corresponding to non-dominated points
-        scatter(YN_1, YN_2, color="black", marker="+", label = L"y \in Y_N")
+        scatter(YN_2, YN_1, color="black", marker="+", label = L"y \in Y_N")
         # display segments joining adjacent non-dominated points
-        plot(YN_1, YN_2, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
+        # plot(YN_2, YN_1, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
         # display segments joining non-dominated points and their corners points
         Env1,Env2 = computeCornerPointsLowerEnvelop(YN_1, YN_2)
-        plot(Env1, Env2, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
+        plot(Env2, Env1, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
     end
 
     # --------------------------------------------------------------------------
@@ -89,8 +96,8 @@ function displayGraphics(fname,YN, output::String)
     # --------------------------------------------------------------------------
     # Display a Lower bound set (dual, by excess)
     if DisplayLBS
-        plot(xL, yL, color="blue", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
-        scatter(xL,yL, color="blue", marker="x", label = L"y \in L")
+        plot(yL, xL, color="blue", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
+        scatter(yL, xL, color="blue", marker="x", label = L"y \in L")
     end
 
     # --------------------------------------------------------------------------

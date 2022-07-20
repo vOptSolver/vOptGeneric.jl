@@ -2,6 +2,7 @@
 
 include("BBtree.jl")
 include("../algorithms.jl")
+include("displayGraphic.jl")
 
 """
 Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)problem defined by the given node.
@@ -16,12 +17,9 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     # undo_relax = JuMP.relax_integrality(pb.m)
     assignment = getPartialAssign(node)
     setBounds(pb, assignment)
-    # println(pb.m)
-
     solve_dicho(pb.m, round_results, false ; args...)
     removeBounds(pb, assignment)
     # undo_relax()
-    # println(pb.m)
 
     vd_LP = getvOptData(pb.m)
 
@@ -62,18 +60,15 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
     #-----------------------------------------------------------
-    all_binary = true
 
     for i = 1:length(node.RBS.natural_order_vect)
         if node.RBS.natural_order_vect.sols[i].is_binary
             s = node.RBS.natural_order_vect.sols[i]
             push!(incumbent.natural_order_vect, s, filtered=true)
-        else
-            all_binary = false
         end
     end
 
-    if length(node.RBS.natural_order_vect)==1 && all_binary
+    if length(node.RBS.natural_order_vect)==1 && node.RBS.natural_order_vect.sols[1].is_binary
         prune!(node, OPTIMALITY)
         if verbose
             @info "node $(node.num) is fathomed by optimality ! and length = $(length(node.RBS.natural_order_vect))"
@@ -89,24 +84,31 @@ end
 """
 Return local nadir points (so-called corner points) of the given incumbent set, or the single point it contains.
 """
-function getNadirPoints(incumbent::IncumbentSet)
+function getNadirPoints(incumbent::IncumbentSet, ptl, ptr)
     nadir_pts = NaturalOrderVector()
-    if length(incumbent.natural_order_vect) == 1
-        push!(nadir_pts, incumbent.natural_order_vect.sols[1])
-        return nadir_pts
+    @assert length(incumbent.natural_order_vect) > 1 "`getNadirPoints` requires at least two upper bounds in incumbent list."
+
+    # condition ideal point
+    if incumbent.natural_order_vect.sols[1].y[1] <= ptr.y[1] && incumbent.natural_order_vect.sols[1].y[2] <= ptl.y[2]
+        return (nadir_pts, true)
     end
 
     for i = 1:length(incumbent.natural_order_vect)-1
+        # condition ideal point
+        if incumbent.natural_order_vect.sols[i+1].y[1] <= ptr.y[1] && incumbent.natural_order_vect.sols[i+1].y[2] <= ptl.y[2]
+            return (nadir_pts, true)
+        end
+
         push!(nadir_pts, Solution(
             Vector{Vector{Float64}}(),
             [incumbent.natural_order_vect.sols[i].y[1],
             incumbent.natural_order_vect.sols[i+1].y[2]
             ],
-            true ) #, filtered=true
+            true ) , filtered=true
         )
     end
 
-    return nadir_pts
+    return (nadir_pts, false)
 end
 
 """
@@ -143,21 +145,59 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     # if the LBS consists of segments
     # ----------------------------------------------
     if length(incumbent.natural_order_vect) == 1 return false end
-    nadir_pts = getNadirPoints(incumbent)
 
+    #ideal point of LBS
+    ptl = node.RBS.natural_order_vect.sols[1]
+    ptr = node.RBS.natural_order_vect.sols[end]
+
+    (nadir_pts, fathomed) = getNadirPoints(incumbent, ptl, ptr)
+    if fathomed return true end
+
+    # iterate of all local nadir points
     for u ∈ nadir_pts.sols
         existence = false
+        compared = false
 
+        # condition ideal point
+        if u.y[1] < ptr.y[1] && u.y[2] < ptl.y[2]
+            return true
+        end
+
+        # a complete pairwise comparison
         for i=1:length(node.RBS.natural_order_vect)-1              # ∀ segment l ∈ LBS 
+
             sol_l = node.RBS.natural_order_vect.sols[i]
             sol_r = node.RBS.natural_order_vect.sols[i+1]
+
+            if (u.y[1] > sol_l.y[1] || u.y[1] < sol_r.y[1]) && (u.y[2] > sol_r.y[2] || u.y[2] < sol_l.y[2])
+                continue
+            end
+            
+
             λ = [sol_r.y[2] - sol_l.y[2], sol_l.y[1] - sol_r.y[1]]      # normal to the segment
-        
-            if λ'*u.y <= λ'*sol_r.y && λ'*u.y <= λ'*sol_l.y
+
+            compared = true
+
+            if λ'*u.y < λ'*sol_r.y #&& λ'*u.y < λ'*sol_l.y
                 existence = true
                 break
             end
         end
+
+        # illustration
+        if !compared && node.num < 1000
+            U = []
+            for i = 1:length(incumbent.natural_order_vect)
+                push!(U, incumbent.natural_order_vect.sols[i].y)
+            end
+            L = []
+            for i=1:length(node.RBS.natural_order_vect) 
+                push!(L, node.RBS.natural_order_vect.sols[i].y)
+            end
+
+            displayGraphics("node_$(node.num)_|U|=$(length(U))",U, "../../results/momhMKPstu/MOBKP/bb/tmp/node_$(node.num)", LBS=L)
+        end
+        
         if !existence return false end
     end
     return true
