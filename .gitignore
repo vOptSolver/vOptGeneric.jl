@@ -1,4 +1,7 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
-_git2_a02516
+_git2_*
+
+*Manifest.toml
+*.DS_Store
