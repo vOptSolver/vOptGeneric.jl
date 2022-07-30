@@ -16,7 +16,7 @@
 
 for file in ./MOBKP/set3/*; do
     echo "$file"
-    julia perform.jl "$file"
+    julia vOptMomkp.jl "$file"
 done
 
 julia latexWriter.jl

@@ -40,7 +40,7 @@ struct _bi01IP
 end
 
 
-function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N, X_E; total_time=nothing, infos=nothing)
 
   fout = open(outputName, "w")
   println(fout, "vars = $vars ; constr = $constr ")
@@ -52,6 +52,9 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
   end
   println(fout, "size_Y_N = ", length(Y_N))
   println(fout, "Y_N = ", Y_N)
+  println(fout)
+  println(fout, "size_X_E = ", length(X_E))
+  println(fout, "X_E = ", X_E)
 
   close(fout)
 
@@ -73,51 +76,62 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     mkdir(folder)
   end
 
-  outputName = folder * "/" * split(fname, "/")[end]
-  # # TODO : if a file already exists
-  # if isfile(outputName)  && method != :bb 
-  #   return
-  # end
+  m, n_before = size(A)
+  # scale test
+  for n = 10:10:50
 
-  m, n = size(A)
+    ratio = n/n_before
 
-  ratio = 0.75
-  n = round(Int, n*ratio)
+    subfolder = folder * "/" * string(n)
+    if !isdir(subfolder)
+      mkdir(subfolder)
+    end
 
-  # ---- setting the model
-  println("Building...")
-  Bi01IP = vModel( solverSelected ) ; JuMP.set_silent(Bi01IP)
-  @variable( Bi01IP, x[1:n], Bin )
-  @addobjective( Bi01IP, Max, sum(C[1,j] * x[j] for j=1:n) )
-  @addobjective( Bi01IP, Max, sum(C[2,j] * x[j] for j=1:n) )
-  @constraint( Bi01IP, cte[i=1:m], sum(A[i,j] * x[j] for j=1:n) <= round(Int, B[i]*ratio))
+    outputName = subfolder * "/" * split(fname, "/")[end]
+    # # TODO : if a file already exists
+    # if isfile(outputName) # && method != :bb 
+    #   return
+    # end
 
-  # ---- Invoking the solver (epsilon constraint method)
-  println("Solving...")
-  if method == :dicho
-    start = time()
-    vSolve( Bi01IP, method=:dicho, verbose=false )
-    total_time = round(time() - start, digits = 2)
-  elseif method == :epsilon
-    start = time()
-    vSolve( Bi01IP, method=:epsilon, step=1.0, verbose=false )
-    total_time = round(time() - start, digits = 2)
-  elseif method == :bb
-    infos = vSolve( Bi01IP, method=:bb, verbose=true )
-    println(infos)
+    # ---- setting the model
+    println("Building...")
+    Bi01IP = vModel( solverSelected ) ; JuMP.set_silent(Bi01IP)
+    @variable( Bi01IP, x[1:n], Bin )
+    @addobjective( Bi01IP, Max, sum(C[1,j] * x[j] for j=1:n) )
+    @addobjective( Bi01IP, Max, sum(C[2,j] * x[j] for j=1:n) )
+    @constraint( Bi01IP, cte[i=1:m], sum(A[i,j] * x[j] for j=1:n) <= round(Int, B[i]*ratio))
+
+    # ---- Invoking the solver (epsilon constraint method)
+    println("Solving...")
+    if method == :dicho
+      start = time()
+      vSolve( Bi01IP, method=:dicho, verbose=false)
+      total_time = round(time() - start, digits = 2)
+    elseif method == :epsilon
+      start = time()
+      vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
+      total_time = round(time() - start, digits = 2)
+    elseif method == :bb
+      infos = vSolve( Bi01IP, method=:bb, verbose=false )
+      println(infos)
+    end
+
+    # ---- Querying the results
+    println("Querying...")
+    Y_N = getY_N( Bi01IP )
+    println("length Y_N = ", length(Y_N))
+
+    X_E = getX_E( Bi01IP )
+    println("length X_E = ", length(X_E))
+
+    # ---- Writing the results
+    (method == :bb) ?
+      writeResults(n, m, fname, outputName, method, Y_N, X_E; infos) : 
+      writeResults(n, m, fname, outputName, method, Y_N, X_E; total_time)
+
+    # return Y_N
   end
 
-  # ---- Querying the results
-  println("Querying...")
-  Y_N = getY_N( Bi01IP )
-  println("length Y_N = ", length(Y_N))
-
-  # ---- Writing the results
-  (method == :bb) ?
-    writeResults(n, m, fname, outputName, method, Y_N; infos) : 
-    writeResults(n, m, fname, outputName, method, Y_N; total_time)
-
-  # return Y_N
 end
 
 

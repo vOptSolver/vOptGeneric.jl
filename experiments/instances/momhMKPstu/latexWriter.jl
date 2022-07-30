@@ -1,63 +1,85 @@
 
 function comparisonThreeMethods(instances::String)
-    dir = "../../results/" * instances
-    @assert isdir(dir) "This directory doesn't exist $dir !"
+    work_dir = "../../results/" * instances
+    @assert isdir(work_dir) "This directory doesn't exist $work_dir !"
 
+    fout = open(work_dir * "/comparisonTable.tex", "w")
 
-    for class in readdir(dir)
-        @assert isdir(dir * "/" * class) "This directory doesn't exist $dir/$class !"
-        work_dir = dir * "/" * class
+    latex = raw"""\begin{table}[h]
+    \centering
+    % \resizebox{\columnwidth}{!}{%
+    \hspace*{-1cm}\begin{tabular}{lccccccccc}
+    \toprule
+    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{3}{c}{\textbf{Branch-and-bound}}
+    \\
+    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10}
+    ~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} \\
+    \midrule
+    """
+    println(fout, latex)
 
-        fout = open(work_dir * "/comparisonTable.tex", "w")
+    for folder_n in readdir(work_dir * "/dicho") # ∀ filder_n
+        count = 0
+        avg_n = 0
+        avg_m = 0
+        avg_dicho_T = 0.0
+        avg_dicho_Y = 0.0
+        avg_ϵ_T = 0.0
+        avg_ϵ_Y = 0.0
+        avg_bb_T = 0.0
+        avg_bb_Y = 0.0
+        avg_bb_X = 0.0
 
-        latex = raw"""\begin{table}[!h]
-        \centering
-        % \resizebox{\columnwidth}{!}{%
-        \hspace*{-1cm}\begin{tabular}{lcccccccc}
-        \toprule
-        \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{2}{c}{\textbf{Branch-and-bound}}
-        \\
-        \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
-        ~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} \\
-        \midrule
-        """
-        println(fout, latex)
-    
-        for file in readdir(work_dir * "/dicho")
+        for file in readdir(work_dir * "/dicho/" * string(folder_n) * "/") # ∀ file in dicho
             if split(file, ".")[end] == "png"
                 continue
             end
-    
+
             print(fout, file * " & ")
             times = []
             pts = []
-    
+
             # write dichotomy result 
-            include(work_dir * "/dicho/" * file)
+            include(work_dir * "/dicho/" * string(folder_n) * "/" * file)
             print(fout, string(vars) * " & " * string(constr) * " & ")
             # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
             push!(times, total_times_used); push!(pts, size_Y_N)
-    
+
+            count += 1
+            avg_n += vars
+            avg_m += constr
+            avg_dicho_T += total_times_used
+            avg_dicho_Y += size_Y_N
+
             # write ϵ-constraint result (ϵ = 0.5 by default)
-            if isfile(dir * "/epsilon/" * file)
-                include(dir * "/epsilon/" * file)
+            if isfile(work_dir * "/epsilon/" * string(folder_n) * "/" * file)
+                include(work_dir * "/epsilon/" * string(folder_n) * "/" * file)
                 # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
                 push!(times, total_times_used); push!(pts, size_Y_N)
+
+                avg_ϵ_T += total_times_used
+                avg_ϵ_Y += size_Y_N
             else
                 # print(fout, "- & - & ")
                 push!(times, -1); push!(pts, -1)
             end
-    
+
+            sizeX = 0
             # write B&B result 
-            if isfile(dir * "/bb/" * file)
-                include(dir * "/bb/" * file)
+            if isfile(work_dir * "/bb/" * string(folder_n) * "/" * file)
+                include(work_dir * "/bb/" * string(folder_n) * "/" * file)
                 # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
-                push!(times, total_times_used); push!(pts, size_Y_N)
+                push!(times, total_times_used); push!(pts, size_Y_N) 
+                sizeX = size_Y_N
+
+                avg_bb_T += total_times_used
+                avg_bb_Y += size_Y_N
+                avg_bb_X += sizeX
             else
                 # print(fout, "- & - & ")
                 push!(times, -1); push!(pts, -1)
             end
-    
+
             for i=1:3
                 if times[i] == -1
                     print(fout, " - & ")
@@ -76,18 +98,34 @@ function comparisonThreeMethods(instances::String)
                 end
             end
     
-            println(fout, "\\\\")
+            sizeX==0 ? println(fout, " & - \\\\") : println(fout, " & " * string(sizeX) * " \\\\")
         end
-    
-        latex = raw"""\bottomrule
-        \end{tabular}
-        % }%"""
-        println(fout, latex)
-        println(fout, "\\caption{Comparison of the different algorithms performances for instances $class .}")
-        println(fout, "\\label{tab:table_compare_$class }")
-        println(fout, "\\end{table}")
-        close(fout)
+
+        avg_n = round(Int, avg_n/count)
+        avg_m = round(Int, avg_m/count)
+        avg_dicho_T = round(avg_dicho_T/count, digits = 2)
+        avg_dicho_Y = round(avg_dicho_Y/count, digits = 2)
+        avg_ϵ_T = round(avg_ϵ_T/count, digits = 2)
+        avg_ϵ_Y = round(avg_ϵ_Y/count, digits = 2)
+        avg_bb_T = round(avg_bb_T/count, digits = 2)
+        avg_bb_Y = round(avg_bb_Y/count, digits = 2)
+        avg_bb_X = round(avg_bb_X/count, digits = 2)
+
+        println(fout, "\\cline{1-10} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
+            string(avg_dicho_T) * "} & \\textbf{" * string(avg_dicho_Y) * "} & \\textbf{" * string(avg_ϵ_T) * "} & \\textbf{" *
+            string(avg_ϵ_Y) * "} & \\textbf{" * string(avg_bb_T) * "} & \\textbf{" * string(avg_bb_Y) * "} & \\textbf{" * string(avg_bb_X) *
+            "} \\\\ \\cline{1-10}")
+
     end
+
+    latex = raw"""\bottomrule
+    \end{tabular}
+    % }%"""
+    println(fout, latex)
+    println(fout, "\\caption{Comparison of the different algorithms performances for instances $instances .}")
+    println(fout, "\\label{tab:table_compare_$instances }")
+    println(fout, "\\end{table}")
+    close(fout)
 
 end
 
@@ -101,12 +139,12 @@ function detailedMOBB_perform(instances::String)
     latex = raw"""\begin{table}[!h]
     \centering
     \resizebox{\columnwidth}{!}{%
-    \hspace*{-1cm}\begin{tabular}{lcccccccccc}
+    \hspace*{-1cm}\begin{tabular}{lccccccccccc}
     \toprule
-    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{4}{c}{\textbf{Time(s)}} & \multicolumn{2}{c}{\textbf{Nodes}}  & \textbf{Tree(MB)} & \textbf{$|\mathcal{Y}_N|$}
+    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{4}{c}{\textbf{Time(s)}} & \multicolumn{2}{c}{\textbf{Nodes}}  & \textbf{Tree(MB)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$}
     \\
     \cmidrule(r){4-7} \cmidrule(r){8-9} 
-    ~ & ~ & ~ & \textbf{total} &\textbf{relax} & \textbf{dominance} & \textbf{incumbent} & \textbf{total} & \textbf{pruned} & ~ & ~\\
+    ~ & ~ & ~ & \textbf{total} &\textbf{relax} & \textbf{dominance} & \textbf{incumbent} & \textbf{total} & \textbf{pruned} & ~ & ~ & ~ \\
     \midrule
     """
     println(fout, latex)
@@ -123,6 +161,7 @@ function detailedMOBB_perform(instances::String)
         avg_prunedN = 0
         avg_treeSize = 0.0
         avg_YN = 0
+        avg_XE = 0
 
         for file in readdir(dir * "/bb/" * string(folder_n) * "/")
             if split(file, ".")[end] == "png"
@@ -138,7 +177,8 @@ function detailedMOBB_perform(instances::String)
             print(fout, string(vars) * " & " * string(constr) * " & ")
             print(fout, string(total_times_used)* " & " * string(relaxation_time) * " & " *
                 string(test_dominance_time) * " & " * string(update_incumbent_time) * " & " *
-                string(total_nodes) * " & " * string( pruned_nodes) * " & " * string(tree_size) * " & " * string(size_Y_N)
+                string(total_nodes) * " & " * string( pruned_nodes) * " & " * string(tree_size) * " & " *
+                string(size_Y_N) * " & " * string(size_X_E)
             )
     
             println(fout, "\\\\")
@@ -154,6 +194,7 @@ function detailedMOBB_perform(instances::String)
             avg_prunedN += pruned_nodes
             avg_treeSize += tree_size
             avg_YN += size_Y_N
+            avg_XE += size_X_E
         end
 
         avg_n = round(Int, avg_n/count)
@@ -166,10 +207,12 @@ function detailedMOBB_perform(instances::String)
         avg_prunedN = round(avg_prunedN/count, digits = 2)
         avg_treeSize = round(avg_treeSize/count, digits = 2)
         avg_YN = round(avg_YN/count, digits = 2)
+        avg_XE = round(avg_XE/count, digits = 2)
 
-        println(fout, "avg & " * string(avg_n) * " & " * string(avg_m) * " & " * string(avg_totalT) * "  &  " *
-            string(avg_relaxT) * " & " * string(avg_dominanceT) * " & " * string(avg_incumbentT) * " & " *
-            string(avg_totalN) * " & " * string(avg_prunedN) * " & " * string(avg_treeSize) * " & " * string(avg_YN) * " \\\\ \\cline{1-11}")
+        println(fout, "\\cline{1-12} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
+            string(avg_totalT) * "} & \\textbf{" * string(avg_relaxT) * "} & \\textbf{" * string(avg_dominanceT) * "} & \\textbf{" *
+            string(avg_incumbentT) * "} & \\textbf{" * string(avg_totalN) * "} & \\textbf{" * string(avg_prunedN) * "} & \\textbf{" *
+            string(avg_treeSize) * "} & \\textbf{" * string(avg_YN) * "} & \\textbf{" * string(avg_XE) *"} \\\\ \\cline{1-12}")
     end
 
     latex = raw"""\bottomrule
@@ -186,5 +229,4 @@ end
 detailedMOBB_perform("momhMKPstu/MOBKP")
 
 
-
-# comparisonThreeMethods("momhMKPstu")
+comparisonThreeMethods("momhMKPstu/MOBKP")

@@ -2,11 +2,9 @@
 
 include("BBtree.jl")
 include("../algorithms.jl")
-include("displayGraphic.jl")
 
 """
 Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)problem defined by the given node.
-
 Return `true` if the node is pruned by infeasibility.
 """
 function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
@@ -52,7 +50,6 @@ end
 
 """
 At the given node, update (filtered by dominance) the global incumbent set.
-
 Return `true` if the node is pruned by optimality.
 """
 function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, verbose)
@@ -114,7 +111,6 @@ end
 """
 A fully explicit dominance test, and prune the given node if it's fathomed by dominance.
 (i.e. ∀ l∈L: ∃ u∈U s.t. λu ≤ λl )
-
 Return `true` if the given node is fathomed by dominance.
 """
 function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
@@ -153,6 +149,16 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     (nadir_pts, fathomed) = getNadirPoints(incumbent, ptl, ptr)
     if fathomed return true end
 
+    # test range condition necessary
+    # if length(nadir_pts) == 1 return fathomed end
+
+    u_l = incumbent.natural_order_vect.sols[1]
+    u_r = incumbent.natural_order_vect.sols[end]
+
+    sufficient = (u_l.y[2] < ptl.y[2] && u_r.y[1] < ptr.y[1])
+
+    if !sufficient return false end
+
     # iterate of all local nadir points
     for u ∈ nadir_pts.sols
         existence = false
@@ -183,22 +189,14 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
                 break
             end
         end
-
-        # illustration
-        if !compared && node.num < 1000
-            U = []
-            for i = 1:length(incumbent.natural_order_vect)
-                push!(U, incumbent.natural_order_vect.sols[i].y)
-            end
-            L = []
-            for i=1:length(node.RBS.natural_order_vect) 
-                push!(L, node.RBS.natural_order_vect.sols[i].y)
-            end
-
-            displayGraphics("node_$(node.num)_|U|=$(length(U))",U, "../../results/momhMKPstu/MOBKP/bb/tmp/node_$(node.num)", LBS=L)
-        end
         
-        if !existence return false end
+        # condition dominance violated
+        if compared && !existence return false end
+
+        if !compared && (u.y[1] ≥ ptr.y[1] && u.y[2] ≥ ptl.y[2])
+            return false
+        end
     end
+
     return true
 end

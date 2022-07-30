@@ -42,7 +42,7 @@ function displayGraphics(fname,YN, output::String; LBS=[])
     PlotOrthonormedAxis = true  # Axis orthonormed or not
     DisplayYN   = true          # Non-dominated points corresponding to efficient solutions
     DisplayUBS  = false         # Points belonging to the Upper Bound Set
-    DisplayLBS  = true         # Points belonging to the Lower Bound Set
+    DisplayLBS  = false         # Points belonging to the Lower Bound Set
     DisplayInt  = false         # Points corresponding to integer solutions
     DisplayProj = false         # Points corresponding to projected solutions
     DisplayFea  = false         # Points corresponding to feasible solutions
@@ -79,10 +79,10 @@ function displayGraphics(fname,YN, output::String; LBS=[])
         # display only the points corresponding to non-dominated points
         scatter(YN_2, YN_1, color="black", marker="+", label = L"y \in Y_N")
         # display segments joining adjacent non-dominated points
-        # plot(YN_2, YN_1, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
+        plot(YN_2, YN_1, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
         # display segments joining non-dominated points and their corners points
-        Env1,Env2 = computeCornerPointsLowerEnvelop(YN_1, YN_2)
-        plot(Env2, Env1, color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
+        Env1,Env2 = computeCornerPointsLowerEnvelop(YN_2, YN_1)
+        plot(Env1, Env2,color="black", linewidth=0.75, marker="+", markersize=1.0, linestyle=":")
     end
 
     # --------------------------------------------------------------------------
