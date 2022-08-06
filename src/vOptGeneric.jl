@@ -59,7 +59,7 @@ function vSolve(m::JuMP.Model ; relax=false, method=nothing, verbose = true, kwa
         @warn "linear relaxation not yet implemented"
     end
 
-    methods = Dict{Symbol, Function}[
+    methods = Dict{Symbol, Function}([
         :epsilon => solve_eps,
         :dicho => solve_dicho,
         :dichotomy => solve_dicho,
@@ -67,7 +67,7 @@ function vSolve(m::JuMP.Model ; relax=false, method=nothing, verbose = true, kwa
         :Chalmet => solve_Chalmet,
         :lexico => solve_lexico,
         :lex => solve_lexico,
-    ]
+    ])
 
     if method in keys(methods)
         solve_function = methods[method]

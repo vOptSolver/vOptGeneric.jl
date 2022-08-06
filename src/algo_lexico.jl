@@ -1,7 +1,7 @@
 # MIT License
 # Copyright (c) 2017: Xavier Gandibleux, Anthony Przybylski, Gauthier Soleilhac, and contributors.
 
-function solve_lexico(m::JuMP.Model, verbose; kwargs...)
+function solve_lexico(m::JuMP.Model; verbose, kwargs...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
     empty!(vd.Y_N) ; empty!(vd.X_E)
