@@ -13,7 +13,7 @@ export vModel,
     @addobjective,
     parseMOP,
     writeMOP
-    
+
 include("MOP.jl")
 include("algorithms.jl")
 
@@ -23,7 +23,7 @@ mutable struct vOptData
     Y_N::Vector{Vector{Float64}}               #Objective values for each point
     X_E::Vector{Vector{Float64}}               #Variable values for each point
 end
-vOptData() = vOptData([], [], [], [])   
+vOptData() = vOptData([], [], [], [])
 
 function JuMP.copy_extension_data(data::vOptData, new_model::JuMP.AbstractModel, model::JuMP.AbstractModel)
     new_objs = [JuMP.copy(obj, new_model) for obj in data.objs]
@@ -51,26 +51,32 @@ function vModel(; args...)
     return m
 end
 
-function vSolve(m::JuMP.Model ; relax=false, method=nothing, step = 1., round_results = false, verbose = true, args...)
+function vSolve(m::JuMP.Model ; relax=false, method=nothing, verbose = true, kwargs...)
 
     vd = getvOptData(m)
 
     if relax != false
         @warn "linear relaxation not yet implemented"
     end
-    
-    if method == :epsilon
-        solve_eps(m, step, round_results, verbose ; relaxation=relax, args...)
-    elseif method == :dicho || method == :dichotomy
-        solve_dicho(m, round_results, verbose ; relaxation=relax, args...)
-    elseif method == :Chalmet || method == :chalmet
-        solve_Chalmet(m, step, verbose ; relaxation=relax, args...)
-    elseif method == :lex || method == :lexico
-        solve_lexico(m, verbose ; relaxation=relax, args...)
+
+    methods = Dict{Symbol, Function}[
+        :epsilon => solve_eps,
+        :dicho => solve_dicho,
+        :dichotomy => solve_dicho,
+        :chalmet => solve_Chalmet,
+        :Chalmet => solve_Chalmet,
+        :lexico => solve_lexico,
+        :lex => solve_lexico,
+    ]
+
+    if method in keys(methods)
+        solve_function = methods[method]
+        solve_function(m; verbose=verbose, relaxation=relax, kwargs...)
     else
-        @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico) )")
+        @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico))")
     end
 
+    return m
 end
 
 # function printhook(io::IO, m::Model)
@@ -86,7 +92,7 @@ end
 
 macro addobjective(m, args...)
     if length(args) != 2
-        error("in @addobjective: needs three arguments: model, 
+        error("in @addobjective: needs three arguments: model,
                 objective sense (Max or Min) and linear expression.")
     end
     m = esc(m)
@@ -116,7 +122,7 @@ function printX_E(m::JuMP.Model)
                     print(JuMP.name(var)," =", val," ")
                 end
             end
-        end 
+        end
         println()
    end
 end
