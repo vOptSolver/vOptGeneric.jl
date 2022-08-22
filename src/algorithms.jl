@@ -3,7 +3,7 @@
 function solve_lexico(m::JuMP.Model, verbose; args...)
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
-    empty!(vd.Y_N) ; empty!(vd.X_E)
+    empty!(vd.Y_N) ; empty!(vd.X_E) ; empty!(vd.logObjs)
     objs = vd.objs
     objSenses = vd.objSenses
     nbObj = length(objs)
@@ -74,7 +74,7 @@ function solve_eps(m::JuMP.Model, ϵ::Float64, round_results, verbose ; args...)
     @info "ϵ = $ϵ"
     #Retrieve objectives and their senses from vOptData
     vd = getvOptData(m)
-    empty!(vd.Y_N) ; empty!(vd.X_E)
+    empty!(vd.Y_N) ; empty!(vd.X_E) ; empty!(vd.logObjs)
     f1,f2 = vd.objs
     f1Sense,f2Sense = vd.objSenses
     varArray = JuMP.all_variables(m)
@@ -143,7 +143,7 @@ end
 
 function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
     vd = getvOptData(m)
-    empty!(vd.Y_N) ; empty!(vd.X_E)
+    empty!(vd.Y_N) ; empty!(vd.X_E) ; empty!(vd.logObjs)
     f1, f2 = vd.objs
     f1Sense, f2Sense = vd.objSenses
     varArray = JuMP.all_variables(m)
@@ -165,6 +165,7 @@ function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
         #Store results in vOptData
         push!(vd.Y_N, round_results ? round.([yr_1, yr_2]) : [yr_1, yr_2])
         push!(vd.X_E, JuMP.value.(varArray))
+        push!(vd.logObjs, f1)
 
         #Set the second objective as an objective in the JuMP JuMP.Model
         JuMP.set_objective(m, f2Sense, f2)
@@ -182,6 +183,7 @@ function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
             if !isapprox(yr_1, ys_1, atol=1e-3) || !isapprox(yr_2, ys_2, atol=1e-3)
                 push!(vd.Y_N, round_results ? round.([ys_1, ys_2]) : [ys_1, ys_2])
                 push!(vd.X_E, JuMP.value.(varArray))
+                push!(vd.logObjs, f2)
                 dichoRecursion(m, yr_1, yr_2, ys_1, ys_2, varArray, round_results, verbose ; args...)
             end
         
@@ -189,6 +191,7 @@ function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
             s = sortperm(vd.Y_N, by = first)
             vd.Y_N = vd.Y_N[s]
             vd.X_E = vd.X_E[s]
+            vd.logObjs = vd.logObjs[s]
 
             R1 = f1Sense==MOI.MIN_SENSE ? (<=) : (>=)
             R2 = f2Sense==MOI.MIN_SENSE ? (<=) : (>=)
@@ -205,6 +208,7 @@ function solve_dicho(m::JuMP.Model, round_results, verbose; args...)
             end
             deleteat!(vd.Y_N, inds)
             deleteat!(vd.X_E, inds)
+            deleteat!(vd.logObjs, inds)
         end
     end
 
@@ -220,14 +224,18 @@ function dichoRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, round_r
     λ1 = abs(yr_2 - ys_2)
     λ2 = abs(ys_1 - yr_1)
 
+    f = AffExpr(0.0)
+
     if f1Sense==f2Sense
         lb = λ1*yr_1 + λ2*yr_2
         JuMP.set_objective(m, f1Sense, λ1*f1 + λ2*f2)
-        verbose && println("solving for $λ1*f1 + $λ2*f2")        
+        verbose && println("solving for $λ1*f1 + $λ2*f2")    
+        f = λ1*f1 + λ2*f2
     else
         lb = λ1*yr_1 - λ2*yr_2
         JuMP.set_objective(m, f1Sense, λ1*f1 - λ2*f2)
         verbose && println("solving for $λ1*f1 - $λ2*f2") 
+        f = λ1*f1 - λ2*f2
     end
 
     JuMP.optimize!(m, ignore_optimize_hook=true)
@@ -240,6 +248,7 @@ function dichoRecursion(m::JuMP.Model, yr_1, yr_2, ys_1, ys_2, varArray, round_r
     if (f1Sense == MOI.MIN_SENSE && val < lb - 1e-4) || val > lb + 1e-4
         push!(vd.Y_N, round_results ? round.([yt_1, yt_2]) : [yt_1, yt_2])
         push!(vd.X_E, JuMP.value.(varArray))
+        push!(vd.logObjs, f)
         dichoRecursion(m, yr_1, yr_2, yt_1, yt_2, varArray, round_results, verbose ; args...)
         dichoRecursion(m, yt_1, yt_2, ys_1, ys_2, varArray, round_results, verbose ; args...)
     end
@@ -248,7 +257,7 @@ end
 
 function solve_Chalmet(m::JuMP.Model, step, verbose ; args...)
     vd = getvOptData(m)
-    empty!(vd.Y_N) ; empty!(vd.X_E)
+    empty!(vd.Y_N) ; empty!(vd.X_E) ; empty!(vd.logObjs)
     f1,f2 = vd.objs[1],vd.objs[2]
     f1Sense,f2Sense = vd.objSenses[1],vd.objSenses[2]
     varArray = JuMP.all_variables(m)

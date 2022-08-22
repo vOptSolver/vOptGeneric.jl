@@ -1,4 +1,7 @@
+using JuMP
+
 include("struct.jl")
+include("cutPool.jl")
 
 """
 Definition of the node object in B&B tree.
@@ -6,15 +9,18 @@ Definition of the node object in B&B tree.
 mutable struct Node
     num::Int64                    
     depth::Int64                # depth in tree
-    pred::Node                  # predecessor's index
-    succs::Vector{Node}         # successors' indexes
+    pred::Node                  # predecessor
+    succs::Vector{Node}         # successors
     var::Int64                  # index of the chosen variable to be split
     var_bound::Int64            # variable bound
-    RBS::RelaxedBoundSet        # local relaxed bound set
+    RBS::RelaxedBoundSet        # local relaxed bound set               # TODO : erase memory
     activated::Bool             # if the node is active
     pruned::Bool                # if the node is pruned
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
     deleted::Bool               # if the node is supposed to be deleted
+    # objs::Vector{JuMP.GenericAffExpr}       # TODO : useless ? erase memory 
+    cuts_ref::Vector{CutScore}
+    con_cuts::Vector{ConstraintRef}
 
     Node() = new()
 
@@ -36,6 +42,9 @@ mutable struct Node
         n.pruned = false
         n.prunedType = NONE
         n.deleted = false
+        # n.objs = Vector{JuMP.GenericAffExpr}()
+        n.cuts_ref = Vector{CutScore}()
+        n.con_cuts = Vector{ConstraintRef}()
     
         f(t) = @async println("Finalizing node $(t.num).")
         finalizer(f, n)
@@ -44,6 +53,7 @@ mutable struct Node
     end
     
 end
+
 
 """
 Return `true` if the given node is the root of a branch-and-bound tree.

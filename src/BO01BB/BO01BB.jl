@@ -36,6 +36,137 @@ function reversion(m::JuMP.Model, f, incumbent::IncumbentSet)
     end
 end
 
+# TODO : retrieve matrices
+"""
+Retrieve constraints matrix `A` and right hand side vector `b` in standard LP form `Ax≤b`.
+"""
+function standard_form(pb::BO01Problem)
+
+    cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [
+        JuMP.all_constraints(pb.m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
+            for set_type in (MOI.EqualTo{Float64}, MOI.GreaterThan{Float64}, MOI.LessThan{Float64}, MOI.Interval{Float64})
+    ]
+    numRows = sum(length, (cstrEqualTo, cstrGreaterThan, cstrLessThan))
+    numRows += 2*length(cstrInterval)
+    println(pb.varArray)
+    println("numRows = ", numRows)
+
+    numVars = length(pb.varArray)
+    println("numVars = ", numVars)
+
+    A = zeros(numRows, numVars)
+    b = zeros(numRows)
+    c = zeros(2, numVars + 1) # ∑(a_i*x_i) + c
+
+    # objectives 
+    vd = getvOptData(pb.m)
+    for i=1:2 
+        c[i, 1] = vd.objs[i].constant
+        for (var, coeff) in vd.objs[i].terms
+            for j=1:numVars
+                if var == pb.varArray[j] 
+                    c[i, j+1] = coeff ; break
+                end 
+            end
+        end
+    end
+
+    cstr_index = 0
+    
+    # Ax=b
+    println("Ax=b")
+    for cstrRef in cstrEqualTo
+        println(cstrRef)
+        cstr_index += 1
+
+        con = JuMP.constraint_object(cstrRef)
+        rhs = con.set.value
+
+        terms = JuMP.linear_terms(con.func)
+        for (coeff, term) in terms
+            for i=1:numVars 
+                if term == pb.varArray[i]
+                    A[cstr_index, i] = coeff
+                end
+            end
+        end
+        b[cstr_index] = rhs
+    end
+
+    # Ax≥b
+    println("Ax≥b")
+    for cstrRef in cstrGreaterThan
+        println(cstrRef)
+        cstr_index += 1
+
+        con = JuMP.constraint_object(cstrRef)
+        rhs = con.set.lower
+
+        terms = JuMP.linear_terms(con.func)
+        for (coeff, term) in terms
+            for i=1:numVars 
+                if term == pb.varArray[i]
+                    A[cstr_index, i] = coeff * -1
+                end
+            end
+        end
+        b[cstr_index] = rhs * -1
+    end
+
+    # Ax≤b
+    println("Ax≤b")
+    for cstrRef in cstrLessThan
+        println(cstrRef)
+        cstr_index += 1
+
+        con = JuMP.constraint_object(cstrRef)
+        rhs = con.set.upper
+
+        terms = JuMP.linear_terms(con.func)
+        for (coeff, term) in terms
+            for i=1:numVars 
+                if term == pb.varArray[i]
+                    A[cstr_index, i] = coeff
+                end
+            end
+        end
+        b[cstr_index] = rhs
+    end
+    
+
+    # lb ≤ AX ≤ ub
+    println("lb ≤ AX ≤ ub")
+    for cstrRef in cstrInterval
+        println(cstrRef)
+        cstr_index += 1
+
+        con = JuMP.constraint_object(cstrRef)
+        lb = con.set.lower
+        ub = con.set.upper
+
+        terms = JuMP.linear_terms(con.func)
+        for (coeff, term) in terms
+            for i=1:numVars 
+                if term == pb.varArray[i]
+                    A[cstr_index, i] = coeff
+                    A[cstr_index+1, i] = coeff * -1
+                end
+            end
+        end
+        b[cstr_index] = ub
+        b[cstr_index+1] = lb * -1
+        cstr_index += 1
+    end
+
+    println("A : ", A)
+    println("b : ", b)
+    println("c : ", c)
+
+    pb.A = deepcopy(A)
+    pb.b = deepcopy(b)
+    pb.c = deepcopy(c)
+end
+
 """
 The BO01B&B procedure at each iteration. 
 Argument :
@@ -136,7 +267,13 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     converted, f = formatting(m)
 
     varArray = JuMP.all_variables(m)
-    problem = BO01Problem(varArray, m, BBparam(), StatInfo())
+    problem = BO01Problem(
+        varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0), CutPool()
+    )
+
+    standard_form(problem)
+    # TODO :
+    problem.param.cut_activated = true
 
     # relaxation LP
     undo_relax = JuMP.relax_integrality(problem.m)
@@ -189,5 +326,10 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     
     undo_relax()
     show(tmr)
+
+    println("\n total cuts : ", length(problem.cpool.tab))
+    for cut in problem.cpool.tab
+        println("cut : ", cut)
+    end
     return problem.info
 end

@@ -10,7 +10,7 @@
 @enum PrunedType NONE INFEASIBILITY OPTIMALITY DOMINANCE
 
 TOL = 10^(-4)
-
+include("cutPool.jl")
 """
 Storage the statistics information of the BO01BB algorithm.
 """
@@ -51,10 +51,11 @@ mutable struct BBparam
     time_limit::Float64     # time limit for B&B algo
     traverse::Symbol        # traverse strategy such as dfs, bfs...
     branching::Symbol       # branching strategy
+    cut_activated::Bool     # if apply cuts at each node
 end
 
 function BBparam()
-    return BBparam(300, :bfs, :arbitrary)
+    return BBparam(300, :bfs, :arbitrary, false)
 end
 
 
@@ -66,6 +67,10 @@ mutable struct BO01Problem
     m::JuMP.Model
     param::BBparam
     info::StatInfo
+    A::Matrix{Float64}
+    b::Vector{Float64}
+    c::Matrix{Float64}
+    cpool::CutPool
 end
 
 
@@ -93,6 +98,18 @@ function Solution(x::Vector{Float64}, y::Vector{Float64})
 end
 
 """
+Given a vector `x`, return true if `x` is approximately binary.
+"""
+function isBinary(x::Vector{Float64})
+    for i in 1:length(x)
+        if !(abs(x[i]-0.0) ≤ TOL || abs(x[i]-1.0) ≤ TOL)
+            return false
+        end
+    end
+    return true
+end
+
+"""
 Add an equivalent solution associated to point `y`. 
 """
 function addEquivX(sol::Solution, x::Vector{Float64})
@@ -101,12 +118,7 @@ function addEquivX(sol::Solution, x::Vector{Float64})
     push!(sol.xEquiv, x)
     # check if x is approximately binary
     if !sol.is_binary
-        for i in 1:length(x)
-            if !(abs(x[i]-0.0) ≤ TOL || abs(x[i]-1.0) ≤ TOL)
-                return
-            end
-        end
-        sol.is_binary = true
+        sol.is_binary = isBinary(x)
     end
 end
 

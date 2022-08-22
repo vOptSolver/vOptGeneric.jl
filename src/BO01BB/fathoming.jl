@@ -1,7 +1,69 @@
 # This file contains functions related to node fathoming.
 
-include("BBtree.jl")
-include("../algorithms.jl")
+include("cuttingPlanes.jl")
+
+
+"""
+Given a point `x_star`, iterate all valid cuts of parent node and stock the references 
+in the current node.
+"""
+function loadingCutInPool(node::Node, pb::BO01Problem)
+    if isRoot(node) return end 
+    # --------------------------------------------------------------------------
+    # iterate in the global cut pool, identify + stock the violated cuts indexes
+    # --------------------------------------------------------------------------
+
+    l = 1 ; LBS = node.RBS.natural_order_vect.sols
+
+    while l ≤ length(LBS)
+        if LBS[l].is_binary 
+            l += 1 ; continue
+        end
+
+        xₗ_star = LBS[l].xEquiv[1]
+
+        for ∇ = max_step:-1:0 
+            if ∇ == 0
+                # single-point cut 
+                for cRef in node.pred.cuts_ref
+                    α = pb.cpool.tab[cRef.cut_ind]
+                    violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
+                    if violationₗ > 0.0
+                        @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for SP ... [$(cRef.cut_ind)]"
+                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, violationₗ, 0))
+                            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+                        end
+                    end
+                end
+                l += 1
+            else 
+                applied = false
+                r = l+∇
+                if r > length(LBS) || LBS[r].is_binary continue end
+
+                xᵣ_star = LBS[r].xEquiv[1]
+                # multi-point cut 
+                for cRef in node.pred.cuts_ref
+                    α = pb.cpool.tab[cRef.cut_ind]
+                    violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
+                    violationᵣ = maximum([ (xᵣ_star'*α[2:end] - α[1]), 0.0 ])
+                    viol = maximum([violationₗ, violationᵣ])
+                    if viol > 0.0
+                        applied = true
+                        @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for MP ... [$(cRef.cut_ind)]"
+                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, viol, 0))
+                            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+                        end
+                    end
+                end
+                if applied 
+                    l = r+1 ; break
+                end 
+            end
+        end
+    end
+
+end
 
 """
 Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)problem defined by the given node.
@@ -9,42 +71,55 @@ Return `true` if the node is pruned by infeasibility.
 """
 function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
     start = time()
-    #------------------------------------------------------------------------------
-    # solve the LP relaxation by dichotomy method including the partial assignment
-    #------------------------------------------------------------------------------
-    # undo_relax = JuMP.relax_integrality(pb.m)
+
     assignment = getPartialAssign(node)
     setBounds(pb, assignment)
-    solve_dicho(pb.m, round_results, false ; args...)
-    removeBounds(pb, assignment)
-    # undo_relax()
 
-    vd_LP = getvOptData(pb.m)
 
-    #-------------------------------------------------------------------------------
-    # in case of the LP relaxed (sub) problem is infeasible, prune the actual node
-    #-------------------------------------------------------------------------------
-    if size(vd_LP.Y_N, 1) == 0
-        prune!(node, INFEASIBILITY)
-        if verbose
-            @info "node $(node.num) is unfeasible !"
-        end
-        pb.info.nb_nodes_pruned += 1
-        pb.info.relaxation_time += (time() - start)
-        # pb.info.status = MOI.INFEASIBLE
-        return true
-    end
-
-    # construct/complete the relaxed bound set
-    for i = 1:length(vd_LP.Y_N)
-        push!(node.RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
-    end
-    for i=1:length(node.RBS.natural_order_vect)-1
-        node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
-    end
-
+    pruned = compute_LBS(node, pb, round_results, verbose; args)
     pb.info.relaxation_time += (time() - start)
-    return false
+
+    if pruned 
+        removeBounds(pb, assignment) ; return true 
+    end
+
+    if pb.param.cut_activated
+        println("-------------------")
+        @info "node $(node.num)"
+        println("-------------------")
+
+        # add valid cuts constraints then re-optimize 
+        loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
+        pruned = compute_LBS(node, pb, round_results, verbose; args)
+
+
+        if length(node.RBS.natural_order_vect) > 1
+            @info "multi-point cutting planes"
+            pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)
+
+        elseif length(node.RBS.natural_order_vect) == 1
+            @info "single-point cutting planes"
+            (new_x, cut_found) = SP_cut_off(1, node, pb, round_results, verbose ; args...)
+            if cut_found && new_x != node.RBS.natural_order_vect.sols[1].xEquiv[1]
+                node.RBS.natural_order_vect.sols[1].xEquiv[1] = new_x[:]
+                node.RBS.natural_order_vect.sols[1].y = [pb.c[1, 1] + pb.c[1, 2:end]'*new_x , pb.c[2, 1] + pb.c[2, 2:end]'*new_x]
+                node.RBS.natural_order_vect.sols[1].is_binary = isBinary(new_x)
+            end
+        end
+
+        # retrieve applied valid cuts 
+        for con in node.con_cuts
+            if JuMP.is_valid( pb.m, con)
+                JuMP.delete( pb.m, con)
+                JuMP.unregister( pb.m, :con) # remove the symbolic reference
+                println("retrieve constraint ... ")
+            end
+        end
+    end
+
+    removeBounds(pb, assignment)
+
+    return pruned
 end
 
 

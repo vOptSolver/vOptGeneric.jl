@@ -13,6 +13,7 @@ export vModel,
     printX_E,
     getY_N,
     getX_E,
+    getLogObjs,
     vSolve,
     @addobjective,
     parseMOP,
@@ -122,6 +123,10 @@ end
 
 function getX_E(m::JuMP.Model)
     return getvOptData(m).X_E
+end
+
+function  getLogObjs(m::JuMP.Model)
+    return getvOptData(m).logObjs
 end
 
 

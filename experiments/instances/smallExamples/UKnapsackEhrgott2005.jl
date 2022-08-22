@@ -13,7 +13,7 @@ using .vOptGeneric
 
 
 
-function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N; total_time=nothing, infos=nothing)
+function writeResults(vars::Int64, constr::Int64, fname::String, outputName::String, method, Y_N, X_E; total_time=nothing, infos=nothing)
 
     fout = open(outputName, "w")
     println(fout, "vars = $vars ; constr = $constr ")
@@ -25,6 +25,8 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
     end
     println(fout, "size_Y_N = ", length(Y_N))
     println(fout, "Y_N = ", Y_N)
+    println(fout)
+    println(fout, "size_X_E = ", length(X_E))
   
     close(fout)
   
@@ -65,15 +67,18 @@ function vSolveBOUKP(method, fname; step=0.5)
     # ---- Querying the results
     Y_N = getY_N( biukp )
 
+    X_E = getX_E( biukp )
+
+
     (method == :bb) ? 
-        writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N; infos) : 
-        writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N; total_time)
+        writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N, X_E; infos) : 
+        writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N, X_E; total_time)
 end
 
 
 function main()
     folder = "../../results/smallExamples/"
-    for method in [:dicho, :bb] # 
+    for method in [:bb] # :dicho, 
         result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
                     mkdir(result_dir)
@@ -83,9 +88,9 @@ function main()
             vSolveBOUKP(method, fname)
     end
 
-    for step in ["0.1", "1", "5"]
-        run_epsilon_ctr(step)
-    end
+    # for step in ["0.1", "0.5", "1"]
+    #     run_epsilon_ctr(step)
+    # end
 end
 
 
