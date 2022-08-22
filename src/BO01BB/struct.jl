@@ -223,6 +223,8 @@ or `false`, if it is weakly dominated by one (or more) solution(s) in the vector
 In case of successfully added and `filtered=true` (by defaut false), delete the old solutions that are weakly dominated by the new one.
 """
 function Base.push!(natural_sols::NaturalOrderVector, sol::Solution; filtered::Bool=false)
+    sol.y = round.(sol.y, digits = 3)
+
     # add s directly if sols is empty
     if length(natural_sols) == 0
         push!(natural_sols.sols, sol)

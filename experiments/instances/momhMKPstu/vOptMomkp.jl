@@ -54,7 +54,7 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
   println(fout, "Y_N = ", Y_N)
   println(fout)
   println(fout, "size_X_E = ", length(X_E))
-  println(fout, "X_E = ", X_E)
+  # println(fout, "X_E = ", X_E)
 
   close(fout)
 
@@ -160,7 +160,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [ :bb] # :dicho, :epsilon,
+  for method in [:dicho, :epsilon, :bb] # 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 

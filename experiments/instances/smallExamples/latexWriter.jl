@@ -35,8 +35,8 @@ function comparisonThreeMethods(instances::String)
         push!(times, total_times_used); push!(pts, size_Y_N)
 
         # write ϵ-constraint result (ϵ = 1.0 by default)
-        if isfile(dir * "/epsilon/epsilon_0.1/" * file)
-            include(dir * "/epsilon/epsilon_0.1/" * file)
+        if isfile(dir * "/epsilon/epsilon_1.0/" * file)
+            include(dir * "/epsilon/epsilon_1.0/" * file)
             # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
             push!(times, total_times_used); push!(pts, size_Y_N)
         else
