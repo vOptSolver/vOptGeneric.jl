@@ -195,10 +195,8 @@ function SP_KP_heurSeparator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{F
     m = size(A, 1)
     cuts = []
 
-    # println("x* = ", x)
     # for each knapsack constraint in Ax≤b 
     for i=1:m 
-        # println("the $i -th constraint in Ax≤b")
         # each coefficient must be positive 
         has_negative_coeff = false
         for j=1:n 
@@ -213,7 +211,7 @@ function SP_KP_heurSeparator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{F
             if A[i, j]>0.0 ratio[j] = (1 - x[j])/A[i, j] end
         end
         sorted_ratio = sort(collect(ratio), by=x->x[2])     # increasing order
-        # println("sorted_ratio : ", sorted_ratio)
+
         acc = 0.0 ; C = []
         is_valid = false
         for (j, r) in sorted_ratio
@@ -240,6 +238,110 @@ function SP_KP_heurSeparator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{F
 end
 
 
+function SP_KP_heurSeparator2(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
+    n = size(A, 2)
+    m = size(A, 1)
+    cuts = []
+
+    # for each knapsack constraint in Ax≤b 
+    for i=1:m 
+        # each coefficient must be positive 
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
+
+
+        weights = Dict{Int64, Float64}(j => 0.0 for j=1:n)
+        for j=1:n 
+            if x[j]>0.0 weights[j] = A[i, j] end 
+        end
+        sorted_weights = sort(collect(weights), by=x->x[2], rev=true)     # decreasing order
+
+        acc = 0.0 ; C = []
+        is_valid = false
+        for (j, w) in sorted_weights
+            if w>0.0
+                acc += w; push!(C, j)
+                if acc > b[i] 
+                    is_valid = true ; break
+                end
+            end
+        end
+
+        if !is_valid continue end 
+
+        cut = zeros( n+1 )
+        cut[1] = length(C) - 1
+        for j in C
+            cut[j+1] = 1.0
+        end
+        cut = round.(Int, cut)
+        push!(cuts, cut)
+    end
+
+    return cuts
+end
+
+function MP_KP_heurSeparator2(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
+    n = size(A, 2)
+    m = size(A, 1)
+    cuts = []
+
+    # for each knapsack constraint in Ax≤b 
+    for i=1:m 
+        # each coefficient must be positive 
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
+
+        weights_l = Dict{Int64, Float64}(j => 0.0 for j=1:n)
+        weights_r = Dict{Int64, Float64}(j => 0.0 for j=1:n)
+        for j=1:n 
+            if x_l[j]>0.0 weights_l[j] = A[i, j] end
+            if x_r[j]>0.0 weights_r[j] = A[i, j] end
+        end
+        sorted_weights_l = sort(collect(weights_l), by=x->x[2], rev=true)     # decreasing order
+        sorted_weights_r = sort(collect(weights_r), by=x->x[2], rev=true)     # decreasing order
+
+        acc_l = 0.0 ; acc_r = 0.0 
+        cut = zeros( n+1 )
+
+        is_valid = false
+        for l = 1:n
+            j = sorted_weights_l[l][1] ; w = sorted_weights_l[l][2]
+            if cut[j+1] == 0.0 && w>0.0
+                acc_l += w ; acc_r += w
+                cut[j+1] = 1.0
+            end
+
+            if sorted_weights_r[l][1] != j && cut[sorted_weights_r[l][1] + 1] == 0.0 && sorted_weights_r[l][2]>0.0
+                j = sorted_weights_r[l][1]; w = sorted_weights_r[l][2]
+                acc_l += w ; acc_r += w
+                cut[j+1] = 1.0
+            end
+
+            if acc_l > b[i] && acc_r > b[i]
+                is_valid = true ; break
+            end
+        end
+
+        if !is_valid continue end 
+        
+        cut[1] = sum(cut) - 1
+        cut = round.(Int, cut)
+        push!(cuts, cut)
+    end
+
+    return cuts
+end
 
 
 

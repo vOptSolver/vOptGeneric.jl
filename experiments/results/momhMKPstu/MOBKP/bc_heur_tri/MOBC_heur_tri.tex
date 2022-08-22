@@ -1,0 +1,42 @@
+\begin{sidewaystable}[h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccccccccccccccc}
+\toprule
+\textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Nodes}} & \multicolumn{2}{c}{\textbf{CP iterations}} & \multicolumn{3}{c}{\textbf{Cuts applied}} & \textbf{Cuts} & \multicolumn{5}{c}{\textbf{CP Time(s)}} & \textbf{B\&C Time(s)} & \textbf{$|\mathcal{Y}_N|$}
+\\
+\cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10} \cmidrule(r){12-16}
+~ & ~ & ~ & \textbf{total} & \textbf{pruned} & \textbf{total} & \textbf{average} & \textbf{total} & \textbf{sp} & \textbf{mp} & ~ & \textbf{total} & \textbf{dichotomy} & \textbf{pool oper} & \textbf{separators} & \textbf{cuts oper} & ~ & ~ \\
+\midrule
+
+W7BI-rnd1-1800.DAT & 10 & 2 & 209 & 105 & 512 & 2.45 & 583 & 128 & 455 & 80 & 1.19 & 0.25 & 0.0 & 0.0 & 0.54 & 1.26 & 8\\
+W7BI-rnd1-3000.DAT & 10 & 2 & 81 & 41 & 253 & 3.12 & 322 & 61 & 261 & 83 & 1.06 & 0.18 & 0.0 & 0.0 & 0.54 & 1.15 & 7\\
+W7BI-tube1-1800.DAT & 10 & 2 & 187 & 94 & 501 & 2.68 & 532 & 65 & 467 & 63 & 1.22 & 0.32 & 0.0 & 0.0 & 0.54 & 1.28 & 8\\
+W7BI-tube1-3000.DAT & 10 & 2 & 125 & 63 & 349 & 2.79 & 411 & 110 & 301 & 67 & 1.19 & 0.21 & 0.0 & 0.0 & 0.57 & 1.27 & 5\\
+W7BI-tube1-asyn.DAT & 10 & 2 & 115 & 58 & 373 & 3.24 & 485 & 90 & 395 & 71 & 1.21 & 0.27 & 0.0 & 0.0 & 0.58 & 1.26 & 5\\
+W7BI-tube2-1800.DAT & 10 & 2 & 167 & 84 & 432 & 2.59 & 514 & 120 & 394 & 66 & 1.19 & 0.28 & 0.0 & 0.0 & 0.55 & 1.25 & 7\\
+Wcollage-tube.DAT & 10 & 2 & 29 & 15 & 88 & 3.03 & 334 & 54 & 280 & 76 & 0.99 & 0.11 & 0.0 & 0.0 & 0.54 & 1.01 & 2\\
+\cline{1-18} \textbf{avg} & \textbf{10} & \textbf{2} & \textbf{130.43} & \textbf{65.71} & \textbf{358.29} & \textbf{2.84} & \textbf{454.43} & \textbf{89.71} & \textbf{364.71} & \textbf{72.29} & \textbf{0.23} & \textbf{1.15} & \textbf{0.0} & \textbf{0.0} & \textbf{0.55} & \textbf{1.21} & \textbf{6.0} \\ \cline{1-18}
+W7BI-rnd1-1800.DAT & 20 & 2 & 835 & 418 & 3260 & 3.9 & 5447 & 836 & 4611 & 779 & 4.81 & 4.39 & 0.03 & 0.07 & 0.15 & 5.62 & 7\\
+W7BI-rnd1-3000.DAT & 20 & 2 & 317 & 159 & 1367 & 4.31 & 2358 & 305 & 2053 & 682 & 2.29 & 2.03 & 0.01 & 0.05 & 0.12 & 2.56 & 4\\
+W7BI-tube1-1800.DAT & 20 & 2 & 795 & 398 & 3444 & 4.33 & 6147 & 995 & 5152 & 760 & 5.84 & 5.34 & 0.03 & 0.1 & 0.17 & 6.65 & 5\\
+W7BI-tube1-3000.DAT & 20 & 2 & 301 & 151 & 1217 & 4.04 & 2543 & 394 & 2149 & 536 & 2.79 & 2.53 & 0.01 & 0.04 & 0.13 & 3.09 & 14\\
+W7BI-tube1-asyn.DAT & 20 & 2 & 187 & 94 & 656 & 3.51 & 1040 & 175 & 865 & 181 & 1.04 & 0.93 & 0.0 & 0.04 & 0.04 & 1.21 & 14\\
+W7BI-tube2-1800.DAT & 20 & 2 & 1189 & 595 & 5199 & 4.37 & 9130 & 1384 & 7746 & 1419 & 8.31 & 7.5 & 0.07 & 0.16 & 0.25 & 9.46 & 5\\
+Wcollage-tube.DAT & 20 & 2 & 1343 & 672 & 5312 & 3.96 & 28644 & 3106 & 25538 & 4757 & 17.38 & 14.83 & 0.58 & 0.25 & 0.9 & 19.55 & 27\\
+\cline{1-18} \textbf{avg} & \textbf{20} & \textbf{2} & \textbf{709.57} & \textbf{355.29} & \textbf{2922.14} & \textbf{4.06} & \textbf{7901.29} & \textbf{1027.86} & \textbf{6873.43} & \textbf{1302.0} & \textbf{5.36} & \textbf{6.07} & \textbf{0.1} & \textbf{0.1} & \textbf{0.25} & \textbf{6.88} & \textbf{10.86} \\ \cline{1-18}
+W7BI-rnd1-1800.DAT & 30 & 2 & 7375 & 3688 & 34395 & 4.66 & 73953 & 9813 & 64140 & 7122 & 151.82 & 77.17 & 2.63 & 1.5 & 67.75 & 162.92 & 8\\
+W7BI-rnd1-3000.DAT & 30 & 2 & 615 & 308 & 2756 & 4.48 & 6111 & 518 & 5593 & 1102 & 7.32 & 6.65 & 0.03 & 0.11 & 0.32 & 8.14 & 2\\
+W7BI-tube1-1800.DAT & 30 & 2 & 3401 & 1701 & 15129 & 4.45 & 29758 & 4587 & 25171 & 2840 & 34.59 & 31.34 & 0.54 & 0.73 & 0.75 & 39.31 & 31\\
+W7BI-tube1-3000.DAT & 30 & 2 & 879 & 440 & 3999 & 4.55 & 10965 & 1360 & 9605 & 2106 & 14.85 & 13.4 & 0.12 & 0.23 & 0.7 & 16.17 & 12\\
+W7BI-tube1-asyn.DAT & 30 & 2 & 1547 & 774 & 7260 & 4.69 & 43848 & 4682 & 39166 & 4842 & 30.89 & 27.06 & 0.84 & 0.43 & 1.2 & 33.73 & 12\\
+W7BI-tube2-1800.DAT & 30 & 2 & 7081 & 3541 & 32549 & 4.6 & 73238 & 10144 & 63094 & 7176 & 84.62 & 76.41 & 2.28 & 1.47 & 1.61 & 95.88 & 28\\
+Wcollage-tube.DAT & 30 & 2 & 12883 & 6442 & 60891 & 4.73 & 570102 & 38840 & 531262 & 89683 & 608.04 & 368.79 & 201.56 & 6.92 & 12.49 & 654.08 & 46\\
+\cline{1-18} \textbf{avg} & \textbf{30} & \textbf{2} & \textbf{4825.86} & \textbf{2413.43} & \textbf{22425.57} & \textbf{4.59} & \textbf{115425.0} & \textbf{9992.0} & \textbf{105433.0} & \textbf{16410.14} & \textbf{85.83} & \textbf{133.16} & \textbf{29.71} & \textbf{1.63} & \textbf{12.12} & \textbf{144.32} & \textbf{19.86} \\ \cline{1-18}
+\bottomrule
+\end{tabular}%
+}%
+\caption{.}
+\label{tab:table_bc_heur_tri}
+\end{sidewaystable}
+

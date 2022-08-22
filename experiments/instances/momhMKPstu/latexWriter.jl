@@ -226,7 +226,106 @@ function detailedMOBB_perform(instances::String)
     close(fout)
 end
 
+function MOBC_perform(instances::String)
+    bc = "/bc_heur_x"
+    dir = "../../results/" * instances * bc
+    @assert isdir(dir) "This directory doesn't exist $dir !"
+
+    fout = open(dir * "/MOBC_heur_x.tex", "w")
+
+    latex = raw"""\begin{sidewaystable}[h]
+    \centering
+    \resizebox{\columnwidth}{!}{%
+    \begin{tabular}{lccccccccccccccccc}
+    \toprule
+    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Nodes}} & \multicolumn{2}{c}{\textbf{CP iterations}} & \multicolumn{3}{c}{\textbf{Cuts applied}} & \textbf{Cuts} & \multicolumn{5}{c}{\textbf{CP Time(s)}} & \textbf{B\&C Time(s)} & \textbf{$|\mathcal{Y}_N|$}
+    \\
+    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10} \cmidrule(r){12-16}
+    ~ & ~ & ~ & \textbf{total} & \textbf{pruned} & \textbf{total} & \textbf{average} & \textbf{total} & \textbf{sp} & \textbf{mp} & ~ & \textbf{total} & \textbf{dichotomy} & \textbf{pool oper} & \textbf{separators} & \textbf{cuts oper} & ~ & ~ \\
+    \midrule
+    """
+    println(fout, latex)
+
+    for folder_n in readdir(dir)
+        if !isdir(dir * "/" * string(folder_n) ) continue end 
+        count = 0
+        avg_n = 0 ; avg_m = 0
+        avg_totalNodes= 0 ; avg_prunedNodes = 0
+        avg_totalIte = 0 ; avg_pernodesIte = 0
+        avg_totalCuts = 0 ; avg_spCuts = 0 ; avg_mpCuts = 0 ; avg_Cuts = 0
+        avg_totalT = 0.0 ; avg_dichoT = 0.0 ; avg_poolT = 0.0 ; avg_sepaT = 0.0 ; avg_cutsT = 0.0
+        avg_BCtime = 0.0 ; avg_YN = 0
+
+        for file in readdir(dir * "/" * string(folder_n) * "/")
+            if split(file, ".")[end] == "png"
+                continue
+            end
+    
+            print(fout, file * " & ")
+    
+            include(dir * "/" * string(folder_n) * "/" * file)
+            print(fout, string(vars) * " & " * string(constr) * " & ")
+            print(fout, string(total_nodes) * " & " * string(pruned_nodes) * " & " * string(ite_total) * " & "*
+                string( round(ite_total/total_nodes, digits = 2) ) * " & " * string(cuts_applied) * " & " * string(sp_cuts)*
+                " & " * string(mp_cuts) * " & " * string(cuts_total) * " & " * string(times_total_for_cuts) * " & " *
+                string(times_calling_dicho) * " & " * string(times_oper_cutPool) * " & " *string(times_calling_separators) * " & "*
+                string(times_add_retrieve_cuts) * " & " *string(total_times_used) * " & " *string(size_Y_N)
+            )
+
+            println(fout, "\\\\")
+
+            count += 1
+            avg_n += vars ; avg_m += constr
+            avg_totalNodes += total_nodes ; avg_prunedNodes += pruned_nodes
+            avg_totalIte += ite_total ; avg_pernodesIte += round(ite_total/total_nodes, digits = 2)
+            avg_totalCuts += cuts_applied ; avg_spCuts += sp_cuts ; avg_mpCuts += mp_cuts ; avg_Cuts += cuts_total
+            avg_totalT += times_total_for_cuts ; avg_dichoT += times_calling_dicho ; avg_poolT += times_oper_cutPool ; avg_sepaT += times_calling_separators ; avg_cutsT += times_add_retrieve_cuts
+            avg_BCtime += total_times_used ; avg_YN += size_Y_N
+        end
+
+        avg_n = round(Int, avg_n/count) ; avg_m = round(Int, avg_m/count)
+        avg_totalNodes = round(avg_totalNodes/count, digits = 2)
+        avg_prunedNodes = round(avg_prunedNodes/count, digits = 2)
+        avg_totalIte = round(avg_totalIte/count, digits = 2)
+        avg_pernodesIte = round(avg_pernodesIte/count, digits = 2)
+        avg_totalCuts = round(avg_totalCuts/count, digits = 2)
+        avg_spCuts = round(avg_spCuts/count, digits = 2)
+        avg_mpCuts = round(avg_mpCuts/count, digits = 2)
+        avg_Cuts = round(avg_Cuts/count, digits = 2)
+        avg_dichoT = round(avg_dichoT/count, digits = 2)
+        avg_totalT = round(avg_totalT/count, digits = 2)
+        avg_poolT = round(avg_poolT/count, digits = 2)
+        avg_sepaT = round(avg_sepaT/count, digits = 2)
+        avg_cutsT = round(avg_cutsT/count, digits = 2)
+        avg_BCtime = round(avg_BCtime/count, digits = 2)
+        avg_YN = round(avg_YN/count, digits = 2)
+
+
+        println(fout, "\\cline{1-18} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
+            string(avg_totalNodes) * "} & \\textbf{" * string(avg_prunedNodes) * "} & \\textbf{" * string(avg_totalIte) * "} & \\textbf{" *
+            string(avg_pernodesIte) * "} & \\textbf{" * string(avg_totalCuts) * "} & \\textbf{" * string(avg_spCuts) * "} & \\textbf{" *
+            string(avg_mpCuts) * "} & \\textbf{" * string(avg_Cuts) * "} & \\textbf{" * string(avg_dichoT) *"} & \\textbf{" *
+            string(avg_totalT) * "} & \\textbf{" * string(avg_poolT) * "} & \\textbf{" * string(avg_sepaT) * "} & \\textbf{" *
+            string(avg_cutsT) * "} & \\textbf{" * string(avg_BCtime) * "} & \\textbf{" * string(avg_YN) * "} " * "\\\\ \\cline{1-18}")
+    end
+
+
+    latex = raw"""\bottomrule
+    \end{tabular}%
+    }%
+    \caption{.}
+    \label{tab:table_bc_heur_x}
+    \end{sidewaystable}
+    """
+    println(fout, latex)
+    close(fout)
+
+end
+
+
+
 detailedMOBB_perform("momhMKPstu/MOBKP")
 
-
 comparisonThreeMethods("momhMKPstu/MOBKP")
+
+MOBC_perform("momhMKPstu/MOBKP")

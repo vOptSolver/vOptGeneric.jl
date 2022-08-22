@@ -29,7 +29,7 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
                     α = pb.cpool.tab[cRef.cut_ind]
                     violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
                     if violationₗ > 0.0
-                        @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for SP ... [$(cRef.cut_ind)]"
+                        # @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for SP ... [$(cRef.cut_ind)]"
                         if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, violationₗ, 0))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
@@ -50,7 +50,7 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
                     viol = maximum([violationₗ, violationᵣ])
                     if viol > 0.0
                         applied = true
-                        @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for MP ... [$(cRef.cut_ind)]"
+                        # @info "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!applying cuts in pool for MP ... [$(cRef.cut_ind)]"
                         if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, viol, 0))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
@@ -85,9 +85,9 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
 
     if pb.param.cut_activated
         start_cuts = time()
-        println("-------------------")
-        @info "node $(node.num)"
-        println("-------------------")
+        # println("-------------------")
+        # @info "node $(node.num)"
+        # println("-------------------")
 
         # add valid cuts constraints then re-optimize 
         start_processing = time()
@@ -99,11 +99,11 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
 
         if length(node.RBS.natural_order_vect) > 1
-            @info "multi-point cutting planes"
+            # @info "multi-point cutting planes"
             pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)
 
         elseif length(node.RBS.natural_order_vect) == 1
-            @info "single-point cutting planes"
+            # @info "single-point cutting planes"
             pb.info.cuts_infos.ite_total += 1 
             (new_x, cut_found) = SP_cut_off(1, node, pb, round_results, verbose ; args...)
             if cut_found && new_x != node.RBS.natural_order_vect.sols[1].xEquiv[1]

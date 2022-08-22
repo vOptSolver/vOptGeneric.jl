@@ -36,15 +36,14 @@ Return `true` if `cut` is successfully added.
 """
 function Base.push!(cpool::CutPool, cut::Vector{Int64})
     if size(cpool.tab, 1) == 0
-        push!(cpool.tab, cut)
-        @info "1er cut : ", cut
+        push!(cpool.tab, cut) ; return true
     end
 
     for c in cpool.tab
         notequal = false
         for i=1:length(c)
             if !isapprox(c[i], cut[i]; atol=10^(-4))
-                notequal = true
+                notequal = true ; break
             end
         end
 
@@ -52,8 +51,8 @@ function Base.push!(cpool::CutPool, cut::Vector{Int64})
     end
 
     push!(cpool.tab, cut)
-    @info "cut : ", cut
-    println("number of cuts : ", length(cpool.tab))
+    # @info "cut : ", cut
+    # println("number of cuts : ", length(cpool.tab))
     # for cut in cpool.tab
     #     println(cut)
     # end

@@ -19,7 +19,7 @@ function compute_LBS(node::Node, pb::BO01Problem, round_results, verbose ; args.
     #------------------------------------------------------------------------------
     # solve the LP relaxation by dichotomy method including the partial assignment
     #------------------------------------------------------------------------------
-    @info "solving dicho ..."
+    # @info "solving dicho ..."
     solve_dicho(pb.m, round_results, false ; args...)
     vd_LP = getvOptData(pb.m)
 
@@ -78,13 +78,13 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
     #     return (x_star, true)
     # end
 
-    @info "Calling SP_KP_heurSeparator ..."
+    # @info "Calling SP_KP_heurSeparator ..."
     start_sep = time()
-    cuts = SP_KP_heurSeparator(x_star, pb.A, pb.b)
+    cuts = SP_KP_heurSeparator2(x_star, pb.A, pb.b)
     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
     if length(cuts) > 0
-        @info " ------------------------- cut found "
+        # @info " ------------------------- cut found "
         for cut in cuts
             viol = sum(cut[j+1]*(1-x_star[j]) for j = 1:length(cut)-1 )
             
@@ -116,7 +116,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
     while ite < loop_limit 
         ite += 1 ; pb.info.cuts_infos.ite_total += 1 
         
-        @info "MP_cutting_planes ite = $ite"
+        # @info "MP_cutting_planes ite = $ite"
         # ------------------------------------------------------------------------------
         # 1. generate multi-point cuts if has any, or single-point cut off
         # ------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
 
             for ∇ = max_step:-1:0 
                 if ∇ == 0
-                    @info "MP_cutting_planes calling `SP_cut_off`"
+                    # @info "MP_cutting_planes calling `SP_cut_off`"
                     (_, new_cut) = SP_cut_off(l, node, pb, round_results, verbose ; args...) 
                     if new_cut cut_counter += 1 end 
                     l += 1
@@ -154,14 +154,14 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                     #     l = r + 1 ; break
                     # end
 
-                    @info "Calling MP_KP_heurSeparator ..."
+                    # @info "Calling MP_KP_heurSeparator ..."
                     start_sep = time()
-                    cuts = MP_KP_heurSeparator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
+                    cuts = MP_KP_heurSeparator2(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
                     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
                     if length(cuts) > 0
                         cut_counter += (∇+1)
-                        @info " ------------------------------ cut found "
+                        # @info " ------------------------------ cut found "
                         for cut in cuts
                             viol_l = sum(cut[j+1]*(1-LBS[l].xEquiv[1][j]) for j = 1:length(cut)-1 )
                             viol_r = sum(cut[j+1]*(1-LBS[r].xEquiv[1][j]) for j = 1:length(cut)-1 )
@@ -173,6 +173,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
 
                             pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
                             con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
+
                         end
                         l = r + 1 ; break
                     end
@@ -185,7 +186,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
         # --------------------------------------------------
         # 2. stop if no more valid cut can be found
         # --------------------------------------------------
-        if cut_counter/length(LBS) < 0.3
+        if cut_counter/length(LBS) < 0.5
             return false 
         end
 
