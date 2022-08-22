@@ -11,6 +11,43 @@
 
 TOL = 10^(-4)
 include("cutPool.jl")
+
+"""
+Storage the total number of cuts applied etc...
+"""
+mutable struct CutsInfo
+    ite_total::Int64
+    cuts_applied::Int64
+    sp_cuts::Int64
+    mp_cuts::Int64
+    cuts_total::Int64
+    times_calling_dicho::Float64
+    times_calling_separators::Float64
+    times_oper_cutPool::Float64
+    times_total_for_cuts::Float64
+    times_add_retrieve_cuts::Float64
+end
+
+function CutsInfo()
+    return CutsInfo(0, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0)
+end
+
+
+function Base.:show(io::IO, cinfo::CutsInfo)
+    println(io, "\n\n # ----------- info about cuts : \n", 
+    "ite_total = $(cinfo.ite_total) \n",
+    "cuts_applied = $(cinfo.cuts_applied) \n",
+    "sp_cuts = $(cinfo.sp_cuts) \n",
+    "mp_cuts = $(cinfo.mp_cuts) \n", 
+    "cuts_total = $(cinfo.cuts_total) \n", 
+    "times_calling_dicho = $(cinfo.times_calling_dicho) \n",
+    "times_calling_separators = $(cinfo.times_calling_separators) \n", 
+    "times_oper_cutPool = $(cinfo.times_oper_cutPool) \n", 
+    "times_total_for_cuts = $(cinfo.times_total_for_cuts) \n",
+    "times_add_retrieve_cuts = $(cinfo.times_add_retrieve_cuts) \n"
+    )
+end
+
 """
 Storage the statistics information of the BO01BB algorithm.
 """
@@ -23,11 +60,13 @@ mutable struct StatInfo
     test_dom_time::Float64
     update_incumb_time::Float64
     tree_size::Float64
+    cuts_activated::Bool
+    cuts_infos::CutsInfo
     # status::MOI.TerminationStatusCode 
 end
 
 function StatInfo()
-    return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0)
+    return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, false, CutsInfo())
 end
 
 function Base.:show(io::IO, info::StatInfo)
@@ -41,6 +80,7 @@ function Base.:show(io::IO, info::StatInfo)
         "update_incumbent_time = $(info.update_incumb_time) \n",
         "tree_size = $(info.tree_size) "
     )
+    if info.cuts_activated println(io, info.cuts_infos) end
 end
 
 

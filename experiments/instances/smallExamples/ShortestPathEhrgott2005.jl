@@ -18,8 +18,8 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
         fout = open(outputName, "w")
         println(fout, "vars = $vars ; constr = $constr ")
       
-        if method == :bb
-          println(fout, infos)
+        if method == :bb || method == :bc
+                println(fout, infos)
         else
           println(fout, "total_times_used = $total_time")
         end
@@ -67,6 +67,8 @@ function vSolveBOSP(method, fname; step=0.5)
 
         if method == :bb
                 infos = vSolve( bisp, method=:bb, verbose=false )
+        elseif method == :bc 
+                infos = vSolve( bisp, method=:bc, verbose=false )
         elseif method == :dicho 
                 start = time()
                 vSolve( bisp, method=:dicho, verbose=false )
@@ -85,7 +87,7 @@ function vSolveBOSP(method, fname; step=0.5)
         X_E = getX_E( bisp )
 
 
-        (method == :bb) ? 
+        (method == :bb || method == :bc) ? 
                 writeResults(n*n, n, "ShortestPathEhrgott2005", fname, method, Y_N, X_E; infos) : 
                 writeResults(n*n, n, "ShortestPathEhrgott2005", fname, method, Y_N, X_E; total_time)
 
@@ -93,8 +95,8 @@ end
 
 
 function main()
-        folder = "../../results/smallExamples/"
-        for method in [:bb] # :dicho, 
+        folder = "../../results/smallExamples"
+        for method in [:bb, :bc] # :dicho, 
                 result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
                 if !isdir(result_dir)
                         mkdir(result_dir)

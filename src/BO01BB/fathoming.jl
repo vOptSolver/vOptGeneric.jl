@@ -84,14 +84,19 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     end
 
     if pb.param.cut_activated
+        start_cuts = time()
         println("-------------------")
         @info "node $(node.num)"
         println("-------------------")
 
         # add valid cuts constraints then re-optimize 
+        start_processing = time()
         loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
-        pruned = compute_LBS(node, pb, round_results, verbose; args)
+        pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
+        start_dicho = time()
+        pruned = compute_LBS(node, pb, round_results, verbose; args)
+        pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
 
         if length(node.RBS.natural_order_vect) > 1
             @info "multi-point cutting planes"
@@ -99,6 +104,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
 
         elseif length(node.RBS.natural_order_vect) == 1
             @info "single-point cutting planes"
+            pb.info.cuts_infos.ite_total += 1 
             (new_x, cut_found) = SP_cut_off(1, node, pb, round_results, verbose ; args...)
             if cut_found && new_x != node.RBS.natural_order_vect.sols[1].xEquiv[1]
                 node.RBS.natural_order_vect.sols[1].xEquiv[1] = new_x[:]
@@ -108,13 +114,17 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         end
 
         # retrieve applied valid cuts 
+        start_processing = time()
         for con in node.con_cuts
             if JuMP.is_valid( pb.m, con)
                 JuMP.delete( pb.m, con)
                 JuMP.unregister( pb.m, :con) # remove the symbolic reference
-                println("retrieve constraint ... ")
+                # println("retrieve constraint ... ")
             end
         end
+        pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
+
+        pb.info.cuts_infos.times_total_for_cuts += (time() - start_cuts)
     end
 
     removeBounds(pb, assignment)

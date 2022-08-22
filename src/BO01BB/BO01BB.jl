@@ -256,12 +256,20 @@ function post_processing(m::JuMP.Model, problem::BO01Problem, incumbent::Incumbe
     problem.info.relaxation_time = round(problem.info.relaxation_time, digits = 2)
     problem.info.test_dom_time = round(problem.info.test_dom_time, digits = 2)
     problem.info.update_incumb_time = round(problem.info.update_incumb_time, digits = 2)
+
+    if problem.info.cuts_activated
+        problem.info.cuts_infos.times_calling_dicho = round(problem.info.cuts_infos.times_calling_dicho, digits = 2)
+        problem.info.cuts_infos.times_calling_separators = round(problem.info.cuts_infos.times_calling_separators, digits = 2)
+        problem.info.cuts_infos.times_oper_cutPool = round(problem.info.cuts_infos.times_oper_cutPool, digits = 2)
+        problem.info.cuts_infos.times_total_for_cuts = round(problem.info.cuts_infos.times_total_for_cuts, digits = 2)
+        problem.info.cuts_infos.times_add_retrieve_cuts = round(problem.info.cuts_infos.times_add_retrieve_cuts, digits = 2)
+    end
 end
 
 """
 A bi-objective binary(0-1) branch and bound algorithm.
 """
-function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
+function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; args...)
     start = time()
 
     converted, f = formatting(m)
@@ -272,8 +280,7 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     )
 
     standard_form(problem)
-    # TODO :
-    problem.param.cut_activated = true
+    problem.param.cut_activated = cut ; problem.info.cuts_activated = cut 
 
     # relaxation LP
     undo_relax = JuMP.relax_integrality(problem.m)
@@ -327,9 +334,10 @@ function solve_branchbound(m::JuMP.Model, round_results, verbose; args...)
     undo_relax()
     show(tmr)
 
+    problem.info.cuts_infos.cuts_total = length(problem.cpool.tab)
     println("\n total cuts : ", length(problem.cpool.tab))
-    for cut in problem.cpool.tab
-        println("cut : ", cut)
-    end
+    # for cut in problem.cpool.tab
+    #     println("cut : ", cut)
+    # end
     return problem.info
 end

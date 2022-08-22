@@ -20,7 +20,7 @@ mutable struct Node
     deleted::Bool               # if the node is supposed to be deleted
     # objs::Vector{JuMP.GenericAffExpr}       # TODO : useless ? erase memory 
     cuts_ref::Vector{CutScore}
-    con_cuts::Vector{ConstraintRef}
+    con_cuts::Vector{ConstraintRef}             # TODO : erase memory
 
     Node() = new()
 

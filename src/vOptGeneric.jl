@@ -57,7 +57,9 @@ function vSolve(m::JuMP.Model ; relax=false, method=nothing, step = 1., round_re
     elseif method == :lex || method == :lexico
         solve_lexico(m, verbose ; relaxation=relax, args...)
     elseif method == :bb || method == :branchbound
-        return solve_branchbound(m, round_results, verbose ; args...)
+        return solve_branchboundcut(m, false, round_results, verbose ; args...)
+    elseif method == :bc || method == :branchcut
+        return solve_branchboundcut(m, true, round_results, verbose ; args...)
     else
         @warn("use solve(m, method = :(epsilon | dichotomy | chalmet | lexico | branchbound) )")
     end

@@ -17,8 +17,8 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
         fout = open(outputName, "w")
         println(fout, "vars = $vars ; constr = $constr ")
       
-        if method == :bb
-          println(fout, infos)
+        if method == :bb || method == :bc
+                println(fout, infos)
         else
           println(fout, "total_times_used = $total_time")
         end
@@ -61,6 +61,8 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
 
         if method == :bb
                 infos = vSolve( bilap, method=:bb, verbose=false )
+        elseif method == :bc
+                infos = vSolve( bilap, method=:bc, verbose=false )
         elseif method == :dicho 
                 start = time()
                 vSolve( bilap, method=:dicho, verbose=false )
@@ -78,7 +80,7 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
 
         X_E = getX_E( bilap )
 
-        (method == :bb) ? 
+        (method == :bb || method == :bc) ? 
                 writeResults(n, 2*n, "LinearAssignmentUlungu1994", fname, method, Y_N, X_E; infos) : 
                 writeResults(n, 2*n, "LinearAssignmentUlungu1994", fname, method, Y_N, X_E; total_time)
 
@@ -86,8 +88,8 @@ end
 
 
 function main()
-        folder = "../../results/smallExamples/"
-        for method in [:bb] # :dicho, 
+        folder = "../../results/smallExamples"
+        for method in [:bb, :bc] # :dicho, 
                 result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
                 if !isdir(result_dir)
                         mkdir(result_dir)

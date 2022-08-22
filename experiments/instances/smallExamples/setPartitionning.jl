@@ -14,8 +14,8 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
     fout = open(outputName, "w")
     println(fout, "vars = $vars ; constr = $constr ")
   
-    if method == :bb
-      println(fout, infos)
+    if method == :bb || method == :bc
+        println(fout, infos)
     else
       println(fout, "total_times_used = $total_time")
     end
@@ -82,6 +82,8 @@ function computeYNfor2SPA(  nbvar::Int,
 
     if method == :bb
         infos = vSolve( model, method=:bb, verbose=false )
+    elseif method == :bc 
+        infos = vSolve( model, method=:bc, verbose=false )
     elseif method == :dicho 
         start = time()
         vSolve( model, method=:dicho, verbose=false )
@@ -100,7 +102,7 @@ function computeYNfor2SPA(  nbvar::Int,
     X_E = getX_E( model )
 
 
-    (method == :bb) ? writeResults(nbvar, nbctr, "setPartitionning", fname, method, Y_N, X_E; infos) : 
+    (method == :bb || method == :bc) ? writeResults(nbvar, nbctr, "setPartitionning", fname, method, Y_N, X_E; infos) : 
                     writeResults(nbvar, nbctr, "setPartitionning", fname, method, Y_N, X_E; total_time)
 
 end
@@ -117,8 +119,8 @@ function main(fname::String)
     nbvar = size(A,2)
     nbobj = 2
 
-    folder = "../../results/smallExamples/"
-    for method in [:bb] # :dicho, 
+    folder = "../../results/smallExamples"
+    for method in [:bb, :bc] # :dicho, 
         result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
             if !isdir(result_dir)
                     mkdir(result_dir)

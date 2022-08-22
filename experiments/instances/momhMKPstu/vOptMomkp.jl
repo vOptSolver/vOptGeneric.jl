@@ -45,7 +45,7 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
   fout = open(outputName, "w")
   println(fout, "vars = $vars ; constr = $constr ")
 
-  if method == :bb
+  if method == :bb || method == :bc
     println(fout, infos)
   else
     println(fout, "total_times_used = $total_time")
@@ -78,7 +78,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n_before = size(A)
   # scale test
-  for n = 10:10:50
+  for n = 10:10:30
 
     ratio = n/n_before
 
@@ -114,6 +114,9 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     elseif method == :bb
       infos = vSolve( Bi01IP, method=:bb, verbose=false )
       println(infos)
+    elseif method == :bc 
+      infos = vSolve( Bi01IP, method=:bc, verbose=false )
+      println(infos)
     end
 
     # ---- Querying the results
@@ -125,7 +128,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     println("length X_E = ", length(X_E))
 
     # ---- Writing the results
-    (method == :bb) ?
+    (method == :bb || method == :bc) ?
       writeResults(n, m, fname, outputName, method, Y_N, X_E; infos) : 
       writeResults(n, m, fname, outputName, method, Y_N, X_E; total_time)
 
@@ -160,7 +163,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:dicho, :epsilon, :bb] # 
+  for method in [:bb, :bc] # :dicho, :epsilon, 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 
