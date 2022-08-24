@@ -6,7 +6,7 @@ include("separators.jl")
 
 using JuMP, CPLEX 
 
-const max_step = 2
+const max_step = 3
 const loop_limit = 5
 
 
@@ -19,7 +19,6 @@ function compute_LBS(node::Node, pb::BO01Problem, round_results, verbose ; args.
     #------------------------------------------------------------------------------
     # solve the LP relaxation by dichotomy method including the partial assignment
     #------------------------------------------------------------------------------
-    # @info "solving dicho ..."
     solve_dicho(pb.m, round_results, false ; args...)
     vd_LP = getvOptData(pb.m)
 
@@ -40,7 +39,6 @@ function compute_LBS(node::Node, pb::BO01Problem, round_results, verbose ; args.
     node.RBS = RelaxedBoundSet() #; node.objs = Vector{JuMP.GenericAffExpr}()
     for i = 1:length(vd_LP.Y_N)
         push!(node.RBS.natural_order_vect, Solution(vd_LP.X_E[i], vd_LP.Y_N[i]))
-        # push!(node.objs, vd_LP.logObjs[i])
     end
     for i=1:length(node.RBS.natural_order_vect)-1
         node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true

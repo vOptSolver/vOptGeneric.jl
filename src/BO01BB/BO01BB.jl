@@ -36,47 +36,38 @@ function reversion(m::JuMP.Model, f, incumbent::IncumbentSet)
     end
 end
 
-# TODO : retrieve matrices
+
 """
 Retrieve constraints matrix `A` and right hand side vector `b` in standard LP form `Ax≤b`.
 """
 function standard_form(pb::BO01Problem)
+    start = time()
 
     cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [
         JuMP.all_constraints(pb.m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
             for set_type in (MOI.EqualTo{Float64}, MOI.GreaterThan{Float64}, MOI.LessThan{Float64}, MOI.Interval{Float64})
     ]
-    numRows = sum(length, (cstrEqualTo, cstrGreaterThan, cstrLessThan))
-    numRows += 2*length(cstrInterval)
-    println(pb.varArray)
-    println("numRows = ", numRows)
-
+    numRows = sum(length, (cstrEqualTo, cstrGreaterThan, cstrLessThan)) ; numRows += 2*length(cstrInterval)
     numVars = length(pb.varArray)
-    println("numVars = ", numVars)
+    varIndex = Dict(pb.varArray[i] => i for i=1:length(pb.varArray))
 
-    A = zeros(numRows, numVars)
-    b = zeros(numRows)
-    c = zeros(2, numVars + 1) # ∑(a_i*x_i) + c
+    pb.A = zeros(numRows, numVars)
+    pb.b = zeros(numRows)
+    pb.c = zeros(2, numVars + 1) # ∑(a_i*x_i) + c
 
     # objectives 
     vd = getvOptData(pb.m)
     for i=1:2 
-        c[i, 1] = vd.objs[i].constant
+        pb.c[i, 1] = vd.objs[i].constant
         for (var, coeff) in vd.objs[i].terms
-            for j=1:numVars
-                if var == pb.varArray[j] 
-                    c[i, j+1] = coeff ; break
-                end 
-            end
+            pb.c[i, varIndex[var]+1] = coeff
         end
     end
 
     cstr_index = 0
     
     # Ax=b
-    println("Ax=b")
     for cstrRef in cstrEqualTo
-        println(cstrRef)
         cstr_index += 1
 
         con = JuMP.constraint_object(cstrRef)
@@ -84,19 +75,13 @@ function standard_form(pb::BO01Problem)
 
         terms = JuMP.linear_terms(con.func)
         for (coeff, term) in terms
-            for i=1:numVars 
-                if term == pb.varArray[i]
-                    A[cstr_index, i] = coeff
-                end
-            end
+            pb.A[cstr_index, varIndex[term]] = coeff
         end
-        b[cstr_index] = rhs
+        pb.b[cstr_index] = rhs
     end
 
     # Ax≥b
-    println("Ax≥b")
     for cstrRef in cstrGreaterThan
-        println(cstrRef)
         cstr_index += 1
 
         con = JuMP.constraint_object(cstrRef)
@@ -104,19 +89,13 @@ function standard_form(pb::BO01Problem)
 
         terms = JuMP.linear_terms(con.func)
         for (coeff, term) in terms
-            for i=1:numVars 
-                if term == pb.varArray[i]
-                    A[cstr_index, i] = coeff * -1
-                end
-            end
+            pb.A[cstr_index, varIndex[term]] = coeff * -1
         end
-        b[cstr_index] = rhs * -1
+        pb.b[cstr_index] = rhs * -1
     end
 
     # Ax≤b
-    println("Ax≤b")
     for cstrRef in cstrLessThan
-        println(cstrRef)
         cstr_index += 1
 
         con = JuMP.constraint_object(cstrRef)
@@ -124,20 +103,14 @@ function standard_form(pb::BO01Problem)
 
         terms = JuMP.linear_terms(con.func)
         for (coeff, term) in terms
-            for i=1:numVars 
-                if term == pb.varArray[i]
-                    A[cstr_index, i] = coeff
-                end
-            end
+            pb.A[cstr_index, varIndex[term]] = coeff
         end
-        b[cstr_index] = rhs
+        pb.b[cstr_index] = rhs
     end
     
 
     # lb ≤ AX ≤ ub
-    println("lb ≤ AX ≤ ub")
     for cstrRef in cstrInterval
-        println(cstrRef)
         cstr_index += 1
 
         con = JuMP.constraint_object(cstrRef)
@@ -146,25 +119,14 @@ function standard_form(pb::BO01Problem)
 
         terms = JuMP.linear_terms(con.func)
         for (coeff, term) in terms
-            for i=1:numVars 
-                if term == pb.varArray[i]
-                    A[cstr_index, i] = coeff
-                    A[cstr_index+1, i] = coeff * -1
-                end
-            end
+            pb.A[cstr_index, varIndex[term]] = coeff ; pb.A[cstr_index+1, varIndex[term]] = coeff * -1
         end
-        b[cstr_index] = ub
-        b[cstr_index+1] = lb * -1
+        pb.b[cstr_index] = ub ; pb.b[cstr_index+1] = lb * -1
         cstr_index += 1
     end
 
-    println("A : ", A)
-    println("b : ", b)
-    println("c : ", c)
-
-    pb.A = deepcopy(A)
-    pb.b = deepcopy(b)
-    pb.c = deepcopy(c)
+    loadT = round(time() - start, digits = 2)
+    @info "loading matrix ... = $loadT"
 end
 
 """
@@ -279,9 +241,10 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
         varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0), CutPool()
     )
 
-    standard_form(problem)
-    problem.param.cut_activated = cut ; problem.info.cuts_activated = cut 
-
+    if cut
+        standard_form(problem)
+        problem.param.cut_activated = cut ; problem.info.cuts_activated = cut 
+    end
     # relaxation LP
     undo_relax = JuMP.relax_integrality(problem.m)
 

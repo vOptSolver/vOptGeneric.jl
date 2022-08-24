@@ -46,7 +46,7 @@ mutable struct Node
         n.cuts_ref = Vector{CutScore}()
         n.con_cuts = Vector{ConstraintRef}()
     
-        f(t) = @async println("Finalizing node $(t.num).")
+        f(t) = nothing # @async println("Finalizing node $(t.num).")
         finalizer(f, n)
     
         # return n
