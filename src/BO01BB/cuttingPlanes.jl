@@ -3,10 +3,11 @@ include("BBtree.jl")
 include("../algorithms.jl")
 include("struct.jl")
 include("separators.jl")
+include("cutPool.jl")
 
 using JuMP, CPLEX 
 
-const max_step = 3
+const max_step = 2
 const loop_limit = 5
 
 
@@ -85,9 +86,12 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
         # @info " ------------------------- cut found "
         for cut in cuts
             viol = sum(cut[j+1]*(1-x_star[j]) for j = 1:length(cut)-1 )
-            
             start_pool = time()
-            push!(pb.cpool, cut) && push_cutScore(node.cuts_ref, CutScore(size(pb.cpool.tab, 1), viol, 0)) # push cut reference
+            ineq = Cut(cut)
+            if push!(pb.cpool, ineq)
+                k = ineq.hash_k
+                push_cutScore(node.cuts_ref, CutScore(length(pb.cpool.hashMap[k]), viol, k)) # push cut reference
+            end
             pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
 
             pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
@@ -166,7 +170,11 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                             viol = maximum([viol_l, viol_r])
                             
                             start_pool = time()
-                            push!(pb.cpool, cut) && push_cutScore(node.cuts_ref, CutScore(size(pb.cpool.tab, 1), viol, 0)) 
+                            ineq = Cut(cut)
+                            if push!(pb.cpool, ineq)
+                                k = ineq.hash_k
+                                push_cutScore(node.cuts_ref, CutScore(length(pb.cpool.hashMap[k]), viol, k)) # push cut reference
+                            end
                             pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
 
                             pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
@@ -184,7 +192,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
         # --------------------------------------------------
         # 2. stop if no more valid cut can be found
         # --------------------------------------------------
-        if cut_counter/length(LBS) < 0.5
+        if cut_counter/length(LBS) < 0.4
             return false 
         end
 

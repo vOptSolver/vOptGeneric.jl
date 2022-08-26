@@ -227,11 +227,11 @@ function detailedMOBB_perform(instances::String)
 end
 
 function MOBC_perform(instances::String)
-    bc = "/bc_heur_x"
+    bc = "/bc"
     dir = "../../results/" * instances * bc
     @assert isdir(dir) "This directory doesn't exist $dir !"
 
-    fout = open(dir * "/MOBC_heur_x.tex", "w")
+    fout = open(dir * "/MOBC_bc.tex", "w")
 
     latex = raw"""\begin{sidewaystable}[h]
     \centering
@@ -314,7 +314,7 @@ function MOBC_perform(instances::String)
     \end{tabular}%
     }%
     \caption{.}
-    \label{tab:table_bc_heur_x}
+    \label{tab:table_bc}
     \end{sidewaystable}
     """
     println(fout, latex)

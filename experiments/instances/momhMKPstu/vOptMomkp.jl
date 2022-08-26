@@ -78,8 +78,8 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n_before = size(A)
   # scale test
-  for n = 10:10:30
-
+  for n = 10:10:40
+    println("n=$n")
     ratio = n/n_before
 
     subfolder = folder * "/" * string(n)
@@ -163,7 +163,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:bb, :bc] # :dicho, :epsilon, 
+  for method in [:bc] # :dicho, :epsilon, :bb, 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 

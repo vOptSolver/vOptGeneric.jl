@@ -41,7 +41,7 @@ end
 Retrieve constraints matrix `A` and right hand side vector `b` in standard LP form `Ax≤b`.
 """
 function standard_form(pb::BO01Problem)
-    start = time()
+    # start = time()
 
     cstrEqualTo, cstrGreaterThan, cstrLessThan, cstrInterval = [
         JuMP.all_constraints(pb.m, JuMP.GenericAffExpr{Float64,JuMP.VariableRef}, set_type) 
@@ -125,8 +125,8 @@ function standard_form(pb::BO01Problem)
         cstr_index += 1
     end
 
-    loadT = round(time() - start, digits = 2)
-    @info "loading matrix ... = $loadT"
+    # loadT = round(time() - start, digits = 2)
+    # @info "loading matrix ... = $loadT"
 end
 
 """
@@ -297,10 +297,11 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
     undo_relax()
     show(tmr)
 
-    problem.info.cuts_infos.cuts_total = length(problem.cpool.tab)
-    println("\n total cuts : ", length(problem.cpool.tab))
-    # for cut in problem.cpool.tab
-    #     println("cut : ", cut)
-    # end
+    problem.info.cuts_infos.cuts_total = total_cuts(problem.cpool)
+    println("\n total cuts : ", problem.info.cuts_infos.cuts_total)
+
+    for (k,v) in problem.cpool.hashMap
+        println(k, " => ", size(v, 1))
+    end
     return problem.info
 end

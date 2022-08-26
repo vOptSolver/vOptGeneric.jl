@@ -26,10 +26,10 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
             if ∇ == 0
                 # single-point cut 
                 for cRef in node.pred.cuts_ref
-                    α = pb.cpool.tab[cRef.cut_ind]
+                    α = pb.cpool.hashMap[cRef.k][cRef.cut_ind].row
                     violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
                     if violationₗ > 0.0
-                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, violationₗ, 0))
+                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, violationₗ, cRef.k))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
                     end
@@ -43,13 +43,13 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
                 xᵣ_star = LBS[r].xEquiv[1]
                 # multi-point cut 
                 for cRef in node.pred.cuts_ref
-                    α = pb.cpool.tab[cRef.cut_ind]
+                    α = pb.cpool.hashMap[cRef.k][cRef.cut_ind].row
                     violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
                     violationᵣ = maximum([ (xᵣ_star'*α[2:end] - α[1]), 0.0 ])
                     viol = maximum([violationₗ, violationᵣ])
                     if viol > 0.0
                         applied = true
-                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, viol, 0))
+                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, viol, cRef.k))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
                     end
