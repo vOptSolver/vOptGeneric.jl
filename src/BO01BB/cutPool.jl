@@ -23,9 +23,10 @@
 
 
 function hashing_ineq(x::Vector{Int64})
-    if x[1]==0 return 0 end 
+    # if x[1]==0 return 0 end 
     # return round(Int64, sum([(i-1)*x[i] for i=2:length(x)])/x[1])
-    return sum([(i-1)*x[i] for i=2:length(x)])%x[1]
+    n = length(x)
+    return (sum([(i-1)*x[i] for i=2:n]) + x[1])%n
 end
 
 
