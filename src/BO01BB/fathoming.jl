@@ -131,7 +131,8 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         # for (k,v) in node.cutpool.hashMap
         #     println(k, " => ", size(v, 1))
         # end
-        # println("node $(node.num) cutrefs : \n", node.cuts_ref)
+        @info " node $(node.num) cuts : $(length(node.cuts_ref))"
+        # println(": ", node.cuts_ref)
         # println("-----------------------------------")
     end
 

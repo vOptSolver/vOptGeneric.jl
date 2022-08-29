@@ -78,7 +78,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n_before = size(A)
   # scale test
-  for n = 10:10:40
+  for n = 30:10:40
     println("n=$n")
     ratio = n/n_before
 
