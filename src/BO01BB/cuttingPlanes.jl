@@ -89,8 +89,8 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
             start_pool = time()
             ineq = Cut(cut)
             if push!(node.cutpool, ineq)
-                k = ineq.hash_k
-                push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
+                # k = ineq.hash_k
+                # push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
                 pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
                 con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
             end
@@ -172,8 +172,8 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                             start_pool = time()
                             ineq = Cut(cut)
                             if push!(node.cutpool, ineq)
-                                k = ineq.hash_k
-                                push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
+                                # k = ineq.hash_k
+                                # push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
                                 pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
                                 con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
                             end

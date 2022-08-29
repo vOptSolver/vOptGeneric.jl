@@ -1,25 +1,25 @@
 # This file contains functions related to cutPool structure.
 
-mutable struct CutScore
-    cut_ind::Int64          # index of the referred cut in the cut pool 
-    viol::Float64           # the amount of the violation of the referred cut 
-    k::Int64
-end
+# mutable struct CutScore
+#     cut_ind::Int64          # index of the referred cut in the cut pool 
+#     viol::Float64           # the amount of the violation of the referred cut 
+#     k::Int64
+# end
 
-function CutScore()
-    return CutScore(0, 0.0, 0)
-end
+# function CutScore()
+#     return CutScore(0, 0.0, 0)
+# end
 
-function push_cutScore(cut_refs::Vector{CutScore}, cut_score::CutScore)
-    if length(cut_refs) == 0
-        push!(cut_refs, cut_score) ; return true
-    end
+# function push_cutScore(cut_refs::Vector{CutScore}, cut_score::CutScore)
+#     if length(cut_refs) == 0
+#         push!(cut_refs, cut_score) ; return true
+#     end
 
-    for cs in cut_refs 
-        if cs.k==cut_score.k && cs.cut_ind == cut_score.cut_ind return false end 
-    end
-    push!(cut_refs, cut_score) ; return true 
-end
+#     for cs in cut_refs 
+#         if cs.k==cut_score.k && cs.cut_ind == cut_score.cut_ind return false end 
+#     end
+#     push!(cut_refs, cut_score) ; return true 
+# end
 
 
 function hashing_ineq(x::Vector{Int64})

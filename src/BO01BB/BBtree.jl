@@ -13,13 +13,13 @@ mutable struct Node
     succs::Vector{Node}         # successors
     var::Int64                  # index of the chosen variable to be split
     var_bound::Int64            # variable bound
-    RBS::RelaxedBoundSet        # local relaxed bound set               # TODO : erase memory
+    RBS::RelaxedBoundSet        # local relaxed bound set              
     activated::Bool             # if the node is active
     pruned::Bool                # if the node is pruned
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
     deleted::Bool               # if the node is supposed to be deleted
-    cuts_ref::Vector{CutScore}
-    con_cuts::Vector{ConstraintRef}             # TODO : erase memory
+    # cuts_ref::Vector{CutScore}
+    con_cuts::Vector{ConstraintRef}             
     cutpool::CutPool
 
     Node() = new()
@@ -43,7 +43,7 @@ mutable struct Node
         n.prunedType = NONE
         n.deleted = false
         # n.objs = Vector{JuMP.GenericAffExpr}()
-        n.cuts_ref = Vector{CutScore}()
+        # n.cuts_ref = Vector{CutScore}()
         n.con_cuts = Vector{ConstraintRef}()
         n.cutpool = CutPool()
     

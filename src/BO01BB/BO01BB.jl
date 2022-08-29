@@ -169,7 +169,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
         else
             node.pred.RBS = RelaxedBoundSet()
             if pb.param.cut_activated
-                node.pred.cuts_ref = Vector{CutScore}() ; node.pred.con_cuts = Vector{ConstraintRef}()
+                node.pred.con_cuts = Vector{ConstraintRef}()
                 node.pred.cutpool = CutPool()
             end
             # nothing
