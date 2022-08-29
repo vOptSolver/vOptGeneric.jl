@@ -12,6 +12,13 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
     # --------------------------------------------------------------------------
     # iterate in the global cut pool, identify + stock the violated cuts indexes
     # --------------------------------------------------------------------------
+    # @info "node $(node.num) loadingCutInPool ... pred = $(node.pred.num)"
+    # println("pred.cutpool : ")
+    # for (k,v) in node.pred.cutpool.hashMap
+    #     println(k, " => ", size(v, 1))
+    # end
+    # println("pred.cutrefs : \n", node.pred.cuts_ref)
+
 
     l = 1 ; LBS = node.RBS.natural_order_vect.sols
 
@@ -26,10 +33,11 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
             if ∇ == 0
                 # single-point cut 
                 for cRef in node.pred.cuts_ref
-                    α = pb.cpool.hashMap[cRef.k][cRef.cut_ind].row
+                    α = node.pred.cutpool.hashMap[cRef.k][cRef.cut_ind].row
                     violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
                     if violationₗ > 0.0
-                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, violationₗ, cRef.k))
+                        ineq = Cut(α) ; k = ineq.hash_k
+                        if push!(node.cutpool, ineq) && push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), violationₗ, k))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
                     end
@@ -43,13 +51,14 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
                 xᵣ_star = LBS[r].xEquiv[1]
                 # multi-point cut 
                 for cRef in node.pred.cuts_ref
-                    α = pb.cpool.hashMap[cRef.k][cRef.cut_ind].row
+                    α = node.pred.cutpool.hashMap[cRef.k][cRef.cut_ind].row
                     violationₗ = maximum([ (xₗ_star'*α[2:end] - α[1]), 0.0 ])
                     violationᵣ = maximum([ (xᵣ_star'*α[2:end] - α[1]), 0.0 ])
                     viol = maximum([violationₗ, violationᵣ])
                     if viol > 0.0
                         applied = true
-                        if push_cutScore(node.cuts_ref, CutScore(cRef.cut_ind, viol, cRef.k))
+                        ineq = Cut(α) ; k = ineq.hash_k
+                        if push!(node.cutpool, ineq) && push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k))
                             con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
                         end
                     end
@@ -116,6 +125,14 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
         pb.info.cuts_infos.times_total_for_cuts += (time() - start_cuts)
+
+        # println("-----------------------------------")
+        # @info "node $(node.num) cutpool !"
+        # for (k,v) in node.cutpool.hashMap
+        #     println(k, " => ", size(v, 1))
+        # end
+        # println("node $(node.num) cutrefs : \n", node.cuts_ref)
+        # println("-----------------------------------")
     end
 
     removeBounds(pb, assignment)

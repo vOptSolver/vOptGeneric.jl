@@ -18,9 +18,9 @@ mutable struct Node
     pruned::Bool                # if the node is pruned
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
     deleted::Bool               # if the node is supposed to be deleted
-    # objs::Vector{JuMP.GenericAffExpr}       # TODO : useless ? erase memory 
     cuts_ref::Vector{CutScore}
     con_cuts::Vector{ConstraintRef}             # TODO : erase memory
+    cutpool::CutPool
 
     Node() = new()
 
@@ -45,6 +45,7 @@ mutable struct Node
         # n.objs = Vector{JuMP.GenericAffExpr}()
         n.cuts_ref = Vector{CutScore}()
         n.con_cuts = Vector{ConstraintRef}()
+        n.cutpool = CutPool()
     
         f(t) = nothing # @async println("Finalizing node $(t.num).")
         finalizer(f, n)

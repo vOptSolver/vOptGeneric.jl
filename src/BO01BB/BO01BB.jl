@@ -162,6 +162,21 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     # branching variable + generate new nodes
     #-----------------------------------------
+    # TODO : liberate memory space of the parent node 
+    if !isRoot(node)
+        if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
+            nothing
+        else
+            node.pred.RBS = RelaxedBoundSet()
+            if pb.param.cut_activated
+                node.pred.cuts_ref = Vector{CutScore}() ; node.pred.con_cuts = Vector{ConstraintRef}()
+                node.pred.cutpool = CutPool()
+            end
+            # nothing
+        end
+    end
+
+
     var_split = pickUpAFreeVar(node, pb)
     if var_split == 0 return end       # is a leaf
 
@@ -238,7 +253,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
 
     varArray = JuMP.all_variables(m)
     problem = BO01Problem(
-        varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0), CutPool()
+        varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0)
     )
 
     if cut
@@ -297,11 +312,11 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
     undo_relax()
     show(tmr)
 
-    problem.info.cuts_infos.cuts_total = total_cuts(problem.cpool)
-    println("\n total cuts : ", problem.info.cuts_infos.cuts_total)
+    problem.info.cuts_infos.cuts_total = problem.info.cuts_infos.cuts_applied
+    println("\n total cuts : ", problem.info.cuts_infos.cuts_applied)
 
-    for (k,v) in problem.cpool.hashMap
-        println(k, " => ", size(v, 1))
-    end
+    # for (k,v) in problem.cpool.hashMap
+    #     println(k, " => ", size(v, 1))
+    # end
     return problem.info
 end

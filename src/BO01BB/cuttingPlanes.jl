@@ -88,14 +88,14 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
             viol = sum(cut[j+1]*(1-x_star[j]) for j = 1:length(cut)-1 )
             start_pool = time()
             ineq = Cut(cut)
-            if push!(pb.cpool, ineq)
+            if push!(node.cutpool, ineq)
                 k = ineq.hash_k
-                push_cutScore(node.cuts_ref, CutScore(length(pb.cpool.hashMap[k]), viol, k)) # push cut reference
+                push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
+                pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
+                con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
             end
             pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
 
-            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
-            con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
         end
         return (x_star, true)
     end
@@ -171,14 +171,13 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                             
                             start_pool = time()
                             ineq = Cut(cut)
-                            if push!(pb.cpool, ineq)
+                            if push!(node.cutpool, ineq)
                                 k = ineq.hash_k
-                                push_cutScore(node.cuts_ref, CutScore(length(pb.cpool.hashMap[k]), viol, k)) # push cut reference
+                                push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
+                                pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
+                                con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
                             end
                             pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
-
-                            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
-                            con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
 
                         end
                         l = r + 1 ; break

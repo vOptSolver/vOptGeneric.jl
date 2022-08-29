@@ -110,7 +110,7 @@ mutable struct BO01Problem
     A::Matrix{Float64}
     b::Vector{Float64}
     c::Matrix{Float64}
-    cpool::CutPool
+    # cpool::CutPool
 end
 
 
