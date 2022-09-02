@@ -37,11 +37,11 @@ function SP_CG_separator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float
         status = JuMP.termination_status( M )
         # @info "status = $status "
         obj_val = objective_value(M)
-        @info "obj_val = ", obj_val
+        # @info "obj_val = ", obj_val
         μ_star = value.(M[:μ])
-        println(" μ_star = $μ_star ")
+        # println(" μ_star = $μ_star ")
         α_star = round.(Int, value.(M[:α]))
-        println("α_star = $(value.(M[:α]))")
+        # println("α_star = $(value.(M[:α]))")
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 
@@ -81,11 +81,11 @@ function SP_CG_separator2(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{Floa
         status = JuMP.termination_status( M )
         # @info "status = $status "
         obj_val = objective_value(M)
-        @info "obj_val = ", obj_val
+        # @info "obj_val = ", obj_val
         μ_star = value.(M[:μ])
-        println(" μ_star = $μ_star ")
+        # println(" μ_star = $μ_star ")
         α_star = round.(Int, value.(M[:α]))
-        println("α_star = $(value.(M[:α]))")
+        # println("α_star = $(value.(M[:α]))")
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 
@@ -127,11 +127,11 @@ function MP_CG_separator(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matrix{F
         status = JuMP.termination_status( M )
         # @info "status = $status "
         obj_val = objective_value(M)
-        @info "obj_val = ", obj_val
+        # @info "obj_val = ", obj_val
         μ_star = value.(M[:μ])
-        println(" μ_star = $μ_star ")
+        # println(" μ_star = $μ_star ")
         α_star = round.(Int, value.(M[:α]))
-        println("α_star = $(value.(M[:α]))")
+        # println("α_star = $(value.(M[:α]))")
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 
@@ -176,11 +176,11 @@ function MP_CG_separator2(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matrix{
         status = JuMP.termination_status( M )
         # @info "status = $status "
         obj_val = objective_value(M)
-        @info "obj_val = ", obj_val
+        # @info "obj_val = ", obj_val
         μ_star = value.(M[:μ])
-        println(" μ_star = $μ_star ")
+        # println(" μ_star = $μ_star ")
         α_star = round.(Int, value.(M[:α]))
-        println("α_star = $(value.(M[:α]))")
+        # println("α_star = $(value.(M[:α]))")
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 

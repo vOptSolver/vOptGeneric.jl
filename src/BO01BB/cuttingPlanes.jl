@@ -61,36 +61,31 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
     if node.RBS.natural_order_vect.sols[i].is_binary return (x_star, false) end 
 
     # call generator
-    # @info "Calling SP_CG_separator ..."
-    # start_sep = time()
-    # (isValidCut, α, viol) = SP_CG_separator(x_star, pb.A, pb.b)
-    # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+    start_sep = time()
+    (isValidCut, α, _) = SP_CG_separator(x_star, pb.A, pb.b)
+    pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
-    # if isValidCut
-    #     @info " ------------------------- cut found"
-    #     start_pool = time()
-    #     push!(pb.cpool, α) && push_cutScore(node.cuts_ref, CutScore(size(pb.cpool.tab, 1), viol, 0)) # push cut reference
-    #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+    if isValidCut
+        @info " ------------------------- cut found"
+        start_pool = time()
+        ineq = Cut(α)
+        if push!(node.cutpool, ineq)
+            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
+            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+        end
+        pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+        return (x_star, true)
+    end
 
-    #     pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
-    #     con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
-    #     return (x_star, true)
-    # end
-
-    # @info "Calling SP_KP_heurSeparator ..."
     start_sep = time()
     cuts = SP_KP_heurSeparator2(x_star, pb.A, pb.b)
     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
     if length(cuts) > 0
-        # @info " ------------------------- cut found "
         for cut in cuts
-            viol = sum(cut[j+1]*(1-x_star[j]) for j = 1:length(cut)-1 )
             start_pool = time()
             ineq = Cut(cut)
             if push!(node.cutpool, ineq)
-                # k = ineq.hash_k
-                # push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
                 pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
                 con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
             end
@@ -139,41 +134,33 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                     r = l+∇
                     if r > length(LBS) || LBS[r].is_binary continue end
 
-                    # @info "Calling MP_CG_separator ..."
-                    # start_sep = time()
-                    # (isValidCut, α, viol) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
-                    # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+                    start_sep = time()
+                    (isValidCut, α, _) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
+                    pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
-                    # if isValidCut
-                    #     cut_counter += (∇+1)
-                    #     @info " ---------------------------- cut found "
-                    #     start_pool = time()
-                    #     push!(pb.cpool, α) && push_cutScore(node.cuts_ref, CutScore(size(pb.cpool.tab, 1), viol, 0)) # push cut reference
-                    #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+                    if isValidCut
+                        cut_counter += (∇+1)
+                        @info " ---------------------------- cut found "
+                        start_pool = time()
+                        ineq = Cut(α)
+                        if push!(node.cutpool, ineq)
+                            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
+                            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+                        end
+                        pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+                        l = r + 1 ; break
+                    end
 
-                    #     pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
-                    #     con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
-                    #     l = r + 1 ; break
-                    # end
-
-                    # @info "Calling MP_KP_heurSeparator ..."
                     start_sep = time()
                     cuts = MP_KP_heurSeparator2(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
                     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
                     if length(cuts) > 0
                         cut_counter += (∇+1)
-                        # @info " ------------------------------ cut found "
                         for cut in cuts
-                            viol_l = sum(cut[j+1]*(1-LBS[l].xEquiv[1][j]) for j = 1:length(cut)-1 )
-                            viol_r = sum(cut[j+1]*(1-LBS[r].xEquiv[1][j]) for j = 1:length(cut)-1 )
-                            viol = maximum([viol_l, viol_r])
-                            
                             start_pool = time()
                             ineq = Cut(cut)
                             if push!(node.cutpool, ineq)
-                                # k = ineq.hash_k
-                                # push_cutScore(node.cuts_ref, CutScore(length(node.cutpool.hashMap[k]), viol, k)) # push cut reference
                                 pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
                                 con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
                             end

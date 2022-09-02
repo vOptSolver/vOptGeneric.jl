@@ -189,6 +189,6 @@ function solveBOBC(fname::String)
 end
 
 solveDichotomy(ARGS[1])
-# solve_epsilon(ARGS[1])
-# solveBOBB(ARGS[1])
-# solveBOBC(ARGS[1])
+solve_epsilon(ARGS[1])
+solveBOBB(ARGS[1])
+solveBOBC(ARGS[1])
