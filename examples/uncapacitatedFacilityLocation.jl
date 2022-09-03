@@ -31,10 +31,10 @@ end
 """
     load2UFLP(fdirectory::String, fname::String)
 
-Load an instance of bi-objective UFLP
--  ↓  fdirectory : path to the data file
--  ↓  fname      : file name of the data
--  ↑             : data of an instance
+    Load an instance of bi-objective UFLP
+      ↓  fdirectory : path to the data file
+      ↓  fname      : file name of the data
+      ↑             : data of an instance
 """
 
 function load2UFLP(fdirectory::String, fname::String)
