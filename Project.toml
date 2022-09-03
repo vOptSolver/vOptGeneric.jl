@@ -10,7 +10,7 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 Combinatorics = "1"
-JuMP = "0.22, 0.23"
+JuMP = "0.22, 0.23, 1"
 MathOptInterface = "0.10, 1"
 julia = "1"
 
