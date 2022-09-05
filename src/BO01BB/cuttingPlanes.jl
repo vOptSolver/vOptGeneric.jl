@@ -60,23 +60,6 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
     x_star = node.RBS.natural_order_vect.sols[i].xEquiv[1]
     if node.RBS.natural_order_vect.sols[i].is_binary return (x_star, false) end 
 
-    # call generator
-    start_sep = time()
-    (isValidCut, α, _) = SP_CG_separator(x_star, pb.A, pb.b)
-    pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
-
-    if isValidCut
-        @info " ------------------------- cut found"
-        start_pool = time()
-        ineq = Cut(α)
-        if push!(node.cutpool, ineq)
-            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
-            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
-        end
-        pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
-        return (x_star, true)
-    end
-
     start_sep = time()
     cuts = SP_KP_heurSeparator2(x_star, pb.A, pb.b)
     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
@@ -94,6 +77,23 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
         end
         return (x_star, true)
     end
+
+    # # call generator
+    # start_sep = time()
+    # (isValidCut, α, _) = SP_CG_separator(x_star, pb.A, pb.b)
+    # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+
+    # if isValidCut
+    #     # @info " ------------------------- cut found"
+    #     start_pool = time()
+    #     ineq = Cut(α)
+    #     if push!(node.cutpool, ineq)
+    #         pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.sp_cuts += 1
+    #         con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+    #     end
+    #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+    #     return (x_star, true)
+    # end
 
     return (x_star, false)
 end
@@ -135,23 +135,6 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                     if r > length(LBS) || LBS[r].is_binary continue end
 
                     start_sep = time()
-                    (isValidCut, α, _) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
-                    pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
-
-                    if isValidCut
-                        cut_counter += (∇+1)
-                        @info " ---------------------------- cut found "
-                        start_pool = time()
-                        ineq = Cut(α)
-                        if push!(node.cutpool, ineq)
-                            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
-                            con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
-                        end
-                        pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
-                        l = r + 1 ; break
-                    end
-
-                    start_sep = time()
                     cuts = MP_KP_heurSeparator2(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
                     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
@@ -169,6 +152,23 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
                         end
                         l = r + 1 ; break
                     end
+
+                    # start_sep = time()
+                    # (isValidCut, α, _) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
+                    # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+
+                    # if isValidCut
+                    #     cut_counter += (∇+1)
+                    #     # @info " ---------------------------- cut found "
+                    #     start_pool = time()
+                    #     ineq = Cut(α)
+                    #     if push!(node.cutpool, ineq)
+                    #         pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
+                    #         con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+                    #     end
+                    #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+                    #     l = r + 1 ; break
+                    # end
 
                 end
     

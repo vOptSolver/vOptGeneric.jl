@@ -1,0 +1,2160 @@
+./BOSPP/2mis100_300/2mis100_300A.dat
+Building...
+Solving...
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         71.7s /  42.7%           7.90GiB /  68.2%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    30.6s  100.0%   30.6s   5.39GiB  100.0%  5.39GiB
+   iteration      5.64k    30.5s   99.7%  5.41ms   5.38GiB   99.8%  0.98MiB
+     relax        6.96k    29.9s   97.6%  4.29ms   5.30GiB   98.4%   799KiB
+     dominance    5.64k   95.1ms    0.3%  16.9μs   38.5MiB    0.7%  6.98KiB
+     incumbent    5.74k   44.9ms    0.1%  7.83μs   6.90MiB    0.1%  1.23KiB
+   next node      5.64k   53.4ms    0.2%  9.47μs   8.84MiB    0.2%  1.61KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 32.08 
+total_nodes = 6957 
+pruned_nodes = 3479 
+GAP = 0.0 
+relaxation_time = 30.05 
+test_dominance_time = 0.1 
+update_incumbent_time = 0.04 
+tree_size = 24.888 
+
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          256s /  82.4%            120GiB /  97.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     211s  100.0%    106s    117GiB  100.0%  58.4GiB
+   iteration      8.98k     211s  100.0%  23.5ms    117GiB  100.0%  13.3MiB
+     relax        11.1k     210s   99.6%  19.0ms    117GiB   99.9%  10.8MiB
+     dominance    8.98k    170ms    0.1%  18.9μs   66.0MiB    0.1%  7.53KiB
+     incumbent    9.16k   68.4ms    0.0%  7.47μs   12.8MiB    0.0%  1.43KiB
+   next node      8.98k   56.1ms    0.0%  6.24μs   8.94MiB    0.0%  1.02KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 194823
+ # informations of B&B algorithm : 
+total_times_used = 181.73 
+total_nodes = 4125 
+pruned_nodes = 2063 
+GAP = 0.0 
+relaxation_time = 17.33 
+test_dominance_time = 0.08 
+update_incumbent_time = 0.02 
+tree_size = 128.993 
+
+
+ # ----------- info about cuts : 
+ite_total = 9615 
+cuts_applied = 194823 
+sp_cuts = 8500 
+mp_cuts = 186323 
+cuts_total = 194823 
+times_calling_dicho = 76.21 
+times_calling_separators = 78.94 
+times_oper_cutPool = 3.39 
+times_total_for_cuts = 163.28 
+times_add_retrieve_cuts = 4.67 
+
+
+
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+./BOSPP/2mis100_300/2mis100_300B.dat
+Building...
+Solving...
+Querying...
+length Y_N = 11
+length X_E = 11
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 31
+length X_E = 31
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          103s /  58.2%           12.6GiB /  80.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    59.9s  100.0%   59.9s   10.1GiB  100.0%  10.1GiB
+   iteration      8.55k    59.8s   99.9%  6.99ms   10.1GiB   99.9%  1.20MiB
+     relax        10.0k    59.0s   98.5%  5.89ms   9.94GiB   98.7%  1.02MiB
+     dominance    8.55k    163ms    0.3%  19.1μs   65.0MiB    0.6%  7.78KiB
+     incumbent    8.63k   55.3ms    0.1%  6.41μs   10.1MiB    0.1%  1.19KiB
+   next node      8.55k   53.3ms    0.1%  6.23μs   8.93MiB    0.1%  1.07KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 61.32 
+total_nodes = 10021 
+pruned_nodes = 5011 
+GAP = 0.0 
+relaxation_time = 59.16 
+test_dominance_time = 0.17 
+update_incumbent_time = 0.05 
+tree_size = 43.662 
+
+Querying...
+length Y_N = 31
+length X_E = 31
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1003s /  94.6%            565GiB /  99.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     948s  100.0%    474s    562GiB  100.0%   281GiB
+   iteration      17.7k     948s  100.0%  53.7ms    562GiB  100.0%  32.6MiB
+     relax        20.8k     947s   99.8%  45.6ms    561GiB  100.0%  27.7MiB
+     dominance    17.7k    363ms    0.0%  20.6μs    139MiB    0.0%  8.04KiB
+     incumbent    17.8k    101ms    0.0%  5.66μs   21.0MiB    0.0%  1.21KiB
+   next node      17.7k   62.3ms    0.0%  3.53μs   9.21MiB    0.0%     547B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 867957
+ # informations of B&B algorithm : 
+total_times_used = 889.76 
+total_nodes = 10739 
+pruned_nodes = 5370 
+GAP = 0.0 
+relaxation_time = 62.98 
+test_dominance_time = 0.21 
+update_incumbent_time = 0.04 
+tree_size = 536.504 
+
+
+ # ----------- info about cuts : 
+ite_total = 35485 
+cuts_applied = 867957 
+sp_cuts = 8158 
+mp_cuts = 859799 
+cuts_total = 867957 
+times_calling_dicho = 325.08 
+times_calling_separators = 458.3 
+times_oper_cutPool = 17.24 
+times_total_for_cuts = 825.0 
+times_add_retrieve_cuts = 23.98 
+
+
+
+Querying...
+length Y_N = 31
+length X_E = 31
+displayGraphics
+./BOSPP/2mis100_300/2mis100_300C.dat
+Building...
+Solving...
+Querying...
+length Y_N = 6
+length X_E = 6
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          116s /  65.5%           15.4GiB /  83.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    75.7s  100.0%   75.7s   12.9GiB  100.0%  12.9GiB
+   iteration      12.9k    75.6s   99.9%  5.86ms   12.9GiB   99.9%  1.02MiB
+     relax        14.7k    74.7s   98.8%  5.10ms   12.8GiB   99.0%   914KiB
+     dominance    12.9k    155ms    0.2%  12.1μs   62.3MiB    0.5%  4.95KiB
+     incumbent    12.9k   47.0ms    0.1%  3.64μs   5.85MiB    0.0%     474B
+   next node      12.9k   55.8ms    0.1%  4.33μs   9.06MiB    0.1%     738B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 77.08 
+total_nodes = 14655 
+pruned_nodes = 7328 
+GAP = 0.0 
+relaxation_time = 74.83 
+test_dominance_time = 0.16 
+update_incumbent_time = 0.04 
+tree_size = 59.254 
+
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1403s /  95.6%            831GiB /  99.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1342s  100.0%    671s    828GiB  100.0%   414GiB
+   iteration      26.3k    1341s  100.0%  51.0ms    828GiB  100.0%  32.2MiB
+     relax        30.0k    1340s   99.9%  44.7ms    827GiB  100.0%  28.2MiB
+     dominance    26.3k    345ms    0.0%  13.1μs    123MiB    0.0%  4.80KiB
+     incumbent    26.4k   89.0ms    0.0%  3.37μs   11.9MiB    0.0%     471B
+   next node      26.3k   68.6ms    0.0%  2.61μs   9.47MiB    0.0%     378B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 1281759
+ # informations of B&B algorithm : 
+total_times_used = 1267.09 
+total_nodes = 15355 
+pruned_nodes = 7678 
+GAP = 0.0 
+relaxation_time = 78.84 
+test_dominance_time = 0.2 
+update_incumbent_time = 0.03 
+tree_size = 799.314 
+
+
+ # ----------- info about cuts : 
+ite_total = 59946 
+cuts_applied = 1281759 
+sp_cuts = 15637 
+mp_cuts = 1266122 
+cuts_total = 1281759 
+times_calling_dicho = 428.4 
+times_calling_separators = 703.4 
+times_oper_cutPool = 23.56 
+times_total_for_cuts = 1186.36 
+times_add_retrieve_cuts = 30.46 
+
+
+
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+./BOSPP/2mis100_300/2mis100_300D.dat
+Building...
+Solving...
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 16
+length X_E = 16
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         52.0s /  27.9%           4.70GiB /  47.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    14.5s  100.0%   14.5s   2.21GiB  100.0%  2.21GiB
+   iteration      3.00k    14.4s   99.5%  4.82ms   2.20GiB   99.6%   768KiB
+     relax        3.46k    13.9s   95.5%  4.01ms   2.16GiB   98.1%   656KiB
+     incumbent    3.04k   31.3ms    0.2%  10.3μs   1.95MiB    0.1%     674B
+     dominance    3.00k   28.4ms    0.2%  9.46μs   10.8MiB    0.5%  3.69KiB
+   next node      3.00k   55.6ms    0.4%  18.5μs   8.76MiB    0.4%  2.99KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 16.13 
+total_nodes = 3459 
+pruned_nodes = 1730 
+GAP = 0.0 
+relaxation_time = 14.31 
+test_dominance_time = 0.03 
+update_incumbent_time = 0.03 
+tree_size = 11.596 
+
+Querying...
+length Y_N = 16
+length X_E = 16
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          268s /  83.9%            146GiB /  98.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     225s  100.0%    112s    143GiB  100.0%  71.5GiB
+   iteration      6.22k     225s  100.0%  36.1ms    143GiB  100.0%  23.5MiB
+     relax        7.17k     224s   99.6%  31.3ms    143GiB  100.0%  20.4MiB
+     dominance    6.22k   62.3ms    0.0%  10.0μs   22.7MiB    0.0%  3.73KiB
+     incumbent    6.30k   41.2ms    0.0%  6.53μs   3.82MiB    0.0%     635B
+   next node      6.22k   57.6ms    0.0%  9.26μs   8.86MiB    0.0%  1.46KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 334108
+ # informations of B&B algorithm : 
+total_times_used = 211.64 
+total_nodes = 3711 
+pruned_nodes = 1856 
+GAP = 0.0 
+relaxation_time = 15.32 
+test_dominance_time = 0.04 
+update_incumbent_time = 0.01 
+tree_size = 204.939 
+
+
+ # ----------- info about cuts : 
+ite_total = 12413 
+cuts_applied = 334108 
+sp_cuts = 9023 
+mp_cuts = 325085 
+cuts_total = 334108 
+times_calling_dicho = 74.68 
+times_calling_separators = 107.38 
+times_oper_cutPool = 5.82 
+times_total_for_cuts = 195.21 
+times_add_retrieve_cuts = 7.2 
+
+
+
+Querying...
+length Y_N = 16
+length X_E = 16
+displayGraphics
+./BOSPP/2mis100_300/2mis100_300E.dat
+Building...
+Solving...
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          118s /  70.6%           16.1GiB /  84.2%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    83.4s  100.0%   83.4s   13.6GiB  100.0%  13.6GiB
+   iteration      20.8k    83.3s   99.9%  4.01ms   13.6GiB   99.9%   684KiB
+     relax        23.0k    82.4s   98.8%  3.58ms   13.5GiB   99.2%   614KiB
+     dominance    20.8k   66.3ms    0.1%  3.19μs   16.2MiB    0.1%     818B
+     incumbent    20.8k   49.8ms    0.1%  2.39μs   4.03MiB    0.0%     203B
+   next node      20.8k   58.8ms    0.1%  2.83μs   9.30MiB    0.1%     469B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 84.86 
+total_nodes = 22995 
+pruned_nodes = 11498 
+GAP = 0.0 
+relaxation_time = 82.37 
+test_dominance_time = 0.08 
+update_incumbent_time = 0.04 
+tree_size = 70.352 
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1063s /  94.1%            600GiB /  99.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1000s  100.0%    500s    596GiB  100.0%   298GiB
+   iteration      35.2k    1000s  100.0%  28.4ms    596GiB  100.0%  17.3MiB
+     relax        38.9k     999s   99.8%  25.7ms    596GiB  100.0%  15.7MiB
+     dominance    35.2k    126ms    0.0%  3.59μs   27.3MiB    0.0%     812B
+     incumbent    35.3k   84.9ms    0.0%  2.41μs   6.92MiB    0.0%     206B
+   next node      35.2k   70.6ms    0.0%  2.01μs   9.74MiB    0.0%     290B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 1690174
+ # informations of B&B algorithm : 
+total_times_used = 918.22 
+total_nodes = 15901 
+pruned_nodes = 7951 
+GAP = 0.0 
+relaxation_time = 58.51 
+test_dominance_time = 0.07 
+update_incumbent_time = 0.02 
+tree_size = 1023.668 
+
+
+ # ----------- info about cuts : 
+ite_total = 67898 
+cuts_applied = 1690174 
+sp_cuts = 120297 
+mp_cuts = 1569877 
+cuts_total = 1690174 
+times_calling_dicho = 283.4 
+times_calling_separators = 521.16 
+times_oper_cutPool = 25.39 
+times_total_for_cuts = 857.93 
+times_add_retrieve_cuts = 27.54 
+
+
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+./BOSPP/2mis100_300/2mis100_300F.dat
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          123s /  70.3%           15.5GiB /  83.2%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    86.2s  100.0%   86.2s   12.9GiB  100.0%  12.9GiB
+   iteration      34.3k    86.1s   99.8%  2.51ms   12.9GiB   99.9%   394KiB
+     relax        39.2k    84.9s   98.5%  2.16ms   12.8GiB   98.7%   341KiB
+     dominance    34.3k   96.3ms    0.1%  2.80μs   19.1MiB    0.1%     584B
+     incumbent    34.8k   53.1ms    0.1%  1.53μs   3.02MiB    0.0%    91.0B
+   next node      34.3k   65.8ms    0.1%  1.92μs   9.72MiB    0.1%     297B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 87.7 
+total_nodes = 39239 
+pruned_nodes = 19620 
+GAP = 0.0 
+relaxation_time = 84.32 
+test_dominance_time = 0.12 
+update_incumbent_time = 0.03 
+tree_size = 89.507 
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1210s /  94.3%            694GiB /  99.5%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1141s  100.0%    571s    691GiB  100.0%   345GiB
+   iteration      56.3k    1141s  100.0%  20.3ms    691GiB  100.0%  12.6MiB
+     relax        63.8k    1139s   99.8%  17.8ms    691GiB  100.0%  11.1MiB
+     dominance    56.3k    199ms    0.0%  3.54μs   33.6MiB    0.0%     627B
+     incumbent    56.9k   97.8ms    0.0%  1.72μs   5.95MiB    0.0%     110B
+   next node      56.3k   88.2ms    0.0%  1.57μs   10.4MiB    0.0%     194B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 2425705
+ # informations of B&B algorithm : 
+total_times_used = 1056.05 
+total_nodes = 24565 
+pruned_nodes = 12283 
+GAP = 0.0 
+relaxation_time = 65.61 
+test_dominance_time = 0.12 
+update_incumbent_time = 0.02 
+tree_size = 1437.221 
+
+
+ # ----------- info about cuts : 
+ite_total = 94841 
+cuts_applied = 2425705 
+sp_cuts = 403228 
+mp_cuts = 2022477 
+cuts_total = 2425705 
+times_calling_dicho = 289.24 
+times_calling_separators = 631.57 
+times_oper_cutPool = 33.47 
+times_total_for_cuts = 988.07 
+times_add_retrieve_cuts = 33.25 
+
+
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500A.dat
+Building...
+Solving...
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         93.7s /  58.4%           9.14GiB /  72.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    54.7s  100.0%   54.7s   6.62GiB  100.0%  6.62GiB
+   iteration      11.7k    54.6s   99.8%  4.67ms   6.61GiB   99.9%   593KiB
+     relax        13.5k    53.9s   98.4%  3.98ms   6.52GiB   98.5%   505KiB
+     dominance    11.7k    122ms    0.2%  10.4μs   39.5MiB    0.6%  3.46KiB
+     incumbent    11.7k   58.7ms    0.1%  5.01μs   2.98MiB    0.0%     266B
+   next node      11.7k   51.7ms    0.1%  4.42μs   9.03MiB    0.1%     810B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 56.14 
+total_nodes = 13529 
+pruned_nodes = 6765 
+GAP = 0.0 
+relaxation_time = 53.95 
+test_dominance_time = 0.13 
+update_incumbent_time = 0.05 
+tree_size = 36.729 
+
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          812s /  93.7%            499GiB /  99.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     761s  100.0%    381s    496GiB  100.0%   248GiB
+   iteration      20.1k     761s  100.0%  37.9ms    496GiB  100.0%  25.3MiB
+     relax        23.2k     760s   99.8%  32.8ms    496GiB  100.0%  21.9MiB
+     dominance    20.1k    204ms    0.0%  10.1μs   66.8MiB    0.0%  3.41KiB
+     incumbent    20.2k   77.5ms    0.0%  3.85μs   5.41MiB    0.0%     281B
+   next node      20.1k   58.4ms    0.0%  2.91μs   9.28MiB    0.0%     485B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 1311092
+ # informations of B&B algorithm : 
+total_times_used = 707.49 
+total_nodes = 9673 
+pruned_nodes = 4837 
+GAP = 0.0 
+relaxation_time = 39.13 
+test_dominance_time = 0.09 
+update_incumbent_time = 0.01 
+tree_size = 683.515 
+
+
+ # ----------- info about cuts : 
+ite_total = 36148 
+cuts_applied = 1311092 
+sp_cuts = 110440 
+mp_cuts = 1200652 
+cuts_total = 1311092 
+times_calling_dicho = 183.21 
+times_calling_separators = 440.65 
+times_oper_cutPool = 19.61 
+times_total_for_cuts = 666.95 
+times_add_retrieve_cuts = 23.12 
+
+
+
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500B.dat
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          102s /  63.6%           10.0GiB /  74.5%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    64.7s  100.0%   64.7s   7.41GiB  100.0%  7.41GiB
+   iteration      17.9k    64.6s   99.8%  3.60ms   7.40GiB   99.9%   433KiB
+     relax        20.6k    63.8s   98.5%  3.09ms   7.29GiB   98.4%   370KiB
+     dominance    17.9k    124ms    0.2%  6.90μs   36.9MiB    0.5%  2.10KiB
+     incumbent    18.0k   40.6ms    0.1%  2.26μs   2.69MiB    0.0%     157B
+   next node      17.9k   53.7ms    0.1%  2.99μs   9.22MiB    0.1%     539B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 66.15 
+total_nodes = 20645 
+pruned_nodes = 10323 
+GAP = 0.0 
+relaxation_time = 63.68 
+test_dominance_time = 0.13 
+update_incumbent_time = 0.03 
+tree_size = 49.186 
+
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1857s /  94.0%           1.12TiB /  99.7%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1746s  100.0%    873s   1.12TiB  100.0%   574GiB
+   iteration      41.5k    1746s  100.0%  42.0ms   1.12TiB  100.0%  28.3MiB
+     relax        47.9k    1744s   99.9%  36.4ms   1.12TiB  100.0%  24.5MiB
+     dominance    41.5k    311ms    0.0%  7.48μs   86.0MiB    0.0%  2.12KiB
+     incumbent    41.6k   76.9ms    0.0%  1.85μs   5.37MiB    0.0%     135B
+   next node      41.5k   74.5ms    0.0%  1.79μs   9.94MiB    0.0%     251B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 3687591
+ # informations of B&B algorithm : 
+total_times_used = 1682.55 
+total_nodes = 27241 
+pruned_nodes = 13621 
+GAP = 0.0 
+relaxation_time = 84.64 
+test_dominance_time = 0.21 
+update_incumbent_time = 0.02 
+tree_size = 1883.342 
+
+
+ # ----------- info about cuts : 
+ite_total = 99429 
+cuts_applied = 3687591 
+sp_cuts = 695712 
+mp_cuts = 2991879 
+cuts_total = 3687591 
+times_calling_dicho = 360.47 
+times_calling_separators = 1130.59 
+times_oper_cutPool = 49.39 
+times_total_for_cuts = 1595.31 
+times_add_retrieve_cuts = 54.07 
+
+
+
+Querying...
+length Y_N = 17
+length X_E = 17
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500C.dat
+Building...
+Solving...
+Querying...
+length Y_N = 7
+length X_E = 7
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 13
+length X_E = 13
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          177s /  77.8%           19.0GiB /  86.3%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     138s  100.0%    138s   16.4GiB  100.0%  16.4GiB
+   iteration      36.7k     138s   99.9%  3.75ms   16.4GiB   99.9%   469KiB
+     relax        42.6k     136s   99.0%  3.20ms   16.2GiB   98.7%   399KiB
+     dominance    36.7k    200ms    0.1%  5.45μs   63.3MiB    0.4%  1.77KiB
+     incumbent    36.7k   53.3ms    0.0%  1.45μs   3.85MiB    0.0%     110B
+   next node      36.7k   64.7ms    0.0%  1.76μs   9.79MiB    0.1%     280B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 139.17 
+total_nodes = 42633 
+pruned_nodes = 21317 
+GAP = 0.0 
+relaxation_time = 135.76 
+test_dominance_time = 0.22 
+update_incumbent_time = 0.04 
+tree_size = 104.608 
+
+Querying...
+length Y_N = 13
+length X_E = 13
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1.63h /  96.1%           3.43TiB /  99.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1.57h  100.0%   2822s   3.42TiB  100.0%  1.71TiB
+   iteration      98.6k    1.57h  100.0%  57.2ms   3.42TiB  100.0%  36.4MiB
+     relax         115k    1.57h   99.9%  49.2ms   3.42TiB  100.0%  31.3MiB
+     dominance    98.6k    787ms    0.0%  7.98μs    203MiB    0.0%  2.10KiB
+     incumbent    98.7k    144ms    0.0%  1.46μs   10.2MiB    0.0%     109B
+   next node      98.6k    115ms    0.0%  1.16μs   11.7MiB    0.0%     124B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 8292894
+ # informations of B&B algorithm : 
+total_times_used = 5507.22 
+total_nodes = 72013 
+pruned_nodes = 36007 
+GAP = 0.0 
+relaxation_time = 270.09 
+test_dominance_time = 0.65 
+update_incumbent_time = 0.04 
+tree_size = 4223.594 
+
+
+ # ----------- info about cuts : 
+ite_total = 268307 
+cuts_applied = 8292894 
+sp_cuts = 1626467 
+mp_cuts = 6666427 
+cuts_total = 8292894 
+times_calling_dicho = 1254.68 
+times_calling_separators = 3690.11 
+times_oper_cutPool = 137.02 
+times_total_for_cuts = 5231.22 
+times_add_retrieve_cuts = 147.32 
+
+
+
+Querying...
+length Y_N = 13
+length X_E = 13
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500D.dat
+Building...
+Solving...
+Querying...
+length Y_N = 7
+length X_E = 7
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 19
+length X_E = 19
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          198s /  78.9%           21.8GiB /  88.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     156s  100.0%    156s   19.2GiB  100.0%  19.2GiB
+   iteration      47.5k     156s   99.9%  3.29ms   19.2GiB   99.9%   423KiB
+     relax        55.2k     155s   98.9%  2.80ms   18.9GiB   98.5%   359KiB
+     dominance    47.5k    310ms    0.2%  6.52μs    106MiB    0.5%  2.29KiB
+     incumbent    47.6k   62.1ms    0.0%  1.30μs   3.66MiB    0.0%    80.7B
+   next node      47.5k   90.4ms    0.1%  1.90μs   10.1MiB    0.1%     223B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 157.76 
+total_nodes = 55213 
+pruned_nodes = 27607 
+GAP = 0.0 
+relaxation_time = 153.55 
+test_dominance_time = 0.34 
+update_incumbent_time = 0.04 
+tree_size = 127.151 
+
+Querying...
+length Y_N = 19
+length X_E = 19
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         3182s /  92.8%           1.77TiB /  99.7%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    2952s  100.0%   1476s   1.77TiB  100.0%   906GiB
+   iteration      91.2k    2951s  100.0%  32.4ms   1.77TiB  100.0%  20.3MiB
+     relax         106k    2948s   99.9%  27.9ms   1.77TiB  100.0%  17.5MiB
+     dominance    91.2k    1.23s    0.0%  13.4μs    201MiB    0.0%  2.25KiB
+     incumbent    91.3k    135ms    0.0%  1.48μs   7.71MiB    0.0%    88.6B
+   next node      91.2k    126ms    0.0%  1.38μs   11.5MiB    0.0%     132B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 6208424
+ # informations of B&B algorithm : 
+total_times_used = 2796.32 
+total_nodes = 50623 
+pruned_nodes = 25312 
+GAP = 0.0 
+relaxation_time = 151.01 
+test_dominance_time = 0.96 
+update_incumbent_time = 0.04 
+tree_size = 3137.78 
+
+
+ # ----------- info about cuts : 
+ite_total = 159696 
+cuts_applied = 6208424 
+sp_cuts = 2280261 
+mp_cuts = 3928163 
+cuts_total = 6208424 
+times_calling_dicho = 564.28 
+times_calling_separators = 1895.65 
+times_oper_cutPool = 87.86 
+times_total_for_cuts = 2640.57 
+times_add_retrieve_cuts = 91.62 
+
+
+
+Querying...
+length Y_N = 19
+length X_E = 19
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500E.dat
+Building...
+Solving...
+Querying...
+length Y_N = 2
+length X_E = 2
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 2
+length X_E = 2
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          111s /  67.3%           11.0GiB /  76.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    75.0s  100.0%   75.0s   8.48GiB  100.0%  8.48GiB
+   iteration      27.9k    74.9s   99.8%  2.68ms   8.47GiB   99.9%   318KiB
+     relax        31.9k    73.7s   98.3%  2.31ms   8.36GiB   98.5%   274KiB
+     dominance    27.9k   81.6ms    0.1%  2.92μs   6.59MiB    0.1%     247B
+     incumbent    28.0k   48.1ms    0.1%  1.72μs   2.12MiB    0.0%    79.5B
+   next node      27.9k   64.1ms    0.1%  2.29μs   9.52MiB    0.1%     357B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 76.57 
+total_nodes = 31935 
+pruned_nodes = 15968 
+GAP = 0.0 
+relaxation_time = 73.41 
+test_dominance_time = 0.1 
+update_incumbent_time = 0.03 
+tree_size = 64.469 
+
+Querying...
+length Y_N = 2
+length X_E = 2
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         3418s /  93.2%           1.93TiB /  99.7%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    3185s  100.0%   1592s   1.93TiB  100.0%  0.96TiB
+   iteration      78.1k    3184s  100.0%  40.8ms   1.93TiB  100.0%  25.9MiB
+     relax        89.6k    3182s   99.9%  35.5ms   1.92TiB  100.0%  22.5MiB
+     dominance    78.1k    186ms    0.0%  2.39μs   16.1MiB    0.0%     216B
+     incumbent    78.2k    132ms    0.0%  1.69μs   6.17MiB    0.0%    82.7B
+   next node      78.1k    102ms    0.0%  1.31μs   11.1MiB    0.0%     148B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 7314942
+ # informations of B&B algorithm : 
+total_times_used = 3110.94 
+total_nodes = 57657 
+pruned_nodes = 28829 
+GAP = 0.0 
+relaxation_time = 157.74 
+test_dominance_time = 0.15 
+update_incumbent_time = 0.03 
+tree_size = 3667.579 
+
+
+ # ----------- info about cuts : 
+ite_total = 194237 
+cuts_applied = 7314942 
+sp_cuts = 2331393 
+mp_cuts = 4983549 
+cuts_total = 7314942 
+times_calling_dicho = 594.38 
+times_calling_separators = 2135.6 
+times_oper_cutPool = 115.13 
+times_total_for_cuts = 2948.62 
+times_add_retrieve_cuts = 102.14 
+
+
+
+Querying...
+length Y_N = 2
+length X_E = 2
+displayGraphics
+./BOSPP/2mis100_500/2mis100_500F.dat
+Building...
+Solving...
+Querying...
+length Y_N = 3
+length X_E = 3
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          177s /  77.6%           16.9GiB /  83.9%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     138s  100.0%    138s   14.2GiB  100.0%  14.2GiB
+   iteration      69.3k     137s   99.8%  1.98ms   14.1GiB   99.9%   214KiB
+     relax        80.2k     136s   98.6%  1.69ms   13.9GiB   98.1%   182KiB
+     dominance    69.3k    102ms    0.1%  1.47μs   12.6MiB    0.1%     191B
+     incumbent    69.4k   62.1ms    0.0%   895ns   2.69MiB    0.0%    40.6B
+   next node      69.3k   84.5ms    0.1%  1.22μs   10.8MiB    0.1%     163B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 138.99 
+total_nodes = 80177 
+pruned_nodes = 40089 
+GAP = 0.0 
+relaxation_time = 133.84 
+test_dominance_time = 0.14 
+update_incumbent_time = 0.03 
+tree_size = 136.188 
+
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         2605s /  91.4%           1.27TiB /  99.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    2380s  100.0%   1190s   1.27TiB  100.0%   649GiB
+   iteration       135k    2379s  100.0%  17.6ms   1.27TiB  100.0%  9.86MiB
+     relax         157k    2376s   99.8%  15.2ms   1.27TiB  100.0%  8.48MiB
+     dominance     135k    258ms    0.0%  1.91μs   24.1MiB    0.0%     188B
+     incumbent     135k    127ms    0.0%   944ns   5.39MiB    0.0%    41.8B
+   next node       135k    136ms    0.0%  1.01μs   12.8MiB    0.0%    99.4B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 8712698
+ # informations of B&B algorithm : 
+total_times_used = 2243.3 
+total_nodes = 76495 
+pruned_nodes = 38248 
+GAP = 0.0 
+relaxation_time = 150.8 
+test_dominance_time = 0.2 
+update_incumbent_time = 0.02 
+tree_size = 4407.072 
+
+
+ # ----------- info about cuts : 
+ite_total = 145044 
+cuts_applied = 8712698 
+sp_cuts = 6444137 
+mp_cuts = 2268561 
+cuts_total = 8712698 
+times_calling_dicho = 324.7 
+times_calling_separators = 1538.02 
+times_oper_cutPool = 114.03 
+times_total_for_cuts = 2087.28 
+times_add_retrieve_cuts = 109.55 
+
+
+
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300A.dat
+Building...
+Solving...
+Querying...
+length Y_N = 6
+length X_E = 6
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         49.2s /  23.1%           4.48GiB /  44.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    11.4s  100.0%   11.4s   1.99GiB  100.0%  1.99GiB
+   iteration      2.23k    11.3s   99.4%  5.08ms   1.98GiB   99.6%   933KiB
+     relax        2.72k    10.8s   94.8%  3.96ms   1.95GiB   97.8%   749KiB
+     incumbent    2.27k   32.5ms    0.3%  14.3μs   2.99MiB    0.1%  1.35KiB
+     dominance    2.23k   29.5ms    0.3%  13.3μs   11.8MiB    0.6%  5.43KiB
+   next node      2.23k   50.8ms    0.4%  22.8μs   8.74MiB    0.4%  4.02KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 12.85 
+total_nodes = 2725 
+pruned_nodes = 1363 
+GAP = 0.0 
+relaxation_time = 11.2 
+test_dominance_time = 0.03 
+update_incumbent_time = 0.03 
+tree_size = 9.447 
+
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          307s /  86.3%            180GiB /  98.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     265s  100.0%    132s    177GiB  100.0%  88.3GiB
+   iteration      6.09k     265s  100.0%  43.4ms    177GiB  100.0%  29.7MiB
+     relax        7.24k     264s   99.7%  36.4ms    177GiB  100.0%  25.0MiB
+     dominance    6.09k   81.0ms    0.0%  13.3μs   31.6MiB    0.0%  5.30KiB
+     incumbent    6.19k   50.0ms    0.0%  8.08μs   7.14MiB    0.0%  1.18KiB
+   next node      6.09k   53.5ms    0.0%  8.77μs   8.86MiB    0.0%  1.49KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 234174
+ # informations of B&B algorithm : 
+total_times_used = 254.66 
+total_nodes = 4521 
+pruned_nodes = 2261 
+GAP = 0.0 
+relaxation_time = 19.95 
+test_dominance_time = 0.07 
+update_incumbent_time = 0.01 
+tree_size = 149.264 
+
+
+ # ----------- info about cuts : 
+ite_total = 13477 
+cuts_applied = 234174 
+sp_cuts = 7566 
+mp_cuts = 226608 
+cuts_total = 234174 
+times_calling_dicho = 95.42 
+times_calling_separators = 127.93 
+times_oper_cutPool = 4.18 
+times_total_for_cuts = 233.62 
+times_add_retrieve_cuts = 5.99 
+
+
+
+Querying...
+length Y_N = 22
+length X_E = 22
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300B.dat
+Building...
+Solving...
+Querying...
+length Y_N = 10
+length X_E = 10
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 30
+length X_E = 30
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         62.8s /  36.3%           6.28GiB /  60.2%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    22.8s  100.0%   22.8s   3.78GiB  100.0%  3.78GiB
+   iteration      3.73k    22.7s   99.7%  6.08ms   3.77GiB   99.8%  1.04MiB
+     relax        4.52k    22.1s   96.9%  4.88ms   3.72GiB   98.2%   862KiB
+     dominance    3.73k   66.8ms    0.3%  17.9μs   26.7MiB    0.7%  7.34KiB
+     incumbent    3.79k   41.3ms    0.2%  10.9μs   5.81MiB    0.2%  1.57KiB
+   next node      3.73k   51.6ms    0.2%  13.8μs   8.78MiB    0.2%  2.41KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 24.24 
+total_nodes = 4519 
+pruned_nodes = 2260 
+GAP = 0.0 
+relaxation_time = 22.42 
+test_dominance_time = 0.07 
+update_incumbent_time = 0.04 
+tree_size = 17.079 
+
+Querying...
+length Y_N = 30
+length X_E = 30
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          280s /  84.2%            149GiB /  98.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     235s  100.0%    118s    146GiB  100.0%  72.8GiB
+   iteration      6.83k     235s  100.0%  34.5ms    146GiB  100.0%  21.8MiB
+     relax        8.24k     235s   99.6%  28.5ms    146GiB   99.9%  18.1MiB
+     dominance    6.83k    116ms    0.0%  17.0μs   46.5MiB    0.0%  6.98KiB
+     incumbent    6.96k   57.7ms    0.0%  8.30μs   9.44MiB    0.0%  1.39KiB
+   next node      6.83k   53.5ms    0.0%  7.83μs   8.88MiB    0.0%  1.33KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 228044
+ # informations of B&B algorithm : 
+total_times_used = 213.98 
+total_nodes = 3723 
+pruned_nodes = 1862 
+GAP = 0.0 
+relaxation_time = 17.14 
+test_dominance_time = 0.05 
+update_incumbent_time = 0.01 
+tree_size = 145.678 
+
+
+ # ----------- info about cuts : 
+ite_total = 10251 
+cuts_applied = 228044 
+sp_cuts = 2973 
+mp_cuts = 225071 
+cuts_total = 228044 
+times_calling_dicho = 83.33 
+times_calling_separators = 101.67 
+times_oper_cutPool = 4.48 
+times_total_for_cuts = 195.77 
+times_add_retrieve_cuts = 6.19 
+
+
+
+Querying...
+length Y_N = 30
+length X_E = 30
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300C.dat
+Building...
+Solving...
+Querying...
+length Y_N = 6
+length X_E = 6
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 26
+length X_E = 26
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          130s /  69.5%           18.0GiB /  85.9%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    90.5s  100.0%   90.5s   15.4GiB  100.0%  15.4GiB
+   iteration      12.2k    90.4s   99.9%  7.42ms   15.4GiB   99.9%  1.30MiB
+     relax        14.0k    89.6s   99.0%  6.40ms   15.3GiB   99.1%  1.12MiB
+     dominance    12.2k    171ms    0.2%  14.0μs   72.8MiB    0.5%  6.12KiB
+     incumbent    12.3k   62.6ms    0.1%  5.11μs   12.0MiB    0.1%  1.00KiB
+   next node      12.2k   52.8ms    0.1%  4.33μs   9.04MiB    0.1%     778B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 91.94 
+total_nodes = 13995 
+pruned_nodes = 6998 
+GAP = 0.0 
+relaxation_time = 89.68 
+test_dominance_time = 0.18 
+update_incumbent_time = 0.06 
+tree_size = 66.339 
+
+Querying...
+length Y_N = 26
+length X_E = 26
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1217s /  95.8%            686GiB /  99.5%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1166s  100.0%    583s    682GiB  100.0%   341GiB
+   iteration      21.9k    1166s  100.0%  53.3ms    682GiB  100.0%  31.9MiB
+     relax        25.2k    1165s   99.9%  46.3ms    682GiB  100.0%  27.8MiB
+     dominance    21.9k    325ms    0.0%  14.9μs    129MiB    0.0%  6.05KiB
+     incumbent    22.0k    110ms    0.0%  4.99μs   21.3MiB    0.0%  0.99KiB
+   next node      21.9k   61.6ms    0.0%  2.82μs   9.34MiB    0.0%     447B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 976278
+ # informations of B&B algorithm : 
+total_times_used = 1076.93 
+total_nodes = 11169 
+pruned_nodes = 5585 
+GAP = 0.0 
+relaxation_time = 73.53 
+test_dominance_time = 0.16 
+update_incumbent_time = 0.04 
+tree_size = 607.515 
+
+
+ # ----------- info about cuts : 
+ite_total = 40997 
+cuts_applied = 976278 
+sp_cuts = 8158 
+mp_cuts = 968120 
+cuts_total = 976278 
+times_calling_dicho = 403.78 
+times_calling_separators = 551.01 
+times_oper_cutPool = 18.79 
+times_total_for_cuts = 1001.75 
+times_add_retrieve_cuts = 27.72 
+
+
+
+Querying...
+length Y_N = 26
+length X_E = 26
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300D.dat
+Building...
+Solving...
+Querying...
+length Y_N = 10
+length X_E = 10
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         98.9s /  54.7%           12.3GiB /  79.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    54.1s  100.0%   54.1s   9.81GiB  100.0%  9.81GiB
+   iteration      8.22k    54.0s   99.8%  6.57ms   9.80GiB   99.9%  1.22MiB
+     relax        10.1k    53.1s   98.2%  5.27ms   9.66GiB   98.5%  0.98MiB
+     dominance    8.22k    199ms    0.4%  24.2μs   77.9MiB    0.8%  9.70KiB
+     incumbent    8.33k   67.7ms    0.1%  8.12μs   15.7MiB    0.2%  1.92KiB
+   next node      8.22k   55.9ms    0.1%  6.80μs   8.92MiB    0.1%  1.11KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 55.5 
+total_nodes = 10081 
+pruned_nodes = 5041 
+GAP = 0.0 
+relaxation_time = 53.16 
+test_dominance_time = 0.2 
+update_incumbent_time = 0.06 
+tree_size = 41.875 
+
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          757s /  93.2%            423GiB /  99.3%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     706s  100.0%    353s    420GiB  100.0%   210GiB
+   iteration      16.3k     705s  100.0%  43.2ms    420GiB  100.0%  26.3MiB
+     relax        19.8k     704s   99.8%  35.5ms    419GiB   99.9%  21.6MiB
+     dominance    16.3k    400ms    0.1%  24.5μs    157MiB    0.0%  9.83KiB
+     incumbent    16.6k    120ms    0.0%  7.26μs   31.8MiB    0.0%  1.96KiB
+   next node      16.3k   61.4ms    0.0%  3.76μs   9.17MiB    0.0%     588B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 472024
+ # informations of B&B algorithm : 
+total_times_used = 652.76 
+total_nodes = 9769 
+pruned_nodes = 4885 
+GAP = 0.0 
+relaxation_time = 52.66 
+test_dominance_time = 0.21 
+update_incumbent_time = 0.05 
+tree_size = 310.576 
+
+
+ # ----------- info about cuts : 
+ite_total = 27873 
+cuts_applied = 472024 
+sp_cuts = 10061 
+mp_cuts = 461963 
+cuts_total = 472024 
+times_calling_dicho = 260.8 
+times_calling_separators = 315.17 
+times_oper_cutPool = 8.89 
+times_total_for_cuts = 598.5 
+times_add_retrieve_cuts = 13.42 
+
+
+
+Querying...
+length Y_N = 41
+length X_E = 41
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300E.dat
+Building...
+Solving...
+Querying...
+length Y_N = 2
+length X_E = 2
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 3
+length X_E = 3
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         84.4s /  58.6%           10.8GiB /  76.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    49.5s  100.0%   49.5s   8.24GiB  100.0%  8.24GiB
+   iteration      10.8k    49.4s   99.8%  4.56ms   8.23GiB   99.9%   797KiB
+     relax        11.9k    48.7s   98.4%  4.08ms   8.18GiB   99.3%   718KiB
+     incumbent    10.9k   42.4ms    0.1%  3.89μs   2.88MiB    0.0%     277B
+     dominance    10.8k   17.5ms    0.0%  1.61μs   3.25MiB    0.0%     315B
+   next node      10.8k   54.8ms    0.1%  5.06μs   9.00MiB    0.1%     871B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 51.06 
+total_nodes = 11941 
+pruned_nodes = 5971 
+GAP = 0.0 
+relaxation_time = 48.93 
+test_dominance_time = 0.02 
+update_incumbent_time = 0.04 
+tree_size = 38.527 
+
+Querying...
+length Y_N = 3
+length X_E = 3
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          510s /  91.1%            280GiB /  98.9%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     465s  100.0%    232s    277GiB  100.0%   138GiB
+   iteration      16.6k     465s  100.0%  28.0ms    277GiB  100.0%  17.1MiB
+     relax        18.3k     464s   99.8%  25.3ms    277GiB  100.0%  15.5MiB
+     incumbent    16.7k   65.5ms    0.0%  3.92μs   4.94MiB    0.0%     310B
+     dominance    16.6k   32.1ms    0.0%  1.94μs   5.44MiB    0.0%     344B
+   next node      16.6k   60.2ms    0.0%  3.63μs   9.18MiB    0.0%     580B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 690766
+ # informations of B&B algorithm : 
+total_times_used = 416.45 
+total_nodes = 6397 
+pruned_nodes = 3199 
+GAP = 0.0 
+relaxation_time = 28.6 
+test_dominance_time = 0.02 
+update_incumbent_time = 0.02 
+tree_size = 411.843 
+
+
+ # ----------- info about cuts : 
+ite_total = 25923 
+cuts_applied = 690766 
+sp_cuts = 40832 
+mp_cuts = 649934 
+cuts_total = 690766 
+times_calling_dicho = 147.02 
+times_calling_separators = 216.23 
+times_oper_cutPool = 10.32 
+times_total_for_cuts = 386.61 
+times_add_retrieve_cuts = 12.84 
+
+
+
+Querying...
+length Y_N = 3
+length X_E = 3
+displayGraphics
+./BOSPP/2mis101_300/2mis101_300F.dat
+Building...
+Solving...
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         61.2s /  42.0%           6.42GiB /  61.1%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    25.7s  100.0%   25.7s   3.92GiB  100.0%  3.92GiB
+   iteration      6.49k    25.6s   99.7%  3.95ms   3.91GiB   99.8%   632KiB
+     relax        7.22k    25.0s   97.4%  3.47ms   3.88GiB   98.8%   563KiB
+     incumbent    6.53k   33.3ms    0.1%  5.10μs   2.61MiB    0.1%     420B
+     dominance    6.49k   16.9ms    0.1%  2.60μs   4.24MiB    0.1%     684B
+   next node      6.49k   50.1ms    0.2%  7.72μs   8.87MiB    0.2%  1.40KiB
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 27.07 
+total_nodes = 7217 
+pruned_nodes = 3609 
+GAP = 0.0 
+relaxation_time = 25.27 
+test_dominance_time = 0.02 
+update_incumbent_time = 0.03 
+tree_size = 21.105 
+
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          553s /  91.6%            307GiB /  99.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2     506s  100.0%    253s    304GiB  100.0%   152GiB
+   iteration      15.4k     506s  100.0%  32.9ms    304GiB  100.0%  20.2MiB
+     relax        17.0k     505s   99.8%  29.7ms    304GiB  100.0%  18.3MiB
+     incumbent    15.5k   61.8ms    0.0%  3.99μs   6.10MiB    0.0%     413B
+     dominance    15.4k   49.8ms    0.0%  3.24μs   10.2MiB    0.0%     691B
+   next node      15.4k   57.0ms    0.0%  3.70μs   9.14MiB    0.0%     622B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 1051919
+ # informations of B&B algorithm : 
+total_times_used = 481.67 
+total_nodes = 9819 
+pruned_nodes = 4910 
+GAP = 0.0 
+relaxation_time = 35.18 
+test_dominance_time = 0.04 
+update_incumbent_time = 0.02 
+tree_size = 633.613 
+
+
+ # ----------- info about cuts : 
+ite_total = 38865 
+cuts_applied = 1051919 
+sp_cuts = 226325 
+mp_cuts = 825594 
+cuts_total = 1051919 
+times_calling_dicho = 161.7 
+times_calling_separators = 253.76 
+times_oper_cutPool = 14.62 
+times_total_for_cuts = 445.16 
+times_add_retrieve_cuts = 14.84 
+
+
+
+Querying...
+length Y_N = 4
+length X_E = 4
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500A.dat
+Building...
+Solving...
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 21
+length X_E = 21
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          425s /  88.9%           51.4GiB /  94.6%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     377s  100.0%    377s   48.6GiB  100.0%  48.6GiB
+   iteration      86.9k     377s   99.9%  4.34ms   48.6GiB  100.0%   586KiB
+     relax         102k     374s   99.2%  3.68ms   47.9GiB   98.6%   494KiB
+     dominance    86.9k    891ms    0.2%  10.2μs    334MiB    0.7%  3.93KiB
+     incumbent    87.0k    112ms    0.0%  1.29μs   12.0MiB    0.0%     145B
+   next node      86.9k   91.5ms    0.0%  1.05μs   11.3MiB    0.0%     137B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 378.63 
+total_nodes = 101607 
+pruned_nodes = 50804 
+GAP = 0.0 
+relaxation_time = 371.61 
+test_dominance_time = 0.94 
+update_incumbent_time = 0.06 
+tree_size = 279.415 
+
+Querying...
+length Y_N = 21
+length X_E = 21
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         2.15h /  97.5%           4.38TiB /  99.9%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    2.09h  100.0%   1.05h   4.37TiB  100.0%  2.19TiB
+   iteration       155k    2.09h  100.0%  48.7ms   4.37TiB  100.0%  29.6MiB
+     relax         181k    2.09h   99.9%  41.6ms   4.37TiB  100.0%  25.3MiB
+     dominance     155k    2.02s    0.0%  13.1μs    590MiB    0.0%  3.91KiB
+     incumbent     155k    245ms    0.0%  1.58μs   21.5MiB    0.0%     146B
+   next node       155k    175ms    0.0%  1.13μs   13.4MiB    0.0%    90.8B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 8836829
+ # informations of B&B algorithm : 
+total_times_used = 7150.36 
+total_nodes = 79209 
+pruned_nodes = 39605 
+GAP = 0.0 
+relaxation_time = 353.59 
+test_dominance_time = 1.19 
+update_incumbent_time = 0.06 
+tree_size = 4499.597 
+
+
+ # ----------- info about cuts : 
+ite_total = 311934 
+cuts_applied = 8836829 
+sp_cuts = 940880 
+mp_cuts = 7895949 
+cuts_total = 8836829 
+times_calling_dicho = 1755.29 
+times_calling_separators = 4700.53 
+times_oper_cutPool = 161.38 
+times_total_for_cuts = 6789.6 
+times_add_retrieve_cuts = 169.85 
+
+
+
+Querying...
+length Y_N = 21
+length X_E = 21
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500B.dat
+Building...
+Solving...
+Querying...
+length Y_N = 6
+length X_E = 6
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          170s /  76.2%           18.2GiB /  85.7%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     130s  100.0%    130s   15.6GiB  100.0%  15.6GiB
+   iteration      29.9k     130s   99.9%  4.33ms   15.6GiB   99.9%   546KiB
+     relax        34.7k     128s   98.9%  3.70ms   15.4GiB   98.5%   465KiB
+     dominance    29.9k    251ms    0.2%  8.39μs    100MiB    0.6%  3.42KiB
+     incumbent    30.0k   55.8ms    0.0%  1.86μs   5.16MiB    0.0%     181B
+   next node      29.9k   60.3ms    0.0%  2.02μs   9.58MiB    0.1%     336B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 131.07 
+total_nodes = 34671 
+pruned_nodes = 17336 
+GAP = 0.0 
+relaxation_time = 127.74 
+test_dominance_time = 0.27 
+update_incumbent_time = 0.04 
+tree_size = 92.503 
+
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1.21h /  94.5%           2.43TiB /  99.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1.14h  100.0%   2050s   2.43TiB  100.0%  1.21TiB
+   iteration      78.6k    1.14h  100.0%  52.2ms   2.43TiB  100.0%  32.4MiB
+     relax        91.2k    1.14h   99.9%  44.9ms   2.43TiB  100.0%  27.9MiB
+     dominance    78.6k    815ms    0.0%  10.4μs    231MiB    0.0%  3.01KiB
+     incumbent    78.6k    131ms    0.0%  1.66μs   10.6MiB    0.0%     141B
+   next node      78.6k    101ms    0.0%  1.29μs   11.1MiB    0.0%     148B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 7036546
+ # informations of B&B algorithm : 
+total_times_used = 3971.69 
+total_nodes = 56515 
+pruned_nodes = 28258 
+GAP = 0.0 
+relaxation_time = 210.23 
+test_dominance_time = 0.62 
+update_incumbent_time = 0.03 
+tree_size = 3529.58 
+
+
+ # ----------- info about cuts : 
+ite_total = 196334 
+cuts_applied = 7036546 
+sp_cuts = 1967545 
+mp_cuts = 5069001 
+cuts_total = 7036546 
+times_calling_dicho = 915.83 
+times_calling_separators = 2615.6 
+times_oper_cutPool = 107.11 
+times_total_for_cuts = 3756.62 
+times_add_retrieve_cuts = 116.49 
+
+
+
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500C.dat
+Building...
+Solving...
+Querying...
+length Y_N = 10
+length X_E = 10
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          187s /  77.4%           20.8GiB /  87.5%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     145s  100.0%    145s   18.2GiB  100.0%  18.2GiB
+   iteration      35.9k     145s   99.9%  4.02ms   18.2GiB   99.9%   531KiB
+     relax        41.9k     143s   98.9%  3.41ms   17.9GiB   98.5%   449KiB
+     dominance    35.9k    277ms    0.2%  7.72μs    114MiB    0.6%  3.26KiB
+     incumbent    36.0k   72.3ms    0.1%  2.01μs   9.89MiB    0.1%     288B
+   next node      35.9k   69.3ms    0.0%  1.93μs   9.77MiB    0.1%     285B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 146.0 
+total_nodes = 41915 
+pruned_nodes = 20958 
+GAP = 0.0 
+relaxation_time = 142.39 
+test_dominance_time = 0.3 
+update_incumbent_time = 0.05 
+tree_size = 108.498 
+
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         3199s /  96.3%           1.82TiB /  99.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    3081s  100.0%   1541s   1.82TiB  100.0%   930GiB
+   iteration      76.2k    3081s  100.0%  40.5ms   1.82TiB  100.0%  25.0MiB
+     relax        88.8k    3078s   99.9%  34.6ms   1.82TiB  100.0%  21.4MiB
+     dominance    76.2k    721ms    0.0%  9.47μs    240MiB    0.0%  3.22KiB
+     incumbent    76.3k    176ms    0.0%  2.30μs   21.4MiB    0.0%     295B
+   next node      76.2k    111ms    0.0%  1.46μs   11.0MiB    0.0%     151B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 5546809
+ # informations of B&B algorithm : 
+total_times_used = 2937.55 
+total_nodes = 46909 
+pruned_nodes = 23455 
+GAP = 0.0 
+relaxation_time = 168.52 
+test_dominance_time = 0.48 
+update_incumbent_time = 0.07 
+tree_size = 2822.111 
+
+
+ # ----------- info about cuts : 
+ite_total = 154107 
+cuts_applied = 5546809 
+sp_cuts = 2056038 
+mp_cuts = 3490771 
+cuts_total = 5546809 
+times_calling_dicho = 700.95 
+times_calling_separators = 1898.7 
+times_oper_cutPool = 78.97 
+times_total_for_cuts = 2764.76 
+times_add_retrieve_cuts = 85.04 
+
+
+
+Querying...
+length Y_N = 20
+length X_E = 20
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500D.dat
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 15
+length X_E = 15
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          155s /  76.0%           18.3GiB /  86.0%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     118s  100.0%    118s   15.7GiB  100.0%  15.7GiB
+   iteration      22.9k     118s   99.9%  5.13ms   15.7GiB   99.9%   718KiB
+     relax        26.5k     117s   99.1%  4.40ms   15.6GiB   99.0%   616KiB
+     dominance    22.9k    130ms    0.1%  5.65μs   48.1MiB    0.3%  2.14KiB
+     incumbent    23.0k   60.3ms    0.1%  2.63μs   7.74MiB    0.0%     353B
+   next node      22.9k   57.0ms    0.0%  2.49μs   9.37MiB    0.1%     428B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 119.03 
+total_nodes = 26523 
+pruned_nodes = 13262 
+GAP = 0.0 
+relaxation_time = 116.27 
+test_dominance_time = 0.14 
+update_incumbent_time = 0.05 
+tree_size = 82.21 
+
+Querying...
+length Y_N = 15
+length X_E = 15
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1.05h /  97.1%           2.28TiB /  99.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1.02h  100.0%   1839s   2.28TiB  100.0%  1.14TiB
+   iteration      61.4k    1.02h  100.0%  59.9ms   2.28TiB  100.0%  38.9MiB
+     relax        71.0k    1.02h   99.9%  51.8ms   2.28TiB  100.0%  33.6MiB
+     dominance    61.4k    528ms    0.0%  8.60μs    148MiB    0.0%  2.47KiB
+     incumbent    61.4k    133ms    0.0%  2.16μs   14.6MiB    0.0%     249B
+   next node      61.4k    100ms    0.0%  1.64μs   10.5MiB    0.0%     180B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 5301995
+ # informations of B&B algorithm : 
+total_times_used = 3561.99 
+total_nodes = 44469 
+pruned_nodes = 22235 
+GAP = 0.0 
+relaxation_time = 182.31 
+test_dominance_time = 0.43 
+update_incumbent_time = 0.04 
+tree_size = 2727.779 
+
+
+ # ----------- info about cuts : 
+ite_total = 164955 
+cuts_applied = 5301995 
+sp_cuts = 1116476 
+mp_cuts = 4185519 
+cuts_total = 5301995 
+times_calling_dicho = 856.17 
+times_calling_separators = 2340.98 
+times_oper_cutPool = 84.37 
+times_total_for_cuts = 3375.66 
+times_add_retrieve_cuts = 92.84 
+
+
+
+Querying...
+length Y_N = 15
+length X_E = 15
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500E.dat
+Building...
+Solving...
+Querying...
+length Y_N = 6
+length X_E = 6
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:          285s /  84.0%           31.3GiB /  91.2%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1     239s  100.0%    239s   28.6GiB  100.0%  28.6GiB
+   iteration      91.8k     239s   99.9%  2.60ms   28.6GiB   99.9%   326KiB
+     relax         107k     236s   98.8%  2.20ms   28.1GiB   98.5%   275KiB
+     dominance    91.8k    372ms    0.2%  4.05μs   89.0MiB    0.3%  0.99KiB
+     incumbent    92.0k   96.2ms    0.0%  1.05μs   7.26MiB    0.0%    82.8B
+   next node      91.8k   85.5ms    0.0%   932ns   11.5MiB    0.0%     131B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 240.49 
+total_nodes = 107481 
+pruned_nodes = 53741 
+GAP = 0.0 
+relaxation_time = 233.29 
+test_dominance_time = 0.43 
+update_incumbent_time = 0.05 
+tree_size = 216.32 
+
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1.65h /  96.4%           3.36TiB /  99.8%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1.59h  100.0%   2858s   3.35TiB  100.0%  1.68TiB
+   iteration       172k    1.59h  100.0%  33.2ms   3.35TiB  100.0%  20.4MiB
+     relax         202k    1.59h   99.9%  28.3ms   3.35TiB  100.0%  17.4MiB
+     dominance     172k    899ms    0.0%  5.21μs    178MiB    0.0%  1.06KiB
+     incumbent     173k    203ms    0.0%  1.17μs   14.3MiB    0.0%    86.5B
+   next node       172k    147ms    0.0%   855ns   13.9MiB    0.0%    84.7B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 10173530
+ # informations of B&B algorithm : 
+total_times_used = 5477.72 
+total_nodes = 94405 
+pruned_nodes = 47203 
+GAP = 0.0 
+relaxation_time = 275.04 
+test_dominance_time = 0.61 
+update_incumbent_time = 0.05 
+tree_size = 5100.865 
+
+
+ # ----------- info about cuts : 
+ite_total = 317682 
+cuts_applied = 10173530 
+sp_cuts = 2852051 
+mp_cuts = 7321479 
+cuts_total = 10173530 
+times_calling_dicho = 1071.39 
+times_calling_separators = 3811.77 
+times_oper_cutPool = 160.81 
+times_total_for_cuts = 5195.19 
+times_add_retrieve_cuts = 149.13 
+
+
+
+Querying...
+length Y_N = 8
+length X_E = 8
+displayGraphics
+./BOSPP/2mis101_500/2mis101_500F.dat
+Building...
+Solving...
+Querying...
+length Y_N = 3
+length X_E = 3
+displayGraphics
+Building...
+Solving...
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         97.7s /  65.1%           9.73GiB /  73.9%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              1    63.6s  100.0%   63.6s   7.19GiB  100.0%  7.19GiB
+   iteration      22.0k    63.5s   99.8%  2.89ms   7.18GiB   99.9%   343KiB
+     relax        25.2k    62.6s   98.5%  2.48ms   7.09GiB   98.5%   294KiB
+     dominance    22.0k   48.3ms    0.1%  2.20μs   9.03MiB    0.1%     431B
+     incumbent    22.0k   44.0ms    0.1%  2.00μs   2.88MiB    0.0%     137B
+   next node      22.0k   59.9ms    0.1%  2.73μs   9.34MiB    0.1%     446B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 0
+ # informations of B&B algorithm : 
+total_times_used = 64.95 
+total_nodes = 25235 
+pruned_nodes = 12618 
+GAP = 0.0 
+relaxation_time = 62.33 
+test_dominance_time = 0.06 
+update_incumbent_time = 0.03 
+tree_size = 52.944 
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
+Building...
+Solving...
+ ──────────────────────────────────────────────────────────────────────────
+                                  Time                    Allocations      
+                         ───────────────────────   ────────────────────────
+    Tot / % measured:         1211s /  91.0%            692GiB /  99.4%    
+
+ Section         ncalls     time    %tot     avg     alloc    %tot      avg
+ ──────────────────────────────────────────────────────────────────────────
+ BB loop              2    1102s  100.0%    551s    688GiB  100.0%   344GiB
+   iteration      46.4k    1102s  100.0%  23.7ms    688GiB  100.0%  15.2MiB
+     relax        53.0k    1100s   99.8%  20.7ms    687GiB  100.0%  13.3MiB
+     dominance    46.4k    121ms    0.0%  2.61μs   16.5MiB    0.0%     371B
+     incumbent    46.5k   80.1ms    0.0%  1.72μs   4.94MiB    0.0%     111B
+   next node      46.4k   76.4ms    0.0%  1.64μs   10.1MiB    0.0%     228B
+ ──────────────────────────────────────────────────────────────────────────
+ total cuts : 4090412
+ # informations of B&B algorithm : 
+total_times_used = 1039.61 
+total_nodes = 27797 
+pruned_nodes = 13899 
+GAP = 0.0 
+relaxation_time = 65.79 
+test_dominance_time = 0.09 
+update_incumbent_time = 0.02 
+tree_size = 2062.008 
+
+
+ # ----------- info about cuts : 
+ite_total = 70764 
+cuts_applied = 4090412 
+sp_cuts = 2544152 
+mp_cuts = 1546260 
+cuts_total = 4090412 
+times_calling_dicho = 192.17 
+times_calling_separators = 679.41 
+times_oper_cutPool = 48.67 
+times_total_for_cuts = 971.46 
+times_add_retrieve_cuts = 50.68 
+
+
+
+Querying...
+length Y_N = 5
+length X_E = 5
+displayGraphics
