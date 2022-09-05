@@ -1,28 +1,24 @@
-# ---- Packages to use
+const verbose = false
+const graphic = true
+
 using JuMP, CPLEX
-
 include("../../../src/vOptGeneric.jl")
-include("parserBOSPA.jl")
-using .vOptGeneric
+using .vOptGeneric 
+
+include("parserBOSCP.jl")
 
 
-# ---- Compute the set of non-dominated points Y_N of a 2SPA with vOptGeneric
-function computeYNfor2SPA(  nbvar::Int,
-    nbctr::Int,
-    A::Array{Int,2},
-    c1::Array{Int,1},
-    c2::Array{Int,1},
-    method, fname, outputName; step=0.5
- )
 
+function solveBOSCP(  inst::BOSCP, method, fname, outputName; step=0.5)
+    println("n = $(inst.n) m = $(inst.m) ")
     # ---- setting the model
     model = vModel( CPLEX.Optimizer )
     JuMP.set_silent(model)
 
-    @variable(model, x[1:nbvar], Bin)
-    @constraint(model, [i=1:nbctr],(sum((x[j]*A[i,j]) for j in 1:nbvar)) == 1)
-    @addobjective(model, Min, sum(c1[i]*x[i] for i in 1:nbvar))
-    @addobjective(model, Min, sum(c2[i]*x[i] for i in 1:nbvar))
+    @variable(model, x[1:inst.n], Bin)
+    @constraint(model, [i=1:inst.m], sum(x[j] for j in inst.Cover[i]) >= 1)
+    @addobjective(model, Min, sum(inst.C1[j] * x[j] for j=1:inst.n))
+    @addobjective(model, Min, sum(inst.C2[j] * x[j] for j=1:inst.n))
 
     if method == :bb
         infos = vSolve( model, method=:bb, verbose=false )
@@ -46,8 +42,8 @@ function computeYNfor2SPA(  nbvar::Int,
     X_E = getX_E( model )
 
 
-    (method == :bb || method == :bc) ? writeResults(nbvar, nbctr, fname, outputName, method, Y_N, X_E; infos) :
-        writeResults(nbvar, nbctr, fname, outputName, method, Y_N, X_E; total_time)
+    (method == :bb || method == :bc) ? writeResults(inst.n, inst.m, fname, outputName, method, Y_N, X_E; infos) :
+        writeResults(inst.n, inst.m, fname, outputName, method, Y_N, X_E; total_time)
 
 end
 
@@ -55,13 +51,9 @@ end
 function solve(fname::String, method)
 
     # load a numerical instance of 2SPA ----------------------------------------
-    c1, c2, A = loadInstance2SPA(fname)
-    nbctr = size(A,1)
-    nbvar = size(A,2)
-    nbobj = 2
-    if nbvar > 1000 return end
+    inst = readingBOSCP(fname)
 
-    folder = "../../results/SPA/BOSPA"
+    folder = "../../results/SCP/BOSCP"
     if !isdir(folder)
         mkdir(folder)
     end
@@ -71,9 +63,9 @@ function solve(fname::String, method)
     end
     inst_name = split(fname, "/")[end]
 
-    println("n=$nbvar m=$nbctr ") ; outputName = result_folder * "/" * split(inst_name, ".")[1] * ".dat"
+    outputName = result_folder * "/" * inst_name
     if isfile(outputName) return end #TODO : ignore existed file  
-    computeYNfor2SPA(nbvar, nbctr, A, c1, c2, method, string(split(inst_name, ".")[1]), outputName)
+    solveBOSCP(inst, method, string(split(inst_name, ".")[1]), outputName)
 end
 
 solve(ARGS[1], :dicho)
