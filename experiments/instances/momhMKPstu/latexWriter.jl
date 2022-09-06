@@ -7,13 +7,13 @@ function comparisonThreeMethods(instances::String)
 
     latex = raw"""\begin{table}[h]
     \centering
-    % \resizebox{\columnwidth}{!}{%
-    \hspace*{-1cm}\begin{tabular}{lccccccccc}
+    \resizebox{\columnwidth}{!}{%
+    \hspace*{-1cm}\begin{tabular}{lcccccccccccc}
     \toprule
-    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{3}{c}{\textbf{Branch-and-bound}}
+    \textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{3}{c}{\textbf{Branch-and-bound}} & \multicolumn{3}{c}{\textbf{Branch-and-cut}}
     \\
-    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10}
-    ~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} \\
+    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10} \cmidrule(r){11-13}
+    ~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} \\
     \midrule
     """
     println(fout, latex)
@@ -29,6 +29,9 @@ function comparisonThreeMethods(instances::String)
         avg_bb_T = 0.0
         avg_bb_Y = 0.0
         avg_bb_X = 0.0
+        avg_bc_T = 0.0
+        avg_bc_Y = 0.0
+        avg_bc_X = 0.0
 
         for file in readdir(work_dir * "/dicho/" * string(folder_n) * "/") # ∀ file in dicho
             if split(file, ".")[end] == "png"
@@ -37,7 +40,7 @@ function comparisonThreeMethods(instances::String)
 
             print(fout, file * " & ")
             times = []
-            pts = []
+            pts = [] ; X = []
 
             # write dichotomy result 
             include(work_dir * "/dicho/" * string(folder_n) * "/" * file)
@@ -64,23 +67,39 @@ function comparisonThreeMethods(instances::String)
                 push!(times, -1); push!(pts, -1)
             end
 
-            sizeX = 0
             # write B&B result 
             if isfile(work_dir * "/bb/" * string(folder_n) * "/" * file)
                 include(work_dir * "/bb/" * string(folder_n) * "/" * file)
                 # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
                 push!(times, total_times_used); push!(pts, size_Y_N) 
-                sizeX = size_Y_N
+                push!(X, size_X_E)
 
                 avg_bb_T += total_times_used
                 avg_bb_Y += size_Y_N
-                avg_bb_X += sizeX
+                avg_bb_X += size_X_E
             else
                 # print(fout, "- & - & ")
                 push!(times, -1); push!(pts, -1)
+                push!(X, -1)
             end
 
-            for i=1:3
+            # write B&C result 
+            if isfile(work_dir * "/bc/" * string(folder_n) * "/" * file)
+                include(work_dir * "/bc/" * string(folder_n) * "/" * file)
+                # print(fout, string(total_times_used)* " & " * string(size_Y_N) * " & ")
+                push!(times, total_times_used); push!(pts, size_Y_N) 
+                push!(X, size_X_E)
+
+                avg_bc_T += total_times_used
+                avg_bc_Y += size_Y_N
+                avg_bc_X += size_X_E
+            else
+                # print(fout, "- & - & ")
+                push!(times, -1); push!(pts, -1)
+                push!(X, -1)
+            end
+
+            for i=1:4
                 if times[i] == -1
                     print(fout, " - & ")
                 elseif times[i] == minimum(times)
@@ -90,15 +109,20 @@ function comparisonThreeMethods(instances::String)
                 end
     
                 if pts[i] == -1
-                    i<3 ? print(fout, " - & ") : print(fout, " - ")
+                    print(fout, " - & ")
                 elseif pts[i] == maximum(pts)
-                    i < 3 ? print(fout, " \\textbf{" * string(pts[i]) * "} & ") : print(fout, " \\textbf{" * string(pts[i]) * "} ")
+                    print(fout, " \\textbf{" * string(pts[i]) * "} & ")
                 else
-                    i<3 ? print(fout, string(pts[i]) * " & ") : print(fout, string(pts[i]) * " ")
+                    print(fout, string(pts[i]) * " & ")
+                end
+
+                if i==3
+                    X[1]==-1 ? print(fout, " - & ") : print(fout, string(X[1]) * " & ")
+                elseif i==4
+                    X[2]==-1 ? println(fout, " - \\\\") : println(fout, string(X[2]) * " \\\\")
                 end
             end
     
-            sizeX==0 ? println(fout, " & - \\\\") : println(fout, " & " * string(sizeX) * " \\\\")
         end
 
         avg_n = round(Int, avg_n/count)
@@ -110,17 +134,20 @@ function comparisonThreeMethods(instances::String)
         avg_bb_T = round(avg_bb_T/count, digits = 2)
         avg_bb_Y = round(avg_bb_Y/count, digits = 2)
         avg_bb_X = round(avg_bb_X/count, digits = 2)
+        avg_bc_T = round(avg_bc_T/count, digits = 2)
+        avg_bc_Y = round(avg_bc_Y/count, digits = 2)
+        avg_bc_X = round(avg_bc_X/count, digits = 2)
 
-        println(fout, "\\cline{1-10} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
+        println(fout, "\\cline{1-13} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
             string(avg_dicho_T) * "} & \\textbf{" * string(avg_dicho_Y) * "} & \\textbf{" * string(avg_ϵ_T) * "} & \\textbf{" *
             string(avg_ϵ_Y) * "} & \\textbf{" * string(avg_bb_T) * "} & \\textbf{" * string(avg_bb_Y) * "} & \\textbf{" * string(avg_bb_X) *
-            "} \\\\ \\cline{1-10}")
+            "} & \\textbf{" * string(avg_bc_T) * "} & \\textbf{" * string(avg_bc_Y) * "} & \\textbf{" * string(avg_bc_X) * "} \\\\ \\cline{1-13}")
 
     end
 
     latex = raw"""\bottomrule
     \end{tabular}
-    % }%"""
+    }%"""
     println(fout, latex)
     println(fout, "\\caption{Comparison of the different algorithms performances for instances $instances .}")
     println(fout, "\\label{tab:table_compare_$instances }")

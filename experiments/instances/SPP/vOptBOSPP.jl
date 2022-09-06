@@ -23,8 +23,9 @@ function solveDichotomy(fname::String)
     if !isdir(folder)
         mkdir(folder)
     end
-    outputName = folder * "/" * split(fname, "/")[end]
+    outputName = folder * "/" * split(fname, "/")[end] ; if isfile(outputName) return end #TODO : ignore existed file  
     inst = readingBOSPP(fname)
+    if inst.n >= 1000 return end
 
     # ---- setting the model
     println("Building...")
@@ -69,8 +70,10 @@ function solve_epsilon(fname::String)
     if !isdir(folder)
         mkdir(folder)
     end
-    outputName = folder * "/" * split(fname, "/")[end]
+    outputName = folder * "/" * split(fname, "/")[end] ; if isfile(outputName) return end #TODO : ignore existed file  
+
     inst = readingBOSPP(fname)
+    if inst.n >= 1000 return end
 
     # ---- setting the model
     println("Building...")
@@ -114,7 +117,7 @@ function solveBOBB(fname::String)
     if !isdir(folder)
         mkdir(folder)
     end
-    outputName = folder * "/" * split(fname, "/")[end]
+    outputName = folder * "/" * split(fname, "/")[end] ; if isfile(outputName) return end #TODO : ignore existed file
     inst = readingBOSPP(fname)
 
     # ---- setting the model
@@ -159,8 +162,9 @@ function solveBOBC(fname::String)
     if !isdir(folder)
         mkdir(folder)
     end
-    outputName = folder * "/" * split(fname, "/")[end]
+    outputName = folder * "/" * split(fname, "/")[end]; if isfile(outputName) return end #TODO : ignore existed file
     inst = readingBOSPP(fname)
+    if inst.n >= 1000 return end
 
     # ---- setting the model
     println("Building...")

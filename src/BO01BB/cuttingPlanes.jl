@@ -78,13 +78,12 @@ function SP_cut_off(i::Int64, node::Node, pb::BO01Problem, round_results, verbos
         return (x_star, true)
     end
 
-    # # call generator
+    # call generator
     start_sep = time()
     (isValidCut, α, _) = SP_CG_separator(x_star, pb.A, pb.b)
     pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
 
     if isValidCut
-        # @info " ------------------------- cut found"
         start_pool = time()
         ineq = Cut(α)
         if push!(node.cutpool, ineq)
@@ -159,7 +158,6 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
 
                     if isValidCut
                         cut_counter += (∇+1)
-                        # @info " ---------------------------- cut found "
                         start_pool = time()
                         ineq = Cut(α)
                         if push!(node.cutpool, ineq)

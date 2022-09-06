@@ -198,13 +198,13 @@ function SP_KP_heurSeparator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{F
     # for each knapsack constraint in Ax≤b 
     for i=1:m 
         # each coefficient must be positive 
-        # has_negative_coeff = false
-        # for j=1:n 
-        #     if A[i, j] < 0.0 
-        #         has_negative_coeff = true ; break
-        #     end
-        # end
-        # if has_negative_coeff || b[i] < 0.0 continue end
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
 
         ratio = Dict{Int64, Float64}(j => 0.0 for j=1:n)
         for j=1:n 
@@ -294,13 +294,13 @@ function MP_KP_heurSeparator2(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Mat
     # for each knapsack constraint in Ax≤b 
     for i=1:m 
         # each coefficient must be positive 
-        # has_negative_coeff = false
-        # for j=1:n 
-        #     if A[i, j] < 0.0 
-        #         has_negative_coeff = true ; break
-        #     end
-        # end
-        # if has_negative_coeff || b[i] < 0.0 continue end
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
 
         weights_l = Dict{Int64, Float64}(j => 0.0 for j=1:n)
         weights_r = Dict{Int64, Float64}(j => 0.0 for j=1:n)

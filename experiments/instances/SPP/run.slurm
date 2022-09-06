@@ -18,3 +18,5 @@ for subfolder in ./BOSPP/*; do
         srun julia vOptBOSPP.jl "$file"
     done
 done
+
+srun julia latexWriter.jl

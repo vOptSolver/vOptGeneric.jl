@@ -16,3 +16,5 @@ for file in ./BOSPA/*.txt; do
     echo "$file"
     srun julia vOptBOSPA.jl "$file"
 done
+
+srun julia latexWriter.jl

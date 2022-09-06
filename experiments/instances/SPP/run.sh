@@ -6,3 +6,5 @@ for subfolder in ./BOSPP/*; do
         julia vOptBOSPP.jl "$file"
     done
 done
+
+julia latexWriter.jl

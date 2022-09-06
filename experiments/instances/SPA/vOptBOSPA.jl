@@ -59,7 +59,7 @@ function solve(fname::String, method)
     nbctr = size(A,1)
     nbvar = size(A,2)
     nbobj = 2
-    if nbvar > 1000 return end
+    if nbvar >= 1000 return end
 
     folder = "../../results/SPA/BOSPA"
     if !isdir(folder)

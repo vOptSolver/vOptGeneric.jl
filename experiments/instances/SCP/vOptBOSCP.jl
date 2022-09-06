@@ -52,6 +52,7 @@ function solve(fname::String, method)
 
     # load a numerical instance of 2SPA ----------------------------------------
     inst = readingBOSCP(fname)
+    if inst.n >= 1000 return end
 
     folder = "../../results/SCP/BOSCP"
     if !isdir(folder)

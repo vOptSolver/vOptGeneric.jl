@@ -1,0 +1,33 @@
+\begin{table}[h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\hspace*{-1cm}\begin{tabular}{lcccccccccccc}
+\toprule
+\textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{3}{c}{\textbf{Branch-and-bound}} & \multicolumn{3}{c}{\textbf{Branch-and-cut}}
+\\
+\cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10} \cmidrule(r){11-13}
+~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} \\
+\midrule
+
+biodidactic.dat & 64 & 17 & 4.67 & 2 & 3.02 &  \textbf{3} & 1.97 &  \textbf{3} & 3 &  \textcolor{blue2}{0.87} &  \textbf{3} & 3 \\
+biosppnw08.dat & 434 & 24 &  \textcolor{blue2}{5.46} & 6 & 6.56 &  \textbf{20} & 61.39 &  \textbf{20} & 20 & 154.85 &  \textbf{20} & 20 \\
+biosppnw10.dat & 853 & 24 &  \textcolor{blue2}{5.05} & 7 & 5.68 &  \textbf{13} & 72.9 &  \textbf{13} & 13 & 138.36 &  \textbf{13} & 13 \\
+biosppnw12.dat & 626 & 27 &  \textcolor{blue2}{5.87} & 8 & 11.46 &  \textbf{43} & 477.57 &  \textbf{43} & 43 & 2466.78 &  \textbf{43} & 43 \\
+biosppnw15.dat & 467 & 31 & 4.74 &  \textbf{2} &  \textcolor{blue2}{3.26} &  \textbf{2} & 3.53 &  \textbf{2} & 2 & 6.13 &  \textbf{2} & 2 \\
+biosppnw20.dat & 685 & 22 & 6.44 & 5 &  \textcolor{blue2}{5.36} &  \textbf{9} & 116.31 &  \textbf{9} & 9 & 1095.46 &  \textbf{9} & 9 \\
+biosppnw21.dat & 577 & 25 & 6.11 & 6 &  \textcolor{blue2}{5.34} &  \textbf{10} & 55.04 &  \textbf{10} & 10 & 324.45 &  \textbf{10} & 10 \\
+biosppnw22.dat & 619 & 23 &  \textcolor{blue2}{6.85} & 6 & 7.14 &  \textbf{19} & 225.07 &  \textbf{19} & 19 & 1237.14 &  \textbf{19} & 19 \\
+biosppnw23.dat & 711 & 19 & 6.49 & 4 &  \textcolor{blue2}{5.07} &  \textbf{6} & 71.2 &  \textbf{6} & 6 & 593.92 &  \textbf{6} & 6 \\
+biosppnw26.dat & 771 & 23 &  \textcolor{blue2}{6.93} & 7 & 8.16 &  \textbf{19} & 517.93 &  \textbf{19} & 19 & 2428.19 &  \textbf{19} & 19 \\
+biosppnw32.dat & 294 & 19 & 4.94 & 4 &  \textcolor{blue2}{4.45} &  \textbf{8} & 16.92 &  \textbf{8} & 8 & 79.88 &  \textbf{8} & 8 \\
+biosppnw34.dat & 899 & 20 &  \textcolor{blue2}{6.85} & 6 & 7.03 &  \textbf{14} & 204.76 &  \textbf{14} & 14 & 1739.99 &  \textbf{14} & 14 \\
+biosppnw37.dat & 770 & 19 &  \textcolor{blue2}{6.01} & 4 & 6.14 &  \textbf{10} & 248.78 &  \textbf{10} & 10 & 1257.37 &  \textbf{10} & 10 \\
+biosppnw39.dat & 677 & 25 &  \textcolor{blue2}{5.92} & 4 & 6.57 &  \textbf{12} & 133.53 &  \textbf{12} & 12 & 979.76 &  \textbf{12} & 12 \\
+biosppnw40.dat & 404 & 19 & 6.64 & 6 &  \textcolor{blue2}{5.23} &  \textbf{10} & 27.21 &  \textbf{10} & 10 & 104.76 &  \textbf{10} & 10 \\
+biosppnw41.dat & 197 & 17 & 5.12 & 4 &  \textcolor{blue2}{4.91} &  \textbf{11} & 11.67 &  \textbf{11} & 11 & 55.2 &  \textbf{11} & 11 \\
+\bottomrule
+\end{tabular}
+}%
+\caption{Comparison of the different algorithms performances for instances SPA/BOSPA .}
+\label{tab:table_compare_SPA/BOSPA }
+\end{table}

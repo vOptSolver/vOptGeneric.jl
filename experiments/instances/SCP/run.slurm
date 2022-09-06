@@ -16,3 +16,5 @@ for file in ./BOSCP/*.dat; do
     echo "$file"
     srun julia vOptBOSCP.jl "$file"
 done
+
+srun julia latexWriter.jl
