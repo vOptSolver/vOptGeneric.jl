@@ -12,36 +12,26 @@ Returns :
     - true, if a valid C-G cut is found
     - inequality coefficients, `α'*x ≤ α_0`
 """
-function SP_CG_separator(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
-    n = size(A, 2)
-    m = size(A, 1)
-    # println("n=$n ; m = $m ")
-    # println("x* = $x ")
+function SP_CG_separator(x::Vector{Float64}, pb::BO01Problem)
+    n = size(pb.A, 2) ; m = size(pb.A, 1)
+    if pb.SP_CG_model_defined      # reset objective 
+        set_objective(pb.SP_CG_model, MOI.MAX_SENSE, sum(pb.SP_CG_α[j] * x[j-1] for j = 2:n+1) - pb.SP_CG_α[1])
+    else
+        pb.SP_CG_model_defined = true      # create model
+        JuMP.set_silent( pb.SP_CG_model ) ; set_optimizer_attribute(pb.SP_CG_model, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @variable(pb.SP_CG_model, α[1:n+1], Int) ; pb.SP_CG_α = α
+        @variable(pb.SP_CG_model, μ[1:m] ≥ 0)
 
-    # MIP model
-    M = Model(CPLEX.Optimizer) ; JuMP.set_silent( M )
-    set_optimizer_attribute(M, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @constraint(pb.SP_CG_model, [j in 2:n+1], α[j] ≤ μ'*pb.A[:, j-1]) ; @constraint(pb.SP_CG_model, α[1] >= μ'*pb.b -1 + 0.01) # 10^-4
+        @constraint(pb.SP_CG_model, sum(α[j] * x[j-1] for j = 2:n+1) - α[1] >= 0.01)
+        @objective(pb.SP_CG_model, MOI.MAX_SENSE, sum(α[j] * x[j-1] for j = 2:n+1) - α[1])
+    end
 
-    @variable(M, α[1:n+1], Int)
-    @variable(M, μ[1:m] ≥ 0)
+    optimize!(pb.SP_CG_model)
 
-    @constraint(M, [j in 2:n+1], α[j] ≤ μ'*A[:, j-1])
-    @constraint(M, α[1] >= μ'*b -1 + 0.01) # 10^-4
-    # @constraint(M, α[1] <= μ'*b ) # redundant
-
-    @constraint(M, sum(α[j] * x[j-1] for j = 2:n+1) - α[1] >= 0.01)
-    @objective(M, Max, sum(α[j] * x[j-1] for j = 2:n+1) - α[1])
-    optimize!(M)
-
-    if has_values(M)    # has feasible value
-        status = JuMP.termination_status( M )
-        # @info "status = $status "
-        obj_val = objective_value(M)
-        # @info "obj_val = ", obj_val
-        μ_star = value.(M[:μ])
-        # println(" μ_star = $μ_star ")
-        α_star = round.(Int, value.(M[:α]))
-        # println("α_star = $(value.(M[:α]))")
+    if has_values(pb.SP_CG_model)    # has feasible value
+        obj_val = objective_value(pb.SP_CG_model)
+        α_star = round.(Int, value.(pb.SP_CG_model[:α]))
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 
@@ -55,37 +45,27 @@ Returns :
     - true, if a valid C-G cut is found
     - inequality coefficients, `α'*x ≤ α_0`
 """
-function SP_CG_separator2(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
-    n = size(A, 2)
-    m = size(A, 1)
+function SP_CG_separator2(x::Vector{Float64}, pb::BO01Problem)
+    n = size(pb.A, 2) ; m = size(pb.A, 1)
+    if pb.SP_CG_model_defined      # reset objective 
+        set_objective(pb.SP_CG_model, MOI.MAX_SENSE, sum(pb.SP_CG_α[j] * x[j-1] for j = 2:n+1) - pb.SP_CG_α[1])
+    else
+        pb.SP_CG_model_defined = true      # create model
+        JuMP.set_silent( pb.SP_CG_model ) ; set_optimizer_attribute(pb.SP_CG_model, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @variable(pb.SP_CG_model, α[1:n+1], Int) ; pb.SP_CG_α = α
+        @variable(pb.SP_CG_model, μ[1:m] ≥ 0) ; @variable(pb.SP_CG_model, f[1:n+1] ≥ 0)
 
-    # MIP model
-    M = Model(CPLEX.Optimizer) ; JuMP.set_silent( M )
-    set_optimizer_attribute(M, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @constraint(pb.SP_CG_model, [j in 2:n+1], f[j] == μ'*pb.A[:, j-1] - α[j]) ; @constraint(pb.SP_CG_model, f[1] == μ'*pb.b - α[1])
+        @constraint(pb.SP_CG_model, [j in 1:n+1], f[j] ≤ 1 - 0.01) ; @constraint(pb.SP_CG_model, [i in 1:m], μ[i] ≤ 1 - 0.01)
+        @constraint(pb.SP_CG_model, sum(α[j] * x[j-1] for j = 2:n+1) - α[1] >= 0.01)
+        @objective(pb.SP_CG_model, MOI.MAX_SENSE, sum(α[j] * x[j-1] for j = 2:n+1) - α[1])
+    end
 
-    @variable(M, α[1:n+1], Int)
-    @variable(M, μ[1:m] ≥ 0)
-    @variable(M, f[1:n+1] ≥ 0)
+    optimize!(pb.SP_CG_model)
 
-    @constraint(M, [j in 2:n+1], f[j] == μ'*A[:, j-1] - α[j])
-    @constraint(M, f[1] == μ'*b - α[1])
-    
-    @constraint(M, [j in 1:n+1], f[j] ≤ 1 - 0.01)
-    @constraint(M, [i in 1:m], μ[i] ≤ 1 - 0.01)
-
-    @constraint(M, sum(α[j] * x[j-1] for j = 2:n+1) - α[1] >= 0.01)
-    @objective(M, Max, sum(α[j] * x[j-1] for j = 2:n+1) - α[1])
-    optimize!(M)
-
-    if has_values(M)    # has feasible value
-        status = JuMP.termination_status( M )
-        # @info "status = $status "
-        obj_val = objective_value(M)
-        # @info "obj_val = ", obj_val
-        μ_star = value.(M[:μ])
-        # println(" μ_star = $μ_star ")
-        α_star = round.(Int, value.(M[:α]))
-        # println("α_star = $(value.(M[:α]))")
+    if has_values(pb.SP_CG_model)    # has feasible value
+        obj_val = objective_value( pb.SP_CG_model )
+        α_star = round.(Int, value.(pb.SP_CG_model[:α]))
         return (obj_val > 0.0+ϵ, α_star, obj_val)
     end
 
@@ -100,39 +80,49 @@ Returns :
     - true, if a valid C-G cut is found
     - inequality coefficients, `α'*x ≤ α_0`
 """
-function MP_CG_separator(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
-    n = size(A, 2)
-    m = size(A, 1)
+function MP_CG_separator(x_l::Vector{Float64}, x_r::Vector{Float64}, pb::BO01Problem)
+    n = size(pb.A, 2) ; m = size(pb.A, 1)
 
-    # MIP model
-    M = Model(CPLEX.Optimizer) ; JuMP.set_silent( M )
-    set_optimizer_attribute(M, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+    if pb.MP_CG_model_defined      # reset objective 
+        set_objective(pb.MP_CG_model, MOI.MAX_SENSE, pb.MP_CG_α[end])
+        con_l = @constraint(pb.MP_CG_model, pb.MP_CG_α[end] ≤ sum(pb.MP_CG_α[j] * x_l[j-1] for j = 2:n+1) - pb.MP_CG_α[1])
+        con_r = @constraint(pb.MP_CG_model, pb.MP_CG_α[end] ≤ sum(pb.MP_CG_α[j] * x_r[j-1] for j = 2:n+1) - pb.MP_CG_α[1])
 
-    @variable(M, α[1:n+1], Int)
-    @variable(M, μ[1:m] ≥ 0)
-    @variable(M, l)
+        optimize!(pb.MP_CG_model)
+        if JuMP.is_valid( pb.MP_CG_model, con_r)
+            JuMP.delete( pb.MP_CG_model, con_r) ; JuMP.unregister( pb.MP_CG_model, :con_r) # remove the symbolic reference
+        end
+        if JuMP.is_valid( pb.MP_CG_model, con_l)
+            JuMP.delete( pb.MP_CG_model, con_l) ; JuMP.unregister( pb.MP_CG_model, :con_l) # remove the symbolic reference
+        end
+    else
+        pb.MP_CG_model_defined = true      # create model
+        JuMP.set_silent( pb.MP_CG_model ) ; set_optimizer_attribute(pb.MP_CG_model, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @variable(pb.MP_CG_model, α[1:n+1], Int) ; pb.MP_CG_α = α
+        @variable(pb.MP_CG_model, μ[1:m] ≥ 0) ; @variable(pb.MP_CG_model, l)
+        push!(pb.MP_CG_α, l)
 
-    @constraint(M, [j in 2:n+1], α[j] ≤ μ'*A[:, j-1])
-    @constraint(M, α[1] >= μ'*b -1 + 0.01)
-    # @constraint(M, α[1] <= μ'*b )
+        @constraint(pb.MP_CG_model, [j in 2:n+1], α[j] ≤ μ'*pb.A[:, j-1])
+        @constraint(pb.MP_CG_model, α[1] >= μ'*pb.b -1 + 0.01)
+        con_l = @constraint(pb.MP_CG_model, l ≤ sum(α[j] * x_l[j-1] for j = 2:n+1) - α[1])
+        con_r = @constraint(pb.MP_CG_model, l ≤ sum(α[j] * x_r[j-1] for j = 2:n+1) - α[1])
 
-    @constraint(M, l ≤ sum(α[j] * x_l[j-1] for j = 2:n+1) - α[1])
-    @constraint(M, l ≤ sum(α[j] * x_r[j-1] for j = 2:n+1) - α[1])
+        @constraint(pb.MP_CG_model, l >= 0.01)
+        @objective(pb.MP_CG_model, MOI.MAX_SENSE, l)
 
-    @constraint(M, l >= 0.01)
-    @objective(M, Max, l)
-    optimize!(M)
+        optimize!(pb.MP_CG_model)
+        if JuMP.is_valid( pb.MP_CG_model, con_r)
+            JuMP.delete( pb.MP_CG_model, con_r) ; JuMP.unregister( pb.MP_CG_model, :con_r) # remove the symbolic reference
+        end
+        if JuMP.is_valid( pb.MP_CG_model, con_l)
+            JuMP.delete( pb.MP_CG_model, con_l) ; JuMP.unregister( pb.MP_CG_model, :con_l) # remove the symbolic reference
+        end
+    end
 
-    if has_values(M)    # has feasible value
-        status = JuMP.termination_status( M )
-        # @info "status = $status "
-        obj_val = objective_value(M)
-        # @info "obj_val = ", obj_val
-        μ_star = value.(M[:μ])
-        # println(" μ_star = $μ_star ")
-        α_star = round.(Int, value.(M[:α]))
-        # println("α_star = $(value.(M[:α]))")
-        return (obj_val > 0.0+ϵ, α_star, obj_val)
+    if has_values(pb.MP_CG_model)    # has feasible value
+        obj_val = objective_value(pb.MP_CG_model)
+        α_star = round.(Int, value.(pb.MP_CG_model[:α]))
+        return (obj_val > 0.0+ϵ, α_star[1:end-1], obj_val)
     end
 
     return (false, zeros(n+1), 0.0)
@@ -146,44 +136,56 @@ Returns :
     - true, if a valid C-G cut is found
     - inequality coefficients, `α'*x ≤ α_0`
 """
-function MP_CG_separator2(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matrix{Float64}, b::Vector{Float64})
-    n = size(A, 2)
-    m = size(A, 1)
+function MP_CG_separator2(x_l::Vector{Float64}, x_r::Vector{Float64}, pb::BO01Problem)
+    n = size(pb.A, 2) ; m = size(pb.A, 1)
 
-    # MIP model
-    M = Model(CPLEX.Optimizer) ; JuMP.set_silent( M )
-    set_optimizer_attribute(M, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+    if pb.MP_CG_model_defined      # reset objective 
+        set_objective(pb.MP_CG_model, MOI.MAX_SENSE, pb.MP_CG_α[end])
+        con_l = @constraint(pb.MP_CG_model, pb.MP_CG_α[end] ≤ sum(pb.MP_CG_α[j] * x_l[j-1] for j = 2:n+1) - pb.MP_CG_α[1])
+        con_r = @constraint(pb.MP_CG_model, pb.MP_CG_α[end] ≤ sum(pb.MP_CG_α[j] * x_r[j-1] for j = 2:n+1) - pb.MP_CG_α[1])
 
-    @variable(M, α[1:n+1], Int)
-    @variable(M, μ[1:m] ≥ 0)
-    @variable(M, f[1:n+1] ≥ 0)
-    @variable(M, l)
+        optimize!(pb.MP_CG_model)
+        if JuMP.is_valid( pb.MP_CG_model, con_r)
+            JuMP.delete( pb.MP_CG_model, con_r) ; JuMP.unregister( pb.MP_CG_model, :con_r) # remove the symbolic reference
+        end
+        if JuMP.is_valid( pb.MP_CG_model, con_l)
+            JuMP.delete( pb.MP_CG_model, con_l) ; JuMP.unregister( pb.MP_CG_model, :con_l) # remove the symbolic reference
+        end
 
-    @constraint(M, [j in 2:n+1], f[j] == μ'*A[:, j-1] - α[j])
-    @constraint(M, f[1] == μ'*b - α[1])
-    
-    @constraint(M, [j in 1:n+1], f[j] ≤ 1 - 0.01)
-    @constraint(M, [i in 1:m], μ[i] ≤ 1 - 0.01)
+    else
+        pb.MP_CG_model_defined = true      # create model
+        JuMP.set_silent( pb.MP_CG_model ) ; set_optimizer_attribute(pb.MP_CG_model, "CPXPARAM_MIP_Limits_Nodes", NodeLimit)
+        @variable(pb.MP_CG_model, α[1:n+1], Int) ; pb.MP_CG_α = α
+        @variable(pb.MP_CG_model, μ[1:m] ≥ 0) ; @variable(pb.MP_CG_model, l)
+        push!(pb.MP_CG_α, l) ; @variable(pb.MP_CG_model, f[1:n+1] ≥ 0)
 
-    @constraint(M, l ≤ sum(α[j] * x_l[j-1] for j = 2:n+1) - α[1] )
-    @constraint(M, l ≤ sum(α[j] * x_r[j-1] for j = 2:n+1) - α[1] )
+        @constraint(pb.MP_CG_model, [j in 2:n+1], f[j] == μ'*pb.A[:, j-1] - α[j])
+        @constraint(pb.MP_CG_model, f[1] == μ'*pb.b - α[1])
+        
+        @constraint(pb.MP_CG_model, [j in 1:n+1], f[j] ≤ 1 - 0.01)
+        @constraint(pb.MP_CG_model, [i in 1:m], μ[i] ≤ 1 - 0.01)
 
-    @constraint(M, l >= 0.01)
-    @objective(M, Max, l)
-    optimize!(M)
+        con_l = @constraint(pb.MP_CG_model, l ≤ sum(α[j] * x_l[j-1] for j = 2:n+1) - α[1])
+        con_r = @constraint(pb.MP_CG_model, l ≤ sum(α[j] * x_r[j-1] for j = 2:n+1) - α[1])
 
-    if has_values(M)    # has feasible value
-        status = JuMP.termination_status( M )
-        # @info "status = $status "
-        obj_val = objective_value(M)
-        # @info "obj_val = ", obj_val
-        μ_star = value.(M[:μ])
-        # println(" μ_star = $μ_star ")
-        α_star = round.(Int, value.(M[:α]))
-        # println("α_star = $(value.(M[:α]))")
-        return (obj_val > 0.0+ϵ, α_star, obj_val)
+        @constraint(pb.MP_CG_model, l >= 0.01)
+        @objective(pb.MP_CG_model, MOI.MAX_SENSE, l)
+
+        optimize!(pb.MP_CG_model)
+
+        if JuMP.is_valid( pb.MP_CG_model, con_r)
+            JuMP.delete( pb.MP_CG_model, con_r) ; JuMP.unregister( pb.MP_CG_model, :con_r) # remove the symbolic reference
+        end
+        if JuMP.is_valid( pb.MP_CG_model, con_l)
+            JuMP.delete( pb.MP_CG_model, con_l) ; JuMP.unregister( pb.MP_CG_model, :con_l) # remove the symbolic reference
+        end
     end
 
+    if has_values(pb.MP_CG_model)    # has feasible value
+        obj_val = objective_value(pb.MP_CG_model)
+        α_star = round.(Int, value.(pb.MP_CG_model[:α]))
+        return (obj_val > 0.0+ϵ, α_star[1:end-1], obj_val)
+    end
     return (false, zeros(n+1), 0.0)
 end
 
@@ -246,13 +248,13 @@ function SP_KP_heurSeparator2(x::Vector{Float64}, A::Matrix{Float64}, b::Vector{
     # for each knapsack constraint in Ax≤b 
     for i=1:m 
         # each coefficient must be positive 
-        # has_negative_coeff = false
-        # for j=1:n 
-        #     if A[i, j] < 0.0 
-        #         has_negative_coeff = true ; break
-        #     end
-        # end
-        # if has_negative_coeff || b[i] < 0.0 continue end
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
 
 
         weights = Dict{Int64, Float64}(j => 0.0 for j=1:n)
@@ -352,14 +354,14 @@ function MP_KP_heurSeparator(x_l::Vector{Float64}, x_r::Vector{Float64}, A::Matr
 
     # for each knapsack constraint in Ax≤b 
     for i=1:m 
-        # # each coefficient must be positive 
-        # has_negative_coeff = false
-        # for j=1:n 
-        #     if A[i, j] < 0.0 
-        #         has_negative_coeff = true ; break
-        #     end
-        # end
-        # if has_negative_coeff || b[i] < 0.0 continue end
+        # each coefficient must be positive 
+        has_negative_coeff = false
+        for j=1:n 
+            if A[i, j] < 0.0 
+                has_negative_coeff = true ; break
+            end
+        end
+        if has_negative_coeff || b[i] < 0.0 continue end
 
         ratio_l = Dict{Int64, Float64}(j => 0.0 for j=1:n)
         ratio_r = Dict{Int64, Float64}(j => 0.0 for j=1:n)

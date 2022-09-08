@@ -17,4 +17,4 @@ for file in ./MOBKP/set3/*; do
     srun julia vOptMomkp.jl "$file"
 done
 
-srun julia latexWriter.jl
+# srun julia latexWriter.jl

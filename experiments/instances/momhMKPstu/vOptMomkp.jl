@@ -66,7 +66,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   println("method : ", string(method))
 
-  result_dir = "../../results/momhMKPstu/" * split(fname, "/")[2]
+  result_dir = "../../results/momhMKPstu/" * split(fname, "/")[2] * "/" * split(fname, "/")[3]
   if !isdir(result_dir)
     mkdir(result_dir)
   end
@@ -88,10 +88,10 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     end
 
     outputName = subfolder * "/" * split(fname, "/")[end]
-    # # TODO : if a file already exists
-    # if isfile(outputName) # && method != :bb 
-    #   return
-    # end
+    # TODO : if a file already exists
+    if isfile(outputName) # && method != :bb 
+      return
+    end
 
     # ---- setting the model
     println("Building...")
@@ -109,7 +109,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
       total_time = round(time() - start, digits = 2)
     elseif method == :epsilon
       start = time()
-      vSolve( Bi01IP, method=:epsilon, step=0.5, verbose=false )
+      vSolve( Bi01IP, method=:epsilon, step=1.0, verbose=false )
       total_time = round(time() - start, digits = 2)
     elseif method == :bb
       infos = vSolve( Bi01IP, method=:bb, verbose=false )
@@ -163,11 +163,13 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:bc] # :dicho, :epsilon, :bb, 
+  for method in [:dicho, :epsilon, :bb, :bc] # 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 
 end
+
+
 
 
 main(ARGS[1])

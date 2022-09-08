@@ -351,8 +351,8 @@ end
 
 
 
-detailedMOBB_perform("momhMKPstu/MOBKP")
+detailedMOBB_perform("momhMKPstu/MOBKP/set3")
 
-comparisonThreeMethods("momhMKPstu/MOBKP")
+comparisonThreeMethods("momhMKPstu/MOBKP/set3")
 
-MOBC_perform("momhMKPstu/MOBKP")
+MOBC_perform("momhMKPstu/MOBKP/set3")

@@ -111,6 +111,12 @@ mutable struct BO01Problem
     b::Vector{Float64}
     c::Matrix{Float64}
     # cpool::CutPool
+    SP_CG_model_defined::Bool
+    SP_CG_model::JuMP.Model
+    SP_CG_α::Vector{JuMP.VariableRef}
+    MP_CG_model_defined::Bool
+    MP_CG_model::JuMP.Model
+    MP_CG_α::Vector{JuMP.VariableRef}
 end
 
 

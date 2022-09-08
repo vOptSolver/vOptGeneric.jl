@@ -1,0 +1,25 @@
+\begin{table}[h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\hspace*{-1cm}\begin{tabular}{lcccccccccccc}
+\toprule
+\textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{2}{c}{\textbf{Dichotomy}} & \multicolumn{2}{c}{\textbf{$\mathbf{\epsilon}$-constraint}}  & \multicolumn{3}{c}{\textbf{Branch-and-bound}} & \multicolumn{3}{c}{\textbf{Branch-and-cut}}
+\\
+\cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-10} \cmidrule(r){11-13}
+~ & ~ & ~ & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} & \textbf{Time(s)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$} \\
+\midrule
+
+2scp11A.dat & 100 & 10 &  \textcolor{blue2}{4.8} & 11 & 10.19 &  \textbf{39} & 27.04 &  \textbf{39} & 39 & 160.67 &  \textbf{39} & 39 \\
+2scp11B.dat & 100 & 10 &  \textcolor{blue2}{4.81} & 13 & 9.24 &  \textbf{43} & 24.13 &  \textbf{43} & 43 & 70.6 &  \textbf{43} & 43 \\
+2scp11C.dat & 100 & 10 & 6.31 & 5 &  \textcolor{blue2}{5.68} &  \textbf{10} & 40.57 &  \textbf{10} & 10 & 1234.75 &  \textbf{10} & 10 \\
+2scp11D.dat & 100 & 10 & 5.67 & 3 &  \textcolor{blue2}{3.74} &  \textbf{5} & 50.14 &  \textbf{5} & 5 & 446.33 &  \textbf{5} & 5 \\
+2scp41A.dat & 200 & 40 &  \textcolor{blue2}{5.73} & 22 & 20.72 &  \textbf{107} & 363.13 &  \textbf{107} & 107 & 954.83 &  \textbf{107} & 107 \\
+2scp41B.dat & 200 & 40 &  \textcolor{blue2}{5.83} & 27 & 19.45 &  \textbf{108} & 492.33 &  \textbf{108} & 108 & 1446.99 &  \textbf{108} & 108 \\
+2scp41C.dat & 200 & 40 & 6.7 & 9 & 9.06 &  \textbf{24} & 3052.87 &  \textbf{24} & 24 &  - &  - &  - \\
+2scp41D.dat & 200 & 40 & 8.59 & 12 & 16.74 &  \textbf{44} & 9430.16 & 43 & 43 &  - &  - &  - \\
+\bottomrule
+\end{tabular}
+}%
+\caption{Comparison of the different algorithms performances for instances SCP/BOSCP .}
+\label{tab:table_compare_SCP/BOSCP }
+\end{table}

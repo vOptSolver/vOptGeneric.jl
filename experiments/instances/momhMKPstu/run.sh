@@ -19,4 +19,4 @@ for file in ./MOBKP/set3/*; do
     julia vOptMomkp.jl "$file"
 done
 
-julia latexWriter.jl
+# julia latexWriter.jl

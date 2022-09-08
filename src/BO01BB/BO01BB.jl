@@ -162,7 +162,6 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     # branching variable + generate new nodes
     #-----------------------------------------
-    # TODO : liberate memory space of the parent node 
     if !isRoot(node)
         if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
             nothing
@@ -253,7 +252,9 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
 
     varArray = JuMP.all_variables(m)
     problem = BO01Problem(
-        varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0)
+        varArray, m, BBparam(), StatInfo(), Matrix{Float64}(undef, 0,0), Vector{Float64}(), Matrix{Float64}(undef, 0,0),
+        false, JuMP.Model(CPLEX.Optimizer), Vector{JuMP.VariableRef}(), false,
+        JuMP.Model(CPLEX.Optimizer), Vector{JuMP.VariableRef}()
     )
 
     if cut
