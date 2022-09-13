@@ -1,3 +1,5 @@
+using PyPlot
+import PyPlot; const plt = PyPlot
 
 function comparisonThreeMethods(instances::String)
     work_dir = "../../results/" * instances
@@ -17,6 +19,8 @@ function comparisonThreeMethods(instances::String)
     \midrule
     """
     println(fout, latex)
+    methods = ["epsilon", "B&B", "B&C"] ; record_n = []
+    record_times = Dict(k => [] for k in methods) ; record_nodes = Dict(k => [] for k in methods[2:end])
 
     for folder_n in readdir(work_dir * "/dicho") # ∀ filder_n
         count = 0
@@ -29,9 +33,11 @@ function comparisonThreeMethods(instances::String)
         avg_bb_T = 0.0
         avg_bb_Y = 0.0
         avg_bb_X = 0.0
+        avg_bb_node = 0.0
         avg_bc_T = 0.0
         avg_bc_Y = 0.0
         avg_bc_X = 0.0
+        avg_bc_node = 0.0
 
         for file in readdir(work_dir * "/dicho/" * string(folder_n) * "/") # ∀ file in dicho
             if split(file, ".")[end] == "png"
@@ -77,6 +83,7 @@ function comparisonThreeMethods(instances::String)
                 avg_bb_T += total_times_used
                 avg_bb_Y += size_Y_N
                 avg_bb_X += size_X_E
+                avg_bb_node += total_nodes
             else
                 # print(fout, "- & - & ")
                 push!(times, -1); push!(pts, -1)
@@ -93,6 +100,7 @@ function comparisonThreeMethods(instances::String)
                 avg_bc_T += total_times_used
                 avg_bc_Y += size_Y_N
                 avg_bc_X += size_X_E
+                avg_bc_node += total_nodes
             else
                 # print(fout, "- & - & ")
                 push!(times, -1); push!(pts, -1)
@@ -134,9 +142,16 @@ function comparisonThreeMethods(instances::String)
         avg_bb_T = round(avg_bb_T/count, digits = 2)
         avg_bb_Y = round(avg_bb_Y/count, digits = 2)
         avg_bb_X = round(avg_bb_X/count, digits = 2)
+        avg_bb_node = round(avg_bb_node/count, digits = 2)
         avg_bc_T = round(avg_bc_T/count, digits = 2)
         avg_bc_Y = round(avg_bc_Y/count, digits = 2)
         avg_bc_X = round(avg_bc_X/count, digits = 2)
+        avg_bc_node = round(avg_bc_node/count, digits = 2)
+
+        append!(record_n, avg_n)
+        append!(record_times["epsilon"], avg_ϵ_T) ; append!(record_times["B&B"], avg_bb_T) ; append!(record_times["B&C"], avg_bc_T) 
+        append!(record_nodes["B&B"], avg_bb_node) ; append!(record_nodes["B&C"], avg_bc_node)
+
 
         println(fout, "\\cline{1-13} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
             string(avg_dicho_T) * "} & \\textbf{" * string(avg_dicho_Y) * "} & \\textbf{" * string(avg_ϵ_T) * "} & \\textbf{" *
@@ -154,6 +169,56 @@ function comparisonThreeMethods(instances::String)
     println(fout, "\\end{table}")
     close(fout)
 
+    labels = [10, 20, 30, 40] ; loc = [0, 1, 2, 3] ; width = 0.3 # the width of the bars
+
+    plt.bar(loc .- width, record_times["epsilon"], width, label="epsilon")
+    plt.bar(loc, record_times["B&B"], width, label="B&B")
+    plt.bar(loc .+ width, record_times["B&C"], width, label="B&C")
+    plt.xticks(loc, labels)
+    plt.xlabel("Number of variables")
+    plt.ylabel("Computation time(s)", fontsize=14)
+    plt.legend(methods)
+
+
+    pos = loc .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["epsilon"][i]+0.5, s = record_times["epsilon"][i], size = 7)
+    end
+
+    pos = loc .+ (width) .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["B&B"][i]+0.5, s = record_times["B&B"][i], size = 7)
+    end
+
+    pos = loc .+ (2 * width) .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["B&C"][i]+0.5, s = record_times["B&C"][i], size = 7)
+    end
+    title("Influence of instance size on different algorithms' performance", fontsize=14)
+    savefig(work_dir * "/comparisonTable.png")
+    plt.close()
+
+    # ---------------
+    width = 0.4
+    plt.bar(loc .- width/2, record_nodes["B&B"], width, label="B&B", color="darkorange")
+    plt.bar(loc .+ width/2, record_nodes["B&C"], width, label="B&C", color="forestgreen")
+    plt.xticks(loc, labels)
+    plt.xlabel("Number of variables")
+    plt.ylabel("Number of explored nodes", fontsize=14)
+    plt.legend(methods[2:end])
+
+    pos = loc .+ (width)/2# .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_nodes["B&B"][i]+0.5, s = record_nodes["B&B"][i], size = 7)
+    end
+
+    pos = loc .+ (3 *width)/2# .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_nodes["B&C"][i]+0.5, s = record_nodes["B&C"][i], size = 7)
+    end
+    title("Influence of instance size on different algorithms' tree size", fontsize=14)
+    savefig(work_dir * "/comparisonNodes.png")
+    plt.close()
 end
 
 
@@ -175,6 +240,9 @@ function detailedMOBB_perform(instances::String)
     \midrule
     """
     println(fout, latex)
+    labelT = ["BOLP", "dominance", "incumbent"] ; record_n = []
+    labelNode = ["total", "pruned"]
+    record_times = Dict(k => [] for k in labelT) ; record_nodes = Dict(k => [] for k in labelNode)
 
     for folder_n in readdir(dir * "/bb/")
         count = 0
@@ -236,6 +304,10 @@ function detailedMOBB_perform(instances::String)
         avg_YN = round(avg_YN/count, digits = 2)
         avg_XE = round(avg_XE/count, digits = 2)
 
+        append!(record_n, avg_n)
+        append!(record_times["BOLP"], avg_relaxT) ; append!(record_times["dominance"], avg_dominanceT) ; append!(record_times["incumbent"], avg_incumbentT)
+        append!(record_nodes["total"], avg_totalN) ; append!(record_nodes["pruned"], avg_prunedN)
+
         println(fout, "\\cline{1-12} \\textbf{avg} & \\textbf{" * string(avg_n) * "} & \\textbf{" * string(avg_m) * "} & \\textbf{" *
             string(avg_totalT) * "} & \\textbf{" * string(avg_relaxT) * "} & \\textbf{" * string(avg_dominanceT) * "} & \\textbf{" *
             string(avg_incumbentT) * "} & \\textbf{" * string(avg_totalN) * "} & \\textbf{" * string(avg_prunedN) * "} & \\textbf{" *
@@ -251,6 +323,56 @@ function detailedMOBB_perform(instances::String)
     """
     println(fout, latex)
     close(fout)
+
+    labels = [10, 20, 30, 40] ; loc = [0, 1, 2, 3] ; width = 0.3 # the width of the bars
+
+    plt.bar(loc .- width, record_times["BOLP"], width, label="BOLP")
+    plt.bar(loc, record_times["dominance"], width, label="dominance")
+    plt.bar(loc .+ width, record_times["incumbent"], width, label="incumbent")
+    plt.xticks(loc, labels)
+    plt.xlabel("Number of variables", fontsize=14)
+    plt.ylabel("Computation time(s)", fontsize=14)
+    plt.legend(labelT)
+
+    pos = loc .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["BOLP"][i]+0.5, s = record_times["BOLP"][i], size = 7)
+    end
+
+    pos = loc .+ (width) .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["dominance"][i]+0.5, s = record_times["dominance"][i], size = 7)
+    end
+
+    pos = loc .+ (2 * width) .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_times["incumbent"][i]+0.5, s = record_times["incumbent"][i], size = 7)
+    end
+    title("The influence of instance size on BO01B&B algorithm", fontsize=14)
+    savefig(dir * "/BBperformTimes.png")
+    plt.close()
+
+
+    width = 0.4
+    plt.bar(loc .- width/2, record_nodes["total"], width, label="total")
+    plt.bar(loc .+ width/2, record_nodes["pruned"], width, label="pruned")
+    plt.xticks(loc, labels)
+    plt.xlabel("Number of variables", fontsize=14)
+    plt.ylabel("Number of nodes", fontsize=14)
+    plt.legend(labelNode)
+
+    pos = loc .+ (width)/2# .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_nodes["total"][i]+0.5, s = record_nodes["total"][i], size = 7)
+    end
+
+    pos = loc .+ (3 *width)/2# .+ (width/2)
+    for i =1:4
+        plt.text(x = pos[i]-0.6 , y = record_nodes["pruned"][i]+0.5, s = record_nodes["pruned"][i], size = 7)
+    end
+    title("The influence of instance size on B&B tree", fontsize=14)
+    savefig(dir * "/BBperformNodes.png")
+    plt.close()
 end
 
 function MOBC_perform(instances::String)

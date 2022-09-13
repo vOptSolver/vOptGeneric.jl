@@ -1,3 +1,6 @@
+using PyPlot
+import PyPlot; const plt = PyPlot
+
 function comparisonMethods(instances::String)
     work_dir = "../../results/" * instances
     @assert isdir(work_dir) "This directory doesn't exist $work_dir !"
@@ -124,11 +127,14 @@ function detailedMOBB_perform(instances::String)
     \midrule
     """
     println(fout, latex)
+    avg_dicho = 0.0 ; avg_dominance = 0.0 ; avg_incumbent = 0.0
+    avg_totalNodes = 0.0 ; avg_pruned = 0.0 ; n=0
 
     for file in readdir(dir * "/bb/")
         if split(file, ".")[end] == "png"
             continue
         end
+        n += 1
 
         instName = split(file, "_")
         if length(instName)==1
@@ -150,9 +156,14 @@ function detailedMOBB_perform(instances::String)
             string(size_Y_N) * " & " * string(size_X_E)
         )
 
+        avg_dicho += relaxation_time ; avg_dominance += test_dominance_time ; avg_incumbent += update_incumbent_time
+        avg_totalNodes += total_nodes ; avg_pruned += pruned_nodes
+
         println(fout, "\\\\")
     end
 
+    avg_dicho = round(avg_dicho/n, digits = 2) ; avg_dominance = round(avg_dominance/n, digits = 2) ; avg_incumbent = round(avg_incumbent/n, digits = 2) ;
+    avg_totalNodes = round((avg_totalNodes-avg_pruned)/n, digits = 2) ; avg_pruned = round(avg_pruned/n, digits = 2) ;
 
     latex = raw"""\bottomrule
     \end{tabular}%
@@ -163,6 +174,44 @@ function detailedMOBB_perform(instances::String)
     """
     println(fout, latex)
     close(fout)
+
+    # # Creating plot
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie([avg_dicho, avg_dominance, avg_incumbent],
+            explode=[0.1, 0.2, 0.3], labels = ["BOLP", "dominance", "incumbent"],
+            autopct="%1.1f%%", shadow=false, startangle=45
+        )
+
+    # Adding legend
+    ax.legend(wedges, ["BOLP", "dominance", "incumbent"],
+            title ="Components",
+            loc ="upper left",
+            fontsize=7)
+    
+    plt.setp(autotexts, size = 8, weight ="bold")
+    ax.set_title("CPU time of each components")
+    
+    savefig(dir * "/pieChartB&BTimes.png")
+    plt.close()
+
+    # # Creating plot
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie([avg_totalNodes, avg_pruned],
+            explode=[0.1, 0.2], labels = ["not fathomed", "pruned"],
+            autopct="%1.1f%%", shadow=true, startangle=60
+        )
+
+    # Adding legend
+    ax.legend(wedges, ["not fathomed", "pruned"],
+            title ="#Nodes",
+            loc ="upper right",
+            fontsize=7)
+    
+    plt.setp(autotexts, size = 8, weight ="bold")
+    ax.set_title("Number of nodes")
+    
+    savefig(dir * "/pieChartB&BNodes.png")
+    plt.close()
 end
 
 
@@ -185,11 +234,15 @@ function MOBC_perform(instances::String)
     \midrule
     """
     println(fout, latex)
+    avg_dicho = 0.0 ; avg_pool = 0.0 ; avg_sepa = 0.0 ; avg_cuts = 0.0
+    avg_totalNodes = 0.0 ; avg_pruned = 0.0 ; n=0
+    avg_sp = 0.0 ; avg_mp = 0.0
 
     for file in readdir(dir * "/")
         if split(file, ".")[end] == "png"
             continue
         end
+        n += 1
 
         instName = split(file, "_")
         if length(instName)==1
@@ -212,8 +265,17 @@ function MOBC_perform(instances::String)
             string(times_add_retrieve_cuts) * " & " *string(total_times_used) * " & " *string(size_Y_N)
         )
 
+        avg_dicho += times_calling_dicho ; avg_pool += times_oper_cutPool ; avg_sepa += times_calling_separators ; avg_cuts += times_add_retrieve_cuts
+        avg_totalNodes += total_nodes ; avg_pruned += pruned_nodes
+        avg_sp += sp_cuts ; avg_mp += mp_cuts
+
         println(fout, "\\\\")
     end
+
+    avg_dicho = round(avg_dicho/n, digits = 2) ; avg_pool = round(avg_pool/n, digits = 2) ; avg_sepa = round(avg_sepa/n, digits = 2) ;avg_cuts = round(avg_cuts/n, digits = 2) ;
+    avg_totalNodes = round((avg_totalNodes-avg_pruned)/n, digits = 2) ; avg_pruned = round(avg_pruned/n, digits = 2) ;
+    avg_sp = round(avg_sp/n, digits = 2) ; avg_mp = round(avg_mp/n, digits = 2) ;
+
 
     latex = raw"""\bottomrule
     \end{tabular}%
@@ -224,6 +286,63 @@ function MOBC_perform(instances::String)
     """
     println(fout, latex)
     close(fout)
+
+    # # Creating plot
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie([avg_dicho, avg_pool, avg_sepa, avg_cuts],
+            explode=[0.1, 0.2, 0.3, 0.4], labels = ["BOLP", "cutpool", "separator", "cuts oper"],
+            autopct="%1.1f%%", shadow=false, startangle=45
+        )
+
+    # Adding legend
+    ax.legend(wedges, ["BOLP", "cutpool", "separator", "cuts oper"],
+            title ="Components",
+            loc ="upper left",
+            fontsize=7)
+    
+    plt.setp(autotexts, size = 8, weight ="bold")
+    ax.set_title("CPU time of each components")
+    
+    savefig(dir * "/pieChartB&CTimes.png")
+    plt.close()
+
+    # # Creating plot
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie([avg_totalNodes, avg_pruned],
+            explode=[0.1, 0.2], labels = ["not fathomed", "pruned"],
+            autopct="%1.1f%%", shadow=true, startangle=60
+        )
+
+    # Adding legend
+    ax.legend(wedges, ["not fathomed", "pruned"],
+            title ="#Nodes",
+            loc ="upper right",
+            fontsize=7)
+    
+    plt.setp(autotexts, size = 8, weight ="bold")
+    ax.set_title("Number of nodes")
+    
+    savefig(dir * "/pieChartB&CNodes.png")
+    plt.close()
+
+    # # Creating plot
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie([avg_sp, avg_mp],
+            explode=[0.2, 0.1], labels = ["single-point", "multi-point"],
+            autopct="%1.1f%%", shadow=true, startangle=120
+        )
+
+    # Adding legend
+    ax.legend(wedges, ["single-point", "multi-point"],
+            title ="#Cuts",
+            loc ="upper right",
+            fontsize=7)
+    
+    plt.setp(autotexts, size = 8, weight ="bold")
+    ax.set_title("Number of cuts")
+    
+    savefig(dir * "/pieChartB&CCuts.png")
+    plt.close()
 
 end
 
