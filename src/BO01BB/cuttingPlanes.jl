@@ -109,100 +109,102 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
     numVars = length(pb.varArray) ; numRows = size(pb.A, 1)
     LBS = node.RBS.natural_order_vect.sols
 
-    ite = 0
-    while ite < loop_limit 
-        ite += 1 ; pb.info.cuts_infos.ite_total += 1 
-        
-        # @info "MP_cutting_planes ite = $ite"
-        # ------------------------------------------------------------------------------
-        # 1. generate multi-point cuts if has any, or single-point cut off
-        # ------------------------------------------------------------------------------
-        l = 1 ; cut_counter = 0
-
-        while l ≤ length(LBS)
-            if LBS[l].is_binary 
-                l += 1 ; continue    
-            end
-
-            for ∇ = max_step:-1:0 
-                if ∇ == 0
-                    # @info "MP_cutting_planes calling `SP_cut_off`"
-                    (_, new_cut) = SP_cut_off(l, node, pb, round_results, verbose ; args...) 
-                    if new_cut cut_counter += 1 end 
-                    l += 1
-                else 
-                    r = l+∇
-                    if r > length(LBS) || LBS[r].is_binary continue end
-
-                    start_sep = time()
-                    cuts = MP_KP_heurSeparator2(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
-                    pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
-
-                    if length(cuts) > 0
-                        cut_counter += (∇+1)
-                        for cut in cuts
-                            start_pool = time()
-                            ineq = Cut(cut)
-                            if push!(node.cutpool, ineq)
-                                pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
-                                con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
-                            end
-                            pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
-
-                        end
-                        l = r + 1 ; break
-                    end
-
-                    # start_sep = time()
-                    # (isValidCut, α, _) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb)
-                    # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
-
-                    # if isValidCut
-                    #     # @info "CG cut found ! "
-                    #     cut_counter += (∇+1)
-                    #     start_pool = time()
-                    #     ineq = Cut(α)
-                    #     if push!(node.cutpool, ineq)
-                    #         pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
-                    #         con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
-                    #     end
-                    #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
-                    #     l = r + 1 ; break
-                    # end
-
-                end
+    # ite = 0
+    # while ite < loop_limit 
+    pb.info.cuts_infos.ite_total += 1 
     
+    # @info "MP_cutting_planes ite = $ite"
+    # ------------------------------------------------------------------------------
+    # 1. generate multi-point cuts if has any, or single-point cut off
+    # ------------------------------------------------------------------------------
+    l = 1 ; cut_counter = 0
+
+    while l ≤ length(LBS)
+        if LBS[l].is_binary 
+            l += 1 ; continue    
+        end
+
+        for ∇ = max_step:-1:0 
+            if ∇ == 0
+                # @info "MP_cutting_planes calling `SP_cut_off`"
+                (_, new_cut) = SP_cut_off(l, node, pb, round_results, verbose ; args...) 
+                if new_cut cut_counter += 1 end 
+                l += 1
+            else 
+                r = l+∇
+                if r > length(LBS) || LBS[r].is_binary continue end
+
+                start_sep = time()
+                cuts = MP_KP_heurSeparator2(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb.A, pb.b)
+                pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+
+                if length(cuts) > 0
+                    cut_counter += (∇+1)
+                    for cut in cuts
+                        start_pool = time()
+                        ineq = Cut(cut)
+                        if push!(node.cutpool, ineq)
+                            pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
+                            con = JuMP.@constraint(pb.m, cut[2:end]'*pb.varArray ≤ cut[1]) ; push!(node.con_cuts, con)
+                        end
+                        pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+
+                    end
+                    l = r + 1 ; break
+                end
+
+                # start_sep = time()
+                # (isValidCut, α, _) = MP_CG_separator(LBS[l].xEquiv[1], LBS[r].xEquiv[1], pb)
+                # pb.info.cuts_infos.times_calling_separators += (time() - start_sep)
+
+                # if isValidCut
+                #     # @info "CG cut found ! "
+                #     cut_counter += (∇+1)
+                #     start_pool = time()
+                #     ineq = Cut(α)
+                #     if push!(node.cutpool, ineq)
+                #         pb.info.cuts_infos.cuts_applied += 1 ; pb.info.cuts_infos.mp_cuts += 1
+                #         con = JuMP.@constraint(pb.m, α[2:end]'*pb.varArray ≤ α[1]) ; push!(node.con_cuts, con)
+                #     end
+                #     pb.info.cuts_infos.times_oper_cutPool += (time() - start_pool)
+                #     l = r + 1 ; break
+                # end
+
             end
+
         end
+    end
 
-        # --------------------------------------------------
-        # 2. stop if no more valid cut can be found
-        # --------------------------------------------------
-        if cut_counter/length(LBS) < 0.4
-            return false 
+    # --------------------------------------------------
+    # 2. stop if no more valid cut can be found
+    # --------------------------------------------------
+    if cut_counter/length(LBS) < 0.4
+        return false 
+    end
+
+    # ---------------------------------------------------
+    # 3. otherwise, re-optimize by solving dicho -> LBS
+    # ---------------------------------------------------
+    start_dicho = time()
+    # TODO :  third time compute LBS 
+    @info "third call ..."
+    pruned = compute_LBS(node, pb, round_results, verbose; args)
+    pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
+    LBS = node.RBS.natural_order_vect.sols
+
+    # in case of infeasibility
+    if pruned return true end
+
+    # in case of integrity
+    all_integers = true
+    for sol in node.RBS.natural_order_vect.sols
+        if !sol.is_binary 
+            all_integers = false ; break 
         end
+    end
+    if all_integers return false end
 
-        # ---------------------------------------------------
-        # 3. otherwise, re-optimize by solving dicho -> LBS
-        # ---------------------------------------------------
-        start_dicho = time()
-        pruned = compute_LBS(node, pb, round_results, verbose; args)
-        pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
-        LBS = node.RBS.natural_order_vect.sols
-
-        # in case of infeasibility
-        if pruned return true end
-
-        # in case of integrity
-        all_integers = true
-        for sol in node.RBS.natural_order_vect.sols
-            if !sol.is_binary 
-                all_integers = false ; break 
-            end
-        end
-        if all_integers return false end
-
-    end # loop while
+    # end # loop while
 
     return false 
 end

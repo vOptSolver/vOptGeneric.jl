@@ -12,14 +12,6 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
     # --------------------------------------------------------------------------
     # iterate in the global cut pool, identify + stock the violated cuts indexes
     # --------------------------------------------------------------------------
-    # @info "node $(node.num) loadingCutInPool ... pred = $(node.pred.num)"
-    # println("pred.cutpool : ")
-    # for (k,v) in node.pred.cutpool.hashMap
-    #     println(k, " => ", size(v, 1))
-    # end
-    # println("pred.cutrefs : \n", node.pred.cuts_ref)
-
-
     l = 1 ; LBS = node.RBS.natural_order_vect.sols
 
     while l ≤ length(LBS)
@@ -73,7 +65,6 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
             end
         end
     end
-
 end
 
 """
@@ -86,7 +77,9 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     assignment = getPartialAssign(node)
     setBounds(pb, assignment)
 
-
+    # TODO : retrieve parent's LBS valid for child node and re-optimize at root 
+    # TODO: 1er time compute LBS 
+    @info "first call ..."
     pruned = compute_LBS(node, pb, round_results, verbose; args)
     pb.info.relaxation_time += (time() - start)
 
@@ -102,9 +95,10 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
-        start_dicho = time()
-        pruned = compute_LBS(node, pb, round_results, verbose; args)
-        pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
+        # start_dicho = time()
+        # # TODO 2nd time compute LBS 
+        # pruned = compute_LBS(node, pb, round_results, verbose; args)
+        # pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
 
         if length(node.RBS.natural_order_vect) > 1
             pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)
@@ -129,14 +123,6 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
         pb.info.cuts_infos.times_total_for_cuts += (time() - start_cuts)
-
-        # println("-----------------------------------")
-        # @info "node $(node.num) cutpool !"
-        # for (k,v) in node.cutpool.hashMap
-        #     println(k, " => ", size(v, 1))
-        # end
-        # @info " node $(node.num) cuts : $(length(node.con_cuts))"
-        # println("-----------------------------------")
     end
 
     removeBounds(pb, assignment)
