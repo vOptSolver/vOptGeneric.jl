@@ -9,9 +9,7 @@ in the current node.
 """
 function loadingCutInPool(node::Node, pb::BO01Problem)
     if isRoot(node) return end 
-    # --------------------------------------------------------------------------
-    # iterate in the global cut pool, identify + stock the violated cuts indexes
-    # --------------------------------------------------------------------------
+
     l = 1 ; LBS = node.RBS.natural_order_vect.sols
 
     while l ≤ length(LBS)
@@ -65,6 +63,7 @@ function loadingCutInPool(node::Node, pb::BO01Problem)
             end
         end
     end
+
 end
 
 """
@@ -72,33 +71,51 @@ Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)pro
 Return `true` if the node is pruned by infeasibility.
 """
 function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
-    start = time()
-
     assignment = getPartialAssign(node)
-    setBounds(pb, assignment)
+    setBounds(pb, assignment) ; num_var = length(pb.varArray)
 
-    # TODO : retrieve parent's LBS valid for child node and re-optimize at root 
-    # TODO: 1er time compute LBS 
-    @info "first call ..."
-    pruned = compute_LBS(node, pb, round_results, verbose; args)
-    pb.info.relaxation_time += (time() - start)
+    # ------------------------
+    # apply valid cuts 
+    # ------------------------
+    if pb.param.cut_activated #&& node.depth < num_var/3
+        start_cuts = time() ; pruned = false 
 
-    if pruned 
-        removeBounds(pb, assignment) ; return true 
-    end
+        # TODO : initialize RBS with valid pts in parent's LBS 
+        if isRoot(node)
+            start = time()
+            pruned = compute_LBS(node, pb, round_results, verbose; args)
+            pb.info.relaxation_time += (time() - start)
+    
+            if pruned 
+                removeBounds(pb, assignment) ; return true 
+            end
+        else
+            node.RBS = node.pred.RBS
+            # @assert length(node.pred.RBS.natural_order_vect) > 0 "parent's LBS is empty !"
+            # for sol in node.pred.RBS.natural_order_vect.sols
+            #     if abs(sol.xEquiv[1][node.var] - node.var_bound ) ≤10^(-4)
+            #         push!(node.RBS.natural_order_vect, sol)
+            #     end
+            # end
+            # for i=1:length(node.RBS.natural_order_vect)-1
+            #     node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
+            # end
+        end
 
-    if pb.param.cut_activated
-        start_cuts = time()
+        @assert length(node.RBS.natural_order_vect) > 0 "valid LBS is empty !"
 
         # add valid cuts constraints then re-optimize 
         start_processing = time()
         loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
-        # start_dicho = time()
-        # # TODO 2nd time compute LBS 
-        # pruned = compute_LBS(node, pb, round_results, verbose; args)
-        # pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
+        start_dicho = time()
+        # TODO : 2nd opt BOLP
+        pruned = compute_LBS(node, pb, round_results, verbose; args)
+        pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
+        if pruned 
+            removeBounds(pb, assignment) ; return true 
+        end
 
         if length(node.RBS.natural_order_vect) > 1
             pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)
@@ -123,11 +140,16 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
         pb.info.cuts_infos.times_total_for_cuts += (time() - start_cuts)
+
+        removeBounds(pb, assignment) ; return pruned
+    else
+        start = time()
+        pruned = compute_LBS(node, pb, round_results, verbose; args)
+        pb.info.relaxation_time += (time() - start)
+
+        removeBounds(pb, assignment) ; return pruned
     end
 
-    removeBounds(pb, assignment)
-
-    return pruned
 end
 
 

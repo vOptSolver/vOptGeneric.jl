@@ -1,0 +1,50 @@
+\begin{table}[!h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\hspace*{-1cm}\begin{tabular}{lccccccccccc}
+\toprule
+\textbf{Instance} & \textbf{n} & \textbf{m} & \multicolumn{4}{c}{\textbf{Time(s)}} & \multicolumn{2}{c}{\textbf{Nodes}}  & \textbf{Tree(MB)} & \textbf{$|\mathcal{Y}_N|$} & \textbf{$|\mathcal{X}_E|$}
+\\
+\cmidrule(r){4-7} \cmidrule(r){8-9} 
+~ & ~ & ~ & \textbf{total} &\textbf{relax} & \textbf{dominance} & \textbf{incumbent} & \textbf{total} & \textbf{pruned} & ~ & ~ & ~ \\
+\midrule
+
+W7BI-rnd1-1800.DAT & 10 & 2 & 2.18 & 0.64 & 0.0 & 0.02 & 291 & 146 & 0.35 & 8 & 8\\
+W7BI-rnd1-3000.DAT & 10 & 2 & 2.32 & 0.68 & 0.0 & 0.02 & 197 & 99 & 0.246 & 7 & 7\\
+W7BI-tube1-1800.DAT & 10 & 2 & 2.14 & 0.56 & 0.0 & 0.02 & 197 & 99 & 0.242 & 8 & 8\\
+W7BI-tube1-3000.DAT & 10 & 2 & 2.08 & 0.55 & 0.0 & 0.02 & 105 & 53 & 0.144 & 5 & 5\\
+W7BI-tube1-asyn.DAT & 10 & 2 & 2.02 & 0.51 & 0.0 & 0.0 & 121 & 61 & 0.152 & 5 & 5\\
+W7BI-tube2-1800.DAT & 10 & 2 & 2.26 & 0.69 & 0.0 & 0.02 & 197 & 99 & 0.24 & 7 & 7\\
+Wcollage-tube.DAT & 10 & 2 & 2.29 & 0.66 & 0.0 & 0.02 & 191 & 96 & 0.231 & 2 & 2\\
+\cline{1-12} \textbf{avg} & \textbf{10} & \textbf{2} & \textbf{2.18} & \textbf{0.61} & \textbf{0.0} & \textbf{0.02} & \textbf{185.57} & \textbf{93.29} & \textbf{0.23} & \textbf{6.0} & \textbf{6.0} \\ \cline{1-12}
+W7BI-rnd1-1800.DAT & 20 & 2 & 0.89 & 0.84 & 0.0 & 0.0 & 971 & 486 & 1.737 & 7 & 7\\
+W7BI-rnd1-3000.DAT & 20 & 2 & 3.49 & 3.27 & 0.0 & 0.0 & 4089 & 2045 & 7.175 & 4 & 4\\
+W7BI-tube1-1800.DAT & 20 & 2 & 2.51 & 2.31 & 0.01 & 0.0 & 2865 & 1433 & 5.239 & 5 & 5\\
+W7BI-tube1-3000.DAT & 20 & 2 & 0.46 & 0.43 & 0.0 & 0.0 & 701 & 351 & 1.156 & 14 & 14\\
+W7BI-tube1-asyn.DAT & 20 & 2 & 1.11 & 1.04 & 0.0 & 0.02 & 1145 & 573 & 2.225 & 14 & 14\\
+W7BI-tube2-1800.DAT & 20 & 2 & 2.45 & 2.31 & 0.01 & 0.0 & 2809 & 1405 & 5.175 & 5 & 5\\
+Wcollage-tube.DAT & 20 & 2 & 5.44 & 5.08 & 0.04 & 0.0 & 4857 & 2429 & 9.116 & 27 & 27\\
+\cline{1-12} \textbf{avg} & \textbf{20} & \textbf{2} & \textbf{2.34} & \textbf{2.18} & \textbf{0.01} & \textbf{0.0} & \textbf{2491.0} & \textbf{1246.0} & \textbf{4.55} & \textbf{10.86} & \textbf{10.86} \\ \cline{1-12}
+W7BI-rnd1-1800.DAT & 30 & 2 & 31.89 & 30.45 & 0.1 & 0.0 & 23527 & 11764 & 56.73 & 8 & 8\\
+W7BI-rnd1-3000.DAT & 30 & 2 & 5.2 & 4.87 & 0.02 & 0.0 & 5489 & 2745 & 11.187 & 2 & 2\\
+W7BI-tube1-1800.DAT & 30 & 2 & 6.98 & 6.65 & 0.03 & 0.0 & 5703 & 2852 & 13.568 & 31 & 31\\
+W7BI-tube1-3000.DAT & 30 & 2 & 4.6 & 4.41 & 0.01 & 0.0 & 3425 & 1713 & 8.135 & 12 & 12\\
+W7BI-tube1-asyn.DAT & 30 & 2 & 13.24 & 12.7 & 0.03 & 0.0 & 9327 & 4664 & 23.943 & 12 & 12\\
+W7BI-tube2-1800.DAT & 30 & 2 & 21.4 & 20.38 & 0.14 & 0.0 & 14911 & 7456 & 37.177 & 28 & 28\\
+Wcollage-tube.DAT & 30 & 2 & 161.19 & 156.2 & 1.25 & 0.02 & 56333 & 28167 & 201.703 & 46 & 46\\
+\cline{1-12} \textbf{avg} & \textbf{30} & \textbf{2} & \textbf{34.93} & \textbf{33.67} & \textbf{0.23} & \textbf{0.0} & \textbf{16959.29} & \textbf{8480.14} & \textbf{50.35} & \textbf{19.86} & \textbf{19.86} \\ \cline{1-12}
+W7BI-rnd1-1800.DAT & 40 & 2 & 136.28 & 131.19 & 0.43 & 0.01 & 66755 & 33378 & 217.223 & 11 & 11\\
+W7BI-rnd1-3000.DAT & 40 & 2 & 11.54 & 11.06 & 0.03 & 0.0 & 6973 & 3487 & 19.865 & 7 & 7\\
+W7BI-tube1-1800.DAT & 40 & 2 & 45.94 & 44.2 & 0.21 & 0.01 & 22683 & 11342 & 75.955 & 51 & 51\\
+W7BI-tube1-3000.DAT & 40 & 2 & 9.07 & 8.69 & 0.03 & 0.0 & 5577 & 2789 & 16.834 & 8 & 8\\
+W7BI-tube1-asyn.DAT & 40 & 2 & 267.4 & 258.42 & 1.79 & 0.02 & 101501 & 50751 & 399.754 & 49 & 49\\
+W7BI-tube2-1800.DAT & 40 & 2 & 45.51 & 43.86 & 0.19 & 0.01 & 18983 & 9492 & 69.396 & 43 & 43\\
+Wcollage-tube.DAT & 40 & 2 & 1776.89 & 1731.66 & 15.64 & 0.15 & 387603 & 193802 & 2074.949 & 80 & 80\\
+\cline{1-12} \textbf{avg} & \textbf{40} & \textbf{2} & \textbf{327.52} & \textbf{318.44} & \textbf{2.62} & \textbf{0.03} & \textbf{87153.57} & \textbf{43577.29} & \textbf{410.57} & \textbf{35.57} & \textbf{35.57} \\ \cline{1-12}
+\bottomrule
+\end{tabular}%
+}%
+\caption{The detailed experimental information about BO01B\&B algorithm.}
+\label{tab:table_bb}
+\end{table}
+
