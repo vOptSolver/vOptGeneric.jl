@@ -80,26 +80,12 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
     if pb.param.cut_activated #&& node.depth < num_var/3
         start_cuts = time() ; pruned = false 
 
-        # TODO : initialize RBS with valid pts in parent's LBS 
-        if isRoot(node)
-            start = time()
-            pruned = compute_LBS(node, pb, round_results, verbose; args)
-            pb.info.relaxation_time += (time() - start)
-    
-            if pruned 
-                removeBounds(pb, assignment) ; return true 
-            end
-        else
-            node.RBS = node.pred.RBS
-            # @assert length(node.pred.RBS.natural_order_vect) > 0 "parent's LBS is empty !"
-            # for sol in node.pred.RBS.natural_order_vect.sols
-            #     if abs(sol.xEquiv[1][node.var] - node.var_bound ) ≤10^(-4)
-            #         push!(node.RBS.natural_order_vect, sol)
-            #     end
-            # end
-            # for i=1:length(node.RBS.natural_order_vect)-1
-            #     node.RBS.segments[node.RBS.natural_order_vect.sols[i]] = true
-            # end
+        start = time()
+        pruned = compute_LBS(node, pb, round_results, verbose; args)
+        pb.info.relaxation_time += (time() - start)
+
+        if pruned 
+            removeBounds(pb, assignment) ; return true 
         end
 
         @assert length(node.RBS.natural_order_vect) > 0 "valid LBS is empty !"
@@ -109,13 +95,13 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
 
-        start_dicho = time()
-        # TODO : 2nd opt BOLP
-        pruned = compute_LBS(node, pb, round_results, verbose; args)
-        pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
-        if pruned 
-            removeBounds(pb, assignment) ; return true 
-        end
+        # start_dicho = time()
+        # # TODO : 2nd opt BOLP
+        # pruned = compute_LBS(node, pb, round_results, verbose; args)
+        # pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
+        # if pruned 
+        #     removeBounds(pb, assignment) ; return true 
+        # end
 
         if length(node.RBS.natural_order_vect) > 1
             pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)

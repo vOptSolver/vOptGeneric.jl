@@ -180,7 +180,7 @@ function MP_cutting_planes(node::Node, pb::BO01Problem, round_results, verbose ;
         # 3. otherwise, re-optimize by solving dicho -> LBS
         # ---------------------------------------------------
         start_dicho = time()
-        # TODO : last opt BOLP 
+
         pruned = compute_LBS(node, pb, round_results, verbose; args)
         pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
         LBS = node.RBS.natural_order_vect.sols
