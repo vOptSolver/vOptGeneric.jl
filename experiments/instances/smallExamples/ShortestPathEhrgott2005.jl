@@ -66,9 +66,9 @@ function vSolveBOSP(method, fname; step=0.5)
 
 
         if method == :bb
-                infos = vSolve( bisp, method=:bb, verbose=false )
+                infos = vSolve( bisp, method=:bb, verbose=true )
         elseif method == :bc 
-                infos = vSolve( bisp, method=:bc, verbose=false )
+                infos = vSolve( bisp, method=:bc, verbose=true )
         elseif method == :dicho 
                 start = time()
                 vSolve( bisp, method=:dicho, verbose=false )

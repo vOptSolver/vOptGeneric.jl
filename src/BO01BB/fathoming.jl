@@ -71,8 +71,7 @@ Compute and stock the relaxed bound set (i.e. the LP relaxation) of the (sub)pro
 Return `true` if the node is pruned by infeasibility.
 """
 function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; args...)
-    assignment = getPartialAssign(node)
-    setBounds(pb, assignment) ; num_var = length(pb.varArray)
+    objcons = setVarObjBounds(node, pb) ; num_var = length(pb.varArray)
 
     # ------------------------
     # apply valid cuts 
@@ -85,7 +84,7 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         pb.info.relaxation_time += (time() - start)
 
         if pruned 
-            removeBounds(pb, assignment) ; return true 
+            removeVarBounds(node, pb, objcons) ; return true 
         end
 
         @assert length(node.RBS.natural_order_vect) > 0 "valid LBS is empty !"
@@ -94,14 +93,6 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
         start_processing = time()
         loadingCutInPool( node, pb)         # complexity O(pt ⋅ cuts)
         pb.info.cuts_infos.times_add_retrieve_cuts += (time() - start_processing)
-
-        # start_dicho = time()
-        # # TODO : 2nd opt BOLP
-        # pruned = compute_LBS(node, pb, round_results, verbose; args)
-        # pb.info.cuts_infos.times_calling_dicho += (time() - start_dicho)
-        # if pruned 
-        #     removeBounds(pb, assignment) ; return true 
-        # end
 
         if length(node.RBS.natural_order_vect) > 1
             pruned = MP_cutting_planes(node, pb, round_results, verbose ; args...)
@@ -127,13 +118,13 @@ function LPRelaxByDicho(node::Node, pb::BO01Problem, round_results, verbose ; ar
 
         pb.info.cuts_infos.times_total_for_cuts += (time() - start_cuts)
 
-        removeBounds(pb, assignment) ; return pruned
+        removeVarBounds(node, pb, objcons) ; return pruned
     else
         start = time()
         pruned = compute_LBS(node, pb, round_results, verbose; args)
         pb.info.relaxation_time += (time() - start)
 
-        removeBounds(pb, assignment) ; return pruned
+        removeVarBounds(node, pb, objcons) ; return pruned
     end
 
 end
@@ -241,8 +232,6 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     if fathomed return true end
 
     # test range condition necessary
-    # if length(nadir_pts) == 1 return fathomed end
-
     u_l = incumbent.natural_order_vect.sols[1]
     u_r = incumbent.natural_order_vect.sols[end]
 
@@ -250,10 +239,10 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
 
     if !sufficient return false end
 
+    fathomed = true
     # iterate of all local nadir points
     for u ∈ nadir_pts.sols
-        existence = false
-        compared = false
+        existence = false ; compared = false
 
         # condition ideal point
         if u.y[1] < ptr.y[1] && u.y[2] < ptl.y[2]
@@ -282,12 +271,20 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
         end
         
         # condition dominance violated
-        if compared && !existence return false end
+        if compared && !existence 
+            fathomed = false
+            if u.y in node.pred.localNadirPts
+                node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
+            else
+                push!(node.localNadirPts, u.y)
+            end
+        end
 
         if !compared && (u.y[1] ≥ ptr.y[1] && u.y[2] ≥ ptl.y[2])
+            node.localNadirPts = Vector{Vector{Float64}}()              # no need to (extended) pareto branching
             return false
         end
     end
 
-    return true
+    return fathomed
 end

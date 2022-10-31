@@ -81,9 +81,9 @@ function computeYNfor2SPA(  nbvar::Int,
     @addobjective(model, Min, sum(c2[i]*x[i] for i in 1:nbvar))
 
     if method == :bb
-        infos = vSolve( model, method=:bb, verbose=false )
+        infos = vSolve( model, method=:bb, verbose=true )
     elseif method == :bc 
-        infos = vSolve( model, method=:bc, verbose=false )
+        infos = vSolve( model, method=:bc, verbose=true )
     elseif method == :dicho 
         start = time()
         vSolve( model, method=:dicho, verbose=false )

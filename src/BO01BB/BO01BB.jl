@@ -137,7 +137,7 @@ Argument :
 """
 function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
-        @info "at node $(node.num) |Y_N| = $(length(incumbent.natural_order_vect))"
+        @info "at node $(node.num) |Y_N| = $(length(incumbent.natural_order_vect)), EPB ? $(node.EPB)"
     end
     # get the actual node
     @assert node.activated == true "the actual node is not activated "
@@ -176,38 +176,61 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     end
 
 
-    var_split = pickUpAFreeVar(node, pb)
-    if var_split == 0 return end       # is a leaf
+    if !isRoot(node) && length(node.pred.localNadirPts) > 0
+        # (extended) pareto branching
+        for pt in node.pred.localNadirPts
+            nodeChild = Node(
+                pb.info.nb_nodes + 1, node.depth + 1, 
+                pred = node,
+                EPB = true, nadirPt = pt
+            )
+            pb.info.nb_nodes += 1
 
-    node1 = Node(
-        pb.info.nb_nodes + 1, node.depth + 1, 
-        pred = node,
-        var = var_split, var_bound = 1
-    )
-    pb.info.nb_nodes += 1
+            if ( @timeit tmr "relax" LPRelaxByDicho(nodeChild, pb, round_results, verbose; args...) ) || 
+                ( @timeit tmr "incumbent" updateIncumbent(nodeChild, pb, incumbent, verbose) )
+                nodeChild.activated = false
+            else
+                addTodo(todo, pb, nodeChild)
+            end
 
-    if ( @timeit tmr "relax" LPRelaxByDicho(node1, pb, round_results, verbose; args...) ) || 
-        ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, verbose) )
-        node1.activated = false
+            push!(node.succs, nodeChild)
+        end
     else
-        addTodo(todo, pb, node1)
+        # variable branching 
+        var_split = pickUpAFreeVar(node, pb)
+        if var_split == 0 return end       # is a leaf
+
+        node1 = Node(
+            pb.info.nb_nodes + 1, node.depth + 1, 
+            pred = node,
+            var = var_split, var_bound = 1
+        )
+        pb.info.nb_nodes += 1
+
+        if ( @timeit tmr "relax" LPRelaxByDicho(node1, pb, round_results, verbose; args...) ) || 
+            ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, verbose) )
+            node1.activated = false
+        else
+            addTodo(todo, pb, node1)
+        end
+
+        node2 = Node(
+            pb.info.nb_nodes + 1, node.depth + 1,
+            pred = node, 
+            var = var_split, var_bound = 0
+        )
+        pb.info.nb_nodes += 1
+
+        if ( @timeit tmr "relax" LPRelaxByDicho(node2, pb, round_results, verbose; args...) ) || 
+            ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, verbose) )
+            node2.activated = false
+        else
+            addTodo(todo, pb, node2)
+        end
+
+        node.succs = [node1, node2]
     end
 
-    node2 = Node(
-        pb.info.nb_nodes + 1, node.depth + 1,
-        pred = node, 
-        var = var_split, var_bound = 0
-    )
-    pb.info.nb_nodes += 1
-
-    if ( @timeit tmr "relax" LPRelaxByDicho(node2, pb, round_results, verbose; args...) ) || 
-        ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, verbose) )
-        node2.activated = false
-    else
-        addTodo(todo, pb, node2)
-    end
-
-    node.succs = [node1, node2]
 end
 
 function post_processing(m::JuMP.Model, problem::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
@@ -257,8 +280,8 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
         JuMP.Model(CPLEX.Optimizer), Vector{JuMP.VariableRef}()
     )
 
+    standard_form(problem)
     if cut
-        standard_form(problem)
         problem.param.cut_activated = cut ; problem.info.cuts_activated = cut 
     end
     # relaxation LP

@@ -60,9 +60,9 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
         @constraint( bilap , rows[j=1:n], sum(x[i,j] for i=1:n) == 1 )
 
         if method == :bb
-                infos = vSolve( bilap, method=:bb, verbose=false )
+                infos = vSolve( bilap, method=:bb, verbose=true )
         elseif method == :bc
-                infos = vSolve( bilap, method=:bc, verbose=false )
+                infos = vSolve( bilap, method=:bc, verbose=true )
         elseif method == :dicho 
                 start = time()
                 vSolve( bilap, method=:dicho, verbose=false )

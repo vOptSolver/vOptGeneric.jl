@@ -51,9 +51,9 @@ function vSolveBOUKP(method, fname; step=0.5)
     @constraint( biukp, sum( w[j]*x[j] for j=1:n ) <= c )
 
     if method == :bb
-        infos = vSolve( biukp, method=:bb, verbose=false )
+        infos = vSolve( biukp, method=:bb, verbose=true )
     elseif method == :bc 
-        infos = vSolve( biukp, method=:bc, verbose=false )
+        infos = vSolve( biukp, method=:bc, verbose=true )
     elseif method == :dicho 
         start = time()
         vSolve( biukp, method=:dicho, verbose=false )

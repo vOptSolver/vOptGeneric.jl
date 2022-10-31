@@ -13,6 +13,9 @@ mutable struct Node
     succs::Vector{Node}         # successors
     var::Int64                  # index of the chosen variable to be split
     var_bound::Int64            # variable bound
+    localNadirPts::Vector{Vector{Float64}}
+    EPB::Bool
+    nadirPt::Vector{Float64}
     RBS::RelaxedBoundSet        # local relaxed bound set              
     activated::Bool             # if the node is active
     pruned::Bool                # if the node is pruned
@@ -27,7 +30,8 @@ mutable struct Node
     """
     A complete node constructor.
     """
-    function Node(num::Int64, depth::Int64; pred::Node=Node(), succs::Vector{Node}=Vector{Node}(), var::Int64=0, var_bound::Int64=0)
+    function Node(num::Int64, depth::Int64; pred::Node=Node(), succs::Vector{Node}=Vector{Node}(),
+         var::Int64=0, var_bound::Int64=0, EPB::Bool=false, nadirPt::Vector{Float64}=Vector{Float64}())
         n = new()
         n.num = num
         n.depth = depth
@@ -36,6 +40,10 @@ mutable struct Node
         n.succs = succs
         n.var = var
         n.var_bound = var_bound
+
+        n.localNadirPts = Vector{Vector{Float64}}()
+        n.EPB = EPB
+        n.nadirPt = nadirPt
     
         n.RBS = RelaxedBoundSet()
         n.activated = true
@@ -106,30 +114,86 @@ function getPartialAssign(actual::Node)
     return assignment
 end
 
+
 """
-Given a patrial assignment of variables, remove the fixed bounding.
+Add variables or objective bounds set in the predecessors.
 """
-function removeBounds(pb::BO01Problem, assignment::Dict{Int64, Int64})
-    for (var, bound) in assignment
-        if bound == 0
-            JuMP.set_upper_bound(pb.varArray[var], 1)
-        elseif bound == 1
-            JuMP.set_lower_bound(pb.varArray[var], 0)
+function setVarObjBounds(actual::Node, pb::BO01Problem)
+    if isRoot(actual) # the actual node is the root 
+        return 
+    end
+    predecessor = actual.pred ; con_cuts = []
+
+    if actual.EPB
+        append!(con_cuts, setObjBound(pb, actual.nadirPt))
+    else
+        setVarBound(pb, actual.var, actual.var_bound)
+    end
+
+    while !isRoot(predecessor)     
+        actual = predecessor ; predecessor = actual.pred
+        if actual.EPB
+            append!(con_cuts, setObjBound(pb, actual.nadirPt))
+        else
+            setVarBound(pb, actual.var, actual.var_bound)
+        end
+    end
+    return con_cuts
+end
+
+
+"""
+Remove variables or objective bounds set in the predecessors.
+"""
+function removeVarBounds(actual::Node, pb::BO01Problem, objcons)
+    if isRoot(actual) # the actual node is the root 
+        return 
+    end
+    predecessor = actual.pred
+    if !actual.EPB removeVarBound(pb, actual.var, actual.var_bound) end
+
+    while !isRoot(predecessor)     
+        actual = predecessor ; predecessor = actual.pred
+        if !actual.EPB removeVarBound(pb, actual.var, actual.var_bound) end
+    end
+
+    for con in objcons
+        if JuMP.is_valid( pb.m, con)
+            JuMP.delete( pb.m, con) ; JuMP.unregister( pb.m, :con) # remove the symbolic reference
         end
     end
 end
+
+
+"""
+Given a patrial assignment of variables, remove the fixed bounding.
+"""
+function removeVarBound(pb::BO01Problem, var::Int64, bound::Int64)
+    if bound == 0
+        JuMP.set_upper_bound(pb.varArray[var], 1)
+    elseif bound == 1
+        JuMP.set_lower_bound(pb.varArray[var], 0)
+    end
+end
+
 
 """
 Given a partial assignment on variables values, add the corresponding bounds.
 """
-function setBounds(pb::BO01Problem, assignment::Dict{Int64, Int64})
-    for (var, bound) in assignment
-        if bound == 0
-            JuMP.set_upper_bound(pb.varArray[var], 0)
-        elseif bound == 1
-            JuMP.set_lower_bound(pb.varArray[var], 1)
-        end
+function setVarBound(pb::BO01Problem, var::Int64, bound::Int64)
+    if bound == 0
+        JuMP.set_upper_bound(pb.varArray[var], 0)
+    elseif bound == 1
+        JuMP.set_lower_bound(pb.varArray[var], 1)
     end
 end
 
 
+function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64})
+    cons_obj = []
+    # for i=1:2 
+        con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≤ nadirPt[1]) ; push!(cons_obj, con)
+        con = JuMP.@constraint(pb.m, pb.c[2, 1] + pb.c[2, 2:end]'*pb.varArray ≤ nadirPt[2]) ; push!(cons_obj, con)
+    # end
+    return cons_obj
+end

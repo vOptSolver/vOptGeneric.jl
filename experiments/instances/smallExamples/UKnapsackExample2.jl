@@ -51,9 +51,9 @@ function BOUKP(method, fname; step=0.5)
 
 
     if method == :bb
-        infos = vSolve( m, method=:bb, verbose=false )
+        infos = vSolve( m, method=:bb, verbose=true )
     elseif method == :bc 
-        infos = vSolve( m, method=:bc, verbose=false )
+        infos = vSolve( m, method=:bc, verbose=true )
     elseif method == :dicho 
         start = time()
         vSolve( m, method=:dicho, verbose=false )
