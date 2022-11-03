@@ -160,25 +160,27 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
 
 
     #-----------------------------------------
-    # branching variable + generate new nodes
+    # TODO : check => ?? why I did this 
     #-----------------------------------------
     if !isRoot(node)
+        # if the node is EPB-ed 
         if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
             nothing
-        else
+        else    # else, initialize LBS 
             node.pred.RBS = RelaxedBoundSet()
             if pb.param.cut_activated
                 node.pred.con_cuts = Vector{ConstraintRef}()
                 node.pred.cutpool = CutPool()
             end
-            # nothing
         end
     end
 
-
+    #-----------------------------------------
+    # TODO : check => branching variable + generate new nodes
+    #-----------------------------------------
     if !isRoot(node) && length(node.pred.localNadirPts) > 0
-        # (extended) pareto branching
-        for pt in node.pred.localNadirPts
+        #TODO: check => (extended) pareto branching, OK why branching parent node here , already entered in the node ??
+        for pt in node.pred.localNadirPts   #TODO : duplicates ??
             nodeChild = Node(
                 pb.info.nb_nodes + 1, node.depth + 1, 
                 pred = node,
@@ -196,7 +198,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
             push!(node.succs, nodeChild)
         end
     else
-        # variable branching 
+        #TODO : check => unchanged... variable branching 
         var_split = pickUpAFreeVar(node, pb)
         if var_split == 0 return end       # is a leaf
 
@@ -339,8 +341,5 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
     problem.info.cuts_infos.cuts_total = problem.info.cuts_infos.cuts_applied
     println("\n total cuts : ", problem.info.cuts_infos.cuts_applied)
 
-    # for (k,v) in problem.cpool.hashMap
-    #     println(k, " => ", size(v, 1))
-    # end
     return problem.info
 end

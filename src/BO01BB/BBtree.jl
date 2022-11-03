@@ -13,9 +13,9 @@ mutable struct Node
     succs::Vector{Node}         # successors
     var::Int64                  # index of the chosen variable to be split
     var_bound::Int64            # variable bound
-    localNadirPts::Vector{Vector{Float64}}
-    EPB::Bool
-    nadirPt::Vector{Float64}
+    localNadirPts::Vector{Vector{Float64}}      # stok a list of non-dominated badir pts for EPB 
+    EPB::Bool                   # if this node is (extended) pareto branched 
+    nadirPt::Vector{Float64}    # if EPB, indicate the pt branched from  
     RBS::RelaxedBoundSet        # local relaxed bound set              
     activated::Bool             # if the node is active
     pruned::Bool                # if the node is pruned
@@ -116,7 +116,9 @@ end
 
 
 """
-Add variables or objective bounds set in the predecessors.
+Going through all the predecessors until the root, add variables or objective bounds branched in the predecessors.
+
+Return a list of objective bounds (symbolic constraint).
 """
 function setVarObjBounds(actual::Node, pb::BO01Problem)
     if isRoot(actual) # the actual node is the root 
@@ -124,12 +126,14 @@ function setVarObjBounds(actual::Node, pb::BO01Problem)
     end
     predecessor = actual.pred ; con_cuts = []
 
+    # set actual objective/variable bound
     if actual.EPB
         append!(con_cuts, setObjBound(pb, actual.nadirPt))
     else
         setVarBound(pb, actual.var, actual.var_bound)
     end
 
+    # set actual objective/variable bounds in predecessors
     while !isRoot(predecessor)     
         actual = predecessor ; predecessor = actual.pred
         if actual.EPB
@@ -145,7 +149,7 @@ end
 """
 Remove variables or objective bounds set in the predecessors.
 """
-function removeVarBounds(actual::Node, pb::BO01Problem, objcons)
+function removeVarObjBounds(actual::Node, pb::BO01Problem, objcons)
     if isRoot(actual) # the actual node is the root 
         return 
     end
@@ -188,7 +192,11 @@ function setVarBound(pb::BO01Problem, var::Int64, bound::Int64)
     end
 end
 
+"""
+Given a un-dominated nadir point, add the correspond EPB objective bound.
 
+#TODO : need to avoid duplication ??
+"""
 function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64})
     cons_obj = []
     # for i=1:2 
