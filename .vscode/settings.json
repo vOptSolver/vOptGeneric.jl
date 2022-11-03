@@ -8,5 +8,6 @@
         "latex",
         "plaintext",
         "julia"
-    ]
+    ],
+    "julia.executablePath": "/home/yue/julia-1.8.1/bin/julia"
 }

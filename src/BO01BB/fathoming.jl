@@ -222,7 +222,7 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
     end
 
     # ----------------------------------------------
-    # then the LBS consists of segments
+    # if the LBS consists of segments
     # ----------------------------------------------
     # two extreme points of LBS
     ptl = node.RBS.natural_order_vect.sols[1] ; ptr = node.RBS.natural_order_vect.sols[end]
@@ -237,7 +237,7 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
         #     #TODO : check => Pareto branching ... 
         #     return false 
         # end
-        return false
+        return false 
     end
 
     # Case 2 : otherwise, do the pairwise comparison of the local nadir points with LBS  
@@ -262,13 +262,13 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
             return true
         end
 
-        # case 2 : if u is worse than the "worst nadir point" of LBS 
-        if u.y[1] ≥ ptl.y[1] && u.y[2] ≥ ptr.y[2]
-            return false
-        end
+        # # case 2 : if u is worse than the "worst nadir point" of LBS 
+        # if u.y[1] ≥ ptl.y[1] && u.y[2] ≥ ptr.y[2]
+        #     return false
+        # end
 
         # case 3 : complete pairwise comparison
-        for i=1:length(node.RBS.natural_order_vect)-1       # ∀ segment l ∈ LBS 
+        for i=1:length(node.RBS.natural_order_vect)-1              # ∀ segment l ∈ LBS 
 
             sol_l = node.RBS.natural_order_vect.sols[i] ; sol_r = node.RBS.natural_order_vect.sols[i+1]
 
@@ -280,18 +280,22 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
 
             compared = true
 
-            if λ'*u.y < λ'*sol_r.y 
-                existence = true ; break
+            if λ'*u.y < λ'*sol_r.y #&& λ'*u.y < λ'*sol_l.y
+                existence = true
+                break
             end
         end
         
         # case 4 : condition dominance violated, then stock the non-dominated local nadir pts to prepare EPB
         if compared && !existence 
             fathomed = false
-            if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt)    # the current local nadir pt is already branched 
+
+            # if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt)    # the current local nadir pt is already branched 
+
+            if u.y in node.pred.localNadirPts
                 node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             else
-                push!(node.localNadirPts, u.y)  # new non-dominated nadir pt
+                push!(node.localNadirPts, u.y)
             end
         end
 
