@@ -13,9 +13,10 @@ mutable struct Node
     succs::Vector{Node}         # successors
     var::Int64                  # index of the chosen variable to be split
     var_bound::Int64            # variable bound
-    localNadirPts::Vector{Vector{Float64}}      # stok a list of non-dominated badir pts for EPB 
+    localNadirPts::Vector{Vector{Float64}}      # stok a list of non-dominated nadir pts for EPB 
     EPB::Bool                   # if this node is (extended) pareto branched 
     nadirPt::Vector{Float64}    # if EPB, indicate the pt branched from  
+    duplicationBound::Float64   # an additional bound on objective z₁ (maybe redundant) to avoid duplicated search area during EPB 
     RBS::RelaxedBoundSet        # local relaxed bound set              
     activated::Bool             # if the node is active
     pruned::Bool                # if the node is pruned
@@ -31,7 +32,7 @@ mutable struct Node
     A complete node constructor.
     """
     function Node(num::Int64, depth::Int64; pred::Node=Node(), succs::Vector{Node}=Vector{Node}(),
-         var::Int64=0, var_bound::Int64=0, EPB::Bool=false, nadirPt::Vector{Float64}=Vector{Float64}())
+         var::Int64=0, var_bound::Int64=0, EPB::Bool=false, nadirPt::Vector{Float64}=Vector{Float64}(), duplicationBound::Float64=0.0)
         n = new()
         n.num = num
         n.depth = depth
@@ -44,6 +45,7 @@ mutable struct Node
         n.localNadirPts = Vector{Vector{Float64}}()
         n.EPB = EPB
         n.nadirPt = nadirPt
+        n.duplicationBound = duplicationBound
     
         n.RBS = RelaxedBoundSet()
         n.activated = true
@@ -114,12 +116,12 @@ function getPartialAssign(actual::Node)
         return assignment
     end
     predecessor = actual.pred
-    assignment[actual.var] = actual.var_bound
+    if !actual.EPB assignment[actual.var] = actual.var_bound end 
 
     while !isRoot(predecessor)     
         actual = predecessor
         predecessor = actual.pred
-        assignment[actual.var] = actual.var_bound
+        if !actual.EPB assignment[actual.var] = actual.var_bound end 
     end
     return assignment
 end
@@ -138,7 +140,7 @@ function setVarObjBounds(actual::Node, pb::BO01Problem)
 
     # set actual objective/variable bound
     if actual.EPB
-        append!(con_cuts, setObjBound(pb, actual.nadirPt))
+        append!(con_cuts, setObjBound(pb, actual.nadirPt, actual.duplicationBound))
     else
         setVarBound(pb, actual.var, actual.var_bound)
     end
@@ -147,7 +149,7 @@ function setVarObjBounds(actual::Node, pb::BO01Problem)
     while !isRoot(predecessor)     
         actual = predecessor ; predecessor = actual.pred
         if actual.EPB
-            append!(con_cuts, setObjBound(pb, actual.nadirPt))
+            append!(con_cuts, setObjBound(pb, actual.nadirPt, actual.duplicationBound))
         else
             setVarBound(pb, actual.var, actual.var_bound)
         end
@@ -207,11 +209,12 @@ Given a un-dominated nadir point, add the correspond EPB objective bound.
 
 #TODO : need to avoid duplication ??
 """
-function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64})
+function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64}, duplication_bound::Float64)
     cons_obj = []
     # for i=1:2 
         con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≤ nadirPt[1]) ; push!(cons_obj, con)
         con = JuMP.@constraint(pb.m, pb.c[2, 1] + pb.c[2, 2:end]'*pb.varArray ≤ nadirPt[2]) ; push!(cons_obj, con)
+        if duplication_bound != 0.0 con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≥ duplication_bound) ; push!(cons_obj, con) end 
     # end
     return cons_obj
 end

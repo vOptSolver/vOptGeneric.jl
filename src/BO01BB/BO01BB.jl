@@ -178,11 +178,13 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     # TODO : check => branching variable/objective + generate new nodes
     #-----------------------------------------
     if length(node.localNadirPts) > 0
-        for pt in node.localNadirPts   #TODO : duplicates ??
+        for i = 1:length(node.localNadirPts)   #TODO : duplicates ??
+            pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
+            if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
             nodeChild = Node(
                 pb.info.nb_nodes + 1, node.depth + 1, 
                 pred = node,
-                EPB = true, nadirPt = pt
+                EPB = true, nadirPt = pt, duplicationBound = duplicationBound_z1
             )
             pb.info.nb_nodes += 1 ; pb.info.nb_nodes_EPB += 1
 

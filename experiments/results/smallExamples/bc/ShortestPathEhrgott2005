@@ -1,6 +1,6 @@
 vars = 36 ; constr = 6 
  # informations of B&B algorithm : 
-total_times_used = 0.03 
+total_times_used = 0.02 
 total_nodes = 29 
 pruned_nodes = 15 
 GAP = 0.0 
@@ -13,7 +13,7 @@ nb_nodes_VB = 28
 
 
  # ----------- info about cuts : 
-ite_total = 28 
+ite_total = 29 
 cuts_applied = 0 
 sp_cuts = 0 
 mp_cuts = 0 
