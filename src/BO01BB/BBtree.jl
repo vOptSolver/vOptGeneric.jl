@@ -72,6 +72,16 @@ function isRoot(node::Node)
 end
 
 """
+Return `true` if the given `node` has activated/non-explored successor(s).
+"""
+function hasNonExploredChild(node::Node)
+    for c in node.succs
+        if c.activated return true end 
+    end
+    return false
+end
+
+"""
 Delete the given node in B&B tree. (should be a private function)
 """
 function Base.delete!(node::Node)

@@ -160,27 +160,27 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
 
 
     #-----------------------------------------
-    # TODO : check => ?? why I did this 
+    # liberate parent's useless data 
     #-----------------------------------------
     if !isRoot(node)
-        # if the node is EPB-ed 
-        if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
+        # if exists non-explored child, don't liberate
+        if node.EPB || hasNonExploredChild(node.pred)
+        # if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
             nothing
-        else    # else, initialize LBS 
-            node.pred.RBS = RelaxedBoundSet()
-            if pb.param.cut_activated
-                node.pred.con_cuts = Vector{ConstraintRef}()
-                node.pred.cutpool = CutPool()
+        elseif length(node.pred.RBS.natural_order_vect) > 0
+                node.pred.RBS = RelaxedBoundSet()
+                if pb.param.cut_activated
+                    node.pred.con_cuts = Vector{ConstraintRef}() ; node.pred.cutpool = CutPool()
+                end
             end
-        end
     end
 
     #-----------------------------------------
     # TODO : check => branching variable + generate new nodes
     #-----------------------------------------
-    if !isRoot(node) && length(node.pred.localNadirPts) > 0
+    if length(node.localNadirPts) > 0
         #TODO: check => (extended) pareto branching, OK why branching parent node here , already entered in the node ??
-        for pt in node.pred.localNadirPts   #TODO : duplicates ??
+        for pt in node.localNadirPts   #TODO : duplicates ??
             nodeChild = Node(
                 pb.info.nb_nodes + 1, node.depth + 1, 
                 pred = node,
@@ -198,7 +198,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
             push!(node.succs, nodeChild)
         end
     else
-        #TODO : check => unchanged... variable branching 
+        # unchanged... variable branching 
         var_split = pickUpAFreeVar(node, pb)
         if var_split == 0 return end       # is a leaf
 

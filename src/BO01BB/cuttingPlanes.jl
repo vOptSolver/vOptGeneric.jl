@@ -31,7 +31,7 @@ function compute_LBS(node::Node, pb::BO01Problem, round_results, verbose ; args.
         if verbose
             @info "node $(node.num) is unfeasible !"
         end
-        pb.info.nb_nodes_pruned += 1
+        # pb.info.nb_nodes_pruned += 1
         # pb.info.status = MOI.INFEASIBLE
         return true
     end

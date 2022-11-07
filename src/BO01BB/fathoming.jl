@@ -155,8 +155,7 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
         end
         pb.info.update_incumb_time += (time() - start) ; return true
     end
-    pb.info.update_incumb_time += (time() - start)
-    return false
+    pb.info.update_incumb_time += (time() - start) ; return false
 end
 
 """
