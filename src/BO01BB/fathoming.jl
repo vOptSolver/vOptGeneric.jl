@@ -191,14 +191,24 @@ end
 """
 A fully explicit dominance test, and prune the given node if it's fathomed by dominance.
 (i.e. ∀ l∈L: ∃ u∈U s.t. λu ≤ λl )
-
 Return `true` if the given node is fathomed by dominance.
 """
-function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
+function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
     @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $(node.num)"
 
     # we can't compare the LBS and UBS if the incumbent set is empty
-    if length(incumbent.natural_order_vect) == 0 return false end
+    if length(global_incumbent.natural_order_vect) == 0 return false end
+
+    if node.EPB     # consider a "local" upper bound sets 
+        incumbent = IncumbentSet()
+        for u in global_incumbent.natural_order_vect.sols
+            if u.y[1] ≤ node.nadirPt[1] && u.y[2] ≤ node.nadirPt[2]
+                push!(incumbent.natural_order_vect, u)
+            end
+        end
+    else 
+        incumbent = global_incumbent
+    end
 
     # if there exists an upper bound u s.t. u≦l
     function weak_dom(l)
@@ -226,15 +236,15 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
 
     # Case 1 :  if only one feasible point in UBS 
     if length(incumbent.natural_order_vect) == 1 
-        # # who dominates the ideal point 
-        # if incumbent.natural_order_vect.sols[1].y[1] < ptr.y[1] && incumbent.natural_order_vect.sols[1].y[2] < ptl.y[2]
-        #     return true
-        # else
-        #     # Pareto branching 
-        #     #TODO : check => Pareto branching ... 
-        #     return false 
-        # end
-        return false 
+        # who dominates the ideal point 
+        if incumbent.natural_order_vect.sols[1].y[1] < ptr.y[1] && incumbent.natural_order_vect.sols[1].y[2] < ptl.y[2]
+            return true
+        else
+            # Pareto branching 
+            #TODO : check => Pareto branching ... 
+            return false 
+        end
+        # return false 
     end
 
     # Case 2 : otherwise, do the pairwise comparison of the local nadir points with LBS  

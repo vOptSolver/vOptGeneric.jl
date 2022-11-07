@@ -152,8 +152,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
         if verbose
             @info "node $(node.num) is fathomed by dominance ! |LBS|=$(length(node.RBS.natural_order_vect))" 
         end
-        pb.info.nb_nodes_pruned += 1
-        pb.info.test_dom_time += (time() - start)
+        pb.info.nb_nodes_pruned += 1 ; pb.info.test_dom_time += (time() - start)
         return
     end
     pb.info.test_dom_time += (time() - start)
@@ -164,7 +163,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     if !isRoot(node)
         # if exists non-explored child, don't liberate
-        if node.EPB || hasNonExploredChild(node.pred)
+        if node.EPB || hasNonExploredChild(node.pred)       #todo : why EPB node no liberation ???
         # if length(node.pred.succs) != 2 || node.pred.succs[1].activated || node.pred.succs[2].activated
             nothing
         elseif length(node.pred.RBS.natural_order_vect) > 0
@@ -176,10 +175,9 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     end
 
     #-----------------------------------------
-    # TODO : check => branching variable + generate new nodes
+    # TODO : check => branching variable/objective + generate new nodes
     #-----------------------------------------
     if length(node.localNadirPts) > 0
-        #TODO: check => (extended) pareto branching, OK why branching parent node here , already entered in the node ??
         for pt in node.localNadirPts   #TODO : duplicates ??
             nodeChild = Node(
                 pb.info.nb_nodes + 1, node.depth + 1, 
