@@ -135,7 +135,7 @@ end
 At the given node, update (filtered by dominance) the global incumbent set.
 Return `true` if the node is pruned by optimality.
 """
-function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, verbose)
+function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, branching_track::Dict{Vector{Float64}, Bool}, verbose)
     start = time()
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
@@ -145,6 +145,8 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
         if node.RBS.natural_order_vect.sols[i].is_binary
             s = node.RBS.natural_order_vect.sols[i]
             push!(incumbent.natural_order_vect, s, filtered=true)
+            #     delete!(branching_track, s.y)
+            # end
         end
     end
 
