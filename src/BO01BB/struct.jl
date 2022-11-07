@@ -62,11 +62,13 @@ mutable struct StatInfo
     tree_size::Float64
     cuts_activated::Bool
     cuts_infos::CutsInfo
+    nb_nodes_EPB::Int64
+    nb_nodes_VB::Int64
     # status::MOI.TerminationStatusCode 
 end
 
 function StatInfo()
-    return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, false, CutsInfo())
+    return StatInfo(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, false, CutsInfo(), 0, 0)
 end
 
 function Base.:show(io::IO, info::StatInfo)
@@ -78,7 +80,9 @@ function Base.:show(io::IO, info::StatInfo)
         "relaxation_time = $(info.relaxation_time) \n",
         "test_dominance_time = $(info.test_dom_time) \n",
         "update_incumbent_time = $(info.update_incumb_time) \n",
-        "tree_size = $(info.tree_size) "
+        "tree_size = $(info.tree_size) \n",
+        "nb_nodes_EPB = $(info.nb_nodes_EPB) \n",
+        "nb_nodes_VB = $(info.nb_nodes_VB) "
     )
     if info.cuts_activated println(io, info.cuts_infos) end
 end

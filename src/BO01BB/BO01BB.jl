@@ -186,11 +186,11 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
                 pred = node,
                 EPB = true, nadirPt = pt
             )
-            pb.info.nb_nodes += 1
+            pb.info.nb_nodes += 1 ; pb.info.nb_nodes_EPB += 1
 
             if ( @timeit tmr "relax" LPRelaxByDicho(nodeChild, pb, round_results, verbose; args...) ) || 
                 ( @timeit tmr "incumbent" updateIncumbent(nodeChild, pb, incumbent, verbose) )
-                nodeChild.activated = false
+                nodeChild.activated = false ; pb.info.nb_nodes_pruned += 1
             else
                 addTodo(todo, pb, nodeChild)
             end
@@ -207,11 +207,11 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
             pred = node,
             var = var_split, var_bound = 1
         )
-        pb.info.nb_nodes += 1
+        pb.info.nb_nodes += 1 ; pb.info.nb_nodes_VB += 1
 
         if ( @timeit tmr "relax" LPRelaxByDicho(node1, pb, round_results, verbose; args...) ) || 
             ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, verbose) )
-            node1.activated = false
+            node1.activated = false ; pb.info.nb_nodes_pruned += 1
         else
             addTodo(todo, pb, node1)
         end
@@ -221,11 +221,11 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
             pred = node, 
             var = var_split, var_bound = 0
         )
-        pb.info.nb_nodes += 1
+        pb.info.nb_nodes += 1 ; pb.info.nb_nodes_VB += 1
 
         if ( @timeit tmr "relax" LPRelaxByDicho(node2, pb, round_results, verbose; args...) ) || 
             ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, verbose) )
-            node2.activated = false
+            node2.activated = false ; pb.info.nb_nodes_pruned += 1
         else
             addTodo(todo, pb, node2)
         end

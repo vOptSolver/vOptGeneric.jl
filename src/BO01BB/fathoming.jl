@@ -153,9 +153,7 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, v
         if verbose
             @info "node $(node.num) is fathomed by optimality ! and length = $(length(node.RBS.natural_order_vect))"
         end
-        pb.info.nb_nodes_pruned += 1
-        pb.info.update_incumb_time += (time() - start)
-        return true
+        pb.info.update_incumb_time += (time() - start) ; return true
     end
     pb.info.update_incumb_time += (time() - start)
     return false
@@ -290,9 +288,8 @@ function fullyExplicitDominanceTest(node::Node, incumbent::IncumbentSet)
         if compared && !existence 
             fathomed = false
 
-            # if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt)    # the current local nadir pt is already branched 
-
-            if u.y in node.pred.localNadirPts
+            if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt)    # the current local nadir pt is already branched 
+            # if u.y in node.pred.localNadirPts
                 node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             else
                 push!(node.localNadirPts, u.y)
