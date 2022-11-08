@@ -135,7 +135,7 @@ end
 At the given node, update (filtered by dominance) the global incumbent set.
 Return `true` if the node is pruned by optimality.
 """
-function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, branching_track::Dict{Vector{Float64}, Bool}, verbose)
+function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, verbose)
     start = time()
     #-----------------------------------------------------------
     # check optimality && update the incumbent set
@@ -145,8 +145,6 @@ function updateIncumbent(node::Node, pb::BO01Problem, incumbent::IncumbentSet, b
         if node.RBS.natural_order_vect.sols[i].is_binary
             s = node.RBS.natural_order_vect.sols[i]
             push!(incumbent.natural_order_vect, s, filtered=true)
-            #     delete!(branching_track, s.y)
-            # end
         end
     end
 
@@ -302,8 +300,7 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
 
             if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
             # if u.y in node.pred.localNadirPts
-                # node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
-                nothing
+                node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             else#if EPB_decider(u.y, ptl, ptr)
                 push!(node.localNadirPts, u.y)
             end

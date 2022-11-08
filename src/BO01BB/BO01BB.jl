@@ -135,7 +135,7 @@ Argument :
     - ind : actual node's index in tree tableau
     - pb : BO01Problem 
 """
-function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, branching_track::Dict{Vector{Float64}, Bool}, round_results, verbose; args...)
+function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
     if verbose
         @info "at node $(node.num) |Y_N| = $(length(incumbent.natural_order_vect)), EPB ? $(node.EPB)"
     end
@@ -180,25 +180,22 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     if length(node.localNadirPts) > 0
         for i = 1:length(node.localNadirPts)
             pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
-            # if !(haskey(branching_track, pt) && branching_track[pt])
-                if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
-                nodeChild = Node(
-                    pb.info.nb_nodes + 1, node.depth + 1, 
-                    pred = node,
-                    EPB = true, nadirPt = pt, duplicationBound = duplicationBound_z1
-                )
-                pb.info.nb_nodes += 1 ; pb.info.nb_nodes_EPB += 1
-                # branching_track[pt] = true
-    
-                if ( @timeit tmr "relax" LPRelaxByDicho(nodeChild, pb, round_results, verbose; args...) ) || 
-                    ( @timeit tmr "incumbent" updateIncumbent(nodeChild, pb, incumbent, branching_track, verbose) )
-                    nodeChild.activated = false ; pb.info.nb_nodes_pruned += 1
-                else
-                    addTodo(todo, pb, nodeChild)
-                end
-    
-                push!(node.succs, nodeChild)
-            # end
+            if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
+            nodeChild = Node(
+                pb.info.nb_nodes + 1, node.depth + 1, 
+                pred = node,
+                EPB = true, nadirPt = pt, duplicationBound = duplicationBound_z1
+            )
+            pb.info.nb_nodes += 1 ; pb.info.nb_nodes_EPB += 1
+
+            if ( @timeit tmr "relax" LPRelaxByDicho(nodeChild, pb, round_results, verbose; args...) ) || 
+                ( @timeit tmr "incumbent" updateIncumbent(nodeChild, pb, incumbent, verbose) )
+                nodeChild.activated = false ; pb.info.nb_nodes_pruned += 1
+            else
+                addTodo(todo, pb, nodeChild)
+            end
+
+            push!(node.succs, nodeChild)
         end
     else
         # unchanged... variable branching 
@@ -213,7 +210,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
         pb.info.nb_nodes += 1 ; pb.info.nb_nodes_VB += 1
 
         if ( @timeit tmr "relax" LPRelaxByDicho(node1, pb, round_results, verbose; args...) ) || 
-            ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, branching_track, verbose) )
+            ( @timeit tmr "incumbent" updateIncumbent(node1, pb, incumbent, verbose) )
             node1.activated = false ; pb.info.nb_nodes_pruned += 1
         else
             addTodo(todo, pb, node1)
@@ -227,7 +224,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
         pb.info.nb_nodes += 1 ; pb.info.nb_nodes_VB += 1
 
         if ( @timeit tmr "relax" LPRelaxByDicho(node2, pb, round_results, verbose; args...) ) || 
-            ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, branching_track, verbose) )
+            ( @timeit tmr "incumbent" updateIncumbent(node2, pb, incumbent, verbose) )
             node2.activated = false ; pb.info.nb_nodes_pruned += 1
         else
             addTodo(todo, pb, node2)
@@ -293,7 +290,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
     undo_relax = JuMP.relax_integrality(problem.m)
 
     # initialize the incumbent list by heuristics or with Inf
-    incumbent = IncumbentSet() ; branching_track = Dict{Vector{Float64}, Bool}()
+    incumbent = IncumbentSet() 
 
     # by default, we take the breadth-first strategy (FIFO queue)
     todo = initQueue(problem)
@@ -303,7 +300,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
 
     problem.info.nb_nodes += 1
 
-    if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, problem, incumbent, branching_track, verbose)
+    if LPRelaxByDicho(root, problem, round_results, verbose; args...) || updateIncumbent(root, problem, incumbent, verbose)
         if converted
             reversion(m, f, incumbent)
         end
@@ -323,7 +320,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
             if node_ref[].deleted
                 finalize(node_ref[])
             else
-                @timeit tmr "iteration" iterative_procedure(todo, node_ref[], problem, incumbent, branching_track, round_results, verbose; args...)
+                @timeit tmr "iteration" iterative_procedure(todo, node_ref[], problem, incumbent, round_results, verbose; args...)
             end
         end
     end
