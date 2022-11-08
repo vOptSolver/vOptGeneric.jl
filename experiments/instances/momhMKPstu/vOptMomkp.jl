@@ -90,7 +90,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     outputName = subfolder * "/" * split(fname, "/")[end]
     # TODO : if a file already exists
     if isfile(outputName) && method != :bb && method != :bc
-      return
+      continue
     end
 
     # ---- setting the model

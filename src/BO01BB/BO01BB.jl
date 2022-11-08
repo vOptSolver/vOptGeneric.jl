@@ -177,7 +177,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     # TODO : check => branching variable/objective + generate new nodes
     #-----------------------------------------
-    if length(node.localNadirPts) > 0
+    if length(node.localNadirPts) > 0 && EPB_decider(node)
         for i = 1:length(node.localNadirPts)
             pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
             if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end

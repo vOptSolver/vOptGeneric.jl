@@ -303,6 +303,8 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
                 node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             else#if EPB_decider(u.y, ptl, ptr)
                 push!(node.localNadirPts, u.y)
+            # else
+            #     node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             end
         end
 
@@ -325,10 +327,17 @@ end
 
 
 """
-Given a non-dominated nadir point, return `true` if the decider EP - branch on it.
+Given a non-dominated nadir point, return `true` if the decider EP - branch on it, considering the average distance of nadir point from LBS.
 """
-function EPB_decider(nadir_pt::Vector{Float64}, ptl::Vector{Float64}, ptr::Vector{Float64})
-    worst_nadir_pt = [ptl[1], ptr[2]]
-    dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr) ; dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
-    return (dist_nadir/dist_LBS) ≤ 1/2
+function EPB_decider( node::Node)
+    ptl = node.RBS.natural_order_vect.sols[1].y ; ptr = node.RBS.natural_order_vect.sols[end].y
+    worst_nadir_pt = [ptl[1], ptr[2]] ; dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr)
+    
+    avg_dist = 0.0
+    for nadir_pt in node.localNadirPts
+        dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
+        avg_dist += dist_nadir/dist_LBS
+    end
+    
+    return (avg_dist/length(node.localNadirPts)) ≤ 1/2
 end
