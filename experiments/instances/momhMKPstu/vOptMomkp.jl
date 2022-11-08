@@ -78,7 +78,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
   m, n_before = size(A)
   # scale test
-  for n = 10:10:40
+  for n in [10, 10, 20, 30, 40]
     println("n=$n")
     ratio = n/n_before
 
@@ -89,7 +89,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
     outputName = subfolder * "/" * split(fname, "/")[end]
     # TODO : if a file already exists
-    if isfile(outputName) # && method != :bb 
+    if isfile(outputName) && method != :bb && method != :bc
       return
     end
 

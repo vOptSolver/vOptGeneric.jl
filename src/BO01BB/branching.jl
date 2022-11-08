@@ -56,10 +56,10 @@ end
 """
 Pich up a free variable to be split according to the prefiexd strategy.
 """
-function pickUpAFreeVar(actual::Node, pb::BO01Problem)
+function pickUpAFreeVar(assignment::Dict{Int64, Int64}, pb::BO01Problem)
     if pb.param.branching == :arbitrary
         free_vars = [ind for ind in 1:length(pb.varArray)]
-        fixed_var = collect(keys(getPartialAssign(actual)))
+        fixed_var = collect(keys(assignment))
         filter!(v -> v ∉ fixed_var, free_vars)
         return (length(free_vars) > 0) ? free_vars[rand(1:length(free_vars))] : 0
     else

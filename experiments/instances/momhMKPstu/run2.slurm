@@ -16,3 +16,5 @@ for file in ./MOBKP/set2/*; do
     echo "$file"
     srun julia vOptMomkp2.jl "$file"
 done
+
+srun julia latexWriter.jl

@@ -88,10 +88,10 @@ function vSolveBi01IP2(solverSelected, C, A, B, fname, method)
     # end
 
     outputName = folder * "/" * split(fname, "/")[end]
-    # # TODO : if a file already exists
-    # if isfile(outputName) # && method != :bb 
-    #   return
-    # end
+    # TODO : if a file already exists and differ from BB BC 
+    if isfile(outputName) && method != :bb && method != :bc
+      return
+    end
 
     # ---- setting the model
     println("Building...")
@@ -165,6 +165,8 @@ function main2(fname::String)
   solverSelected = CPLEX.Optimizer
   for method in [:dicho, :epsilon, :bb, :bc] # 
     vSolveBi01IP2(solverSelected, dat.C, dat.A, dat.b, fname, method) 
+    vSolveBi01IP2(solverSelected, dat.C, dat.A, dat.b, fname, method) 
+
   end
 
 end

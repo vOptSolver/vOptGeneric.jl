@@ -201,16 +201,18 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
     # we can't compare the LBS and UBS if the incumbent set is empty
     if length(global_incumbent.natural_order_vect) == 0 return false end
 
-    if node.EPB     # consider a "local" upper bound sets 
-        incumbent = IncumbentSet()
-        for u in global_incumbent.natural_order_vect.sols
-            if u.y[1] ≤ node.nadirPt[1] && u.y[2] ≤ node.nadirPt[2]
-                push!(incumbent.natural_order_vect, u)
-            end
-        end
-    else 
-        incumbent = global_incumbent
-    end
+    # if node.EPB     # consider a "local" upper bound sets 
+    #     incumbent = IncumbentSet()
+    #     for u in global_incumbent.natural_order_vect.sols
+    #         if u.y[1] ≤ node.nadirPt[1] && u.y[2] ≤ node.nadirPt[2]
+    #             push!(incumbent.natural_order_vect, u)
+    #         end
+    #     end
+    # else 
+    #     incumbent = global_incumbent
+    # end
+
+    incumbent = global_incumbent
 
     # if there exists an upper bound u s.t. u≦l
     function weak_dom(l)

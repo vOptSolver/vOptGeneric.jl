@@ -180,7 +180,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     if length(node.localNadirPts) > 0
         for i = 1:length(node.localNadirPts)
             pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
-            if !(haskey(branching_track, pt) && branching_track[pt])
+            # if !(haskey(branching_track, pt) && branching_track[pt])
                 if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
                 nodeChild = Node(
                     pb.info.nb_nodes + 1, node.depth + 1, 
@@ -188,7 +188,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
                     EPB = true, nadirPt = pt, duplicationBound = duplicationBound_z1
                 )
                 pb.info.nb_nodes += 1 ; pb.info.nb_nodes_EPB += 1
-                branching_track[pt] = true
+                # branching_track[pt] = true
     
                 if ( @timeit tmr "relax" LPRelaxByDicho(nodeChild, pb, round_results, verbose; args...) ) || 
                     ( @timeit tmr "incumbent" updateIncumbent(nodeChild, pb, incumbent, branching_track, verbose) )
@@ -198,11 +198,11 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
                 end
     
                 push!(node.succs, nodeChild)
-            end
+            # end
         end
     else
         # unchanged... variable branching 
-        var_split = pickUpAFreeVar(node, pb)
+        assignment = getPartialAssign(node) ; var_split = pickUpAFreeVar(assignment, pb)
         if var_split == 0 return end       # is a leaf
 
         node1 = Node(
