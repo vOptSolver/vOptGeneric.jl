@@ -292,8 +292,7 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
             compared = true
 
             if λ'*u.y < λ'*sol_r.y #&& λ'*u.y < λ'*sol_l.y
-                existence = true
-                break
+                existence = true ; break
             end
         end
         
@@ -301,10 +300,11 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
         if compared && !existence 
             fathomed = false
 
-            if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt)    # the current local nadir pt is already branched 
+            if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
             # if u.y in node.pred.localNadirPts
-                node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
-            else
+                # node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
+                nothing
+            else#if EPB_decider(u.y, ptl, ptr)
                 push!(node.localNadirPts, u.y)
             end
         end
@@ -316,4 +316,22 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
     end
 
     return fathomed
+end
+
+
+"""
+Return the orthogonal distance between a point `p` and a segment defined by two points `extl` and `extr`.
+"""
+function orthogonal_dist(p::Vector{Float64}, extl::Vector{Float64}, extr::Vector{Float64})
+    return abs((extr[1] - extl[1]) * (extl[2] - p[2]) - (extl[1] - p[1]) * (extr[2] - extl[2])) / sqrt((extr[1] - extl[1])^2 + (extr[2] - extl[2])^2) 
+end
+
+
+"""
+Given a non-dominated nadir point, return `true` if the decider EP - branch on it.
+"""
+function EPB_decider(nadir_pt::Vector{Float64}, ptl::Vector{Float64}, ptr::Vector{Float64})
+    worst_nadir_pt = [ptl[1], ptr[2]]
+    dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr) ; dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
+    return (dist_nadir/dist_LBS) ≤ 1/2
 end
