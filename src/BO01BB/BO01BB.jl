@@ -135,7 +135,7 @@ Argument :
     - ind : actual node's index in tree tableau
     - pb : BO01Problem 
 """
-function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, round_results, verbose; args...)
+function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::IncumbentSet, worst_nadir_pt::Vector{Float64}, round_results, verbose; args...)
     if verbose
         @info "at node $(node.num) |Y_N| = $(length(incumbent.natural_order_vect)), EPB ? $(node.EPB)"
     end
@@ -147,7 +147,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     # test dominance 
     #--------------------
     start = time()
-    if ( @timeit tmr "dominance" fullyExplicitDominanceTest(node, incumbent) )
+    if ( @timeit tmr "dominance" fullyExplicitDominanceTest(node, incumbent, worst_nadir_pt) )
         prune!(node, DOMINANCE)
         if verbose
             @info "node $(node.num) is fathomed by dominance ! |LBS|=$(length(node.RBS.natural_order_vect))" 
@@ -177,7 +177,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     # TODO : check => branching variable/objective + generate new nodes
     #-----------------------------------------
-    if length(node.localNadirPts) > 0 && EPB_decider(node)
+    if length(node.localNadirPts) > 0
         for i = 1:length(node.localNadirPts)
             pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
             if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
@@ -312,6 +312,10 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
 
     addTodo(todo, problem, root)
 
+    ptl = root.RBS.natural_order_vect.sols[1].y ; ptr = root.RBS.natural_order_vect.sols[end].y
+    worst_nadir_pt = [ptl[1], ptr[2]] 
+
+
     # continue to fathom the node until todo list is empty
     @timeit tmr "BB loop" begin
         while length(todo) > 0
@@ -320,7 +324,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
             if node_ref[].deleted
                 finalize(node_ref[])
             else
-                @timeit tmr "iteration" iterative_procedure(todo, node_ref[], problem, incumbent, round_results, verbose; args...)
+                @timeit tmr "iteration" iterative_procedure(todo, node_ref[], problem, incumbent, worst_nadir_pt, round_results, verbose; args...)
             end
         end
     end

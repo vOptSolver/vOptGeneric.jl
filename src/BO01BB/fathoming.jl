@@ -193,7 +193,7 @@ A fully explicit dominance test, and prune the given node if it's fathomed by do
 (i.e. ∀ l∈L: ∃ u∈U s.t. λu ≤ λl )
 Return `true` if the given node is fathomed by dominance.
 """
-function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
+function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, worst_nadir_pt::Vector{Float64})
     @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $(node.num)"
 
     # we can't compare the LBS and UBS if the incumbent set is empty
@@ -261,10 +261,11 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
     if !sufficient return false end
 
     # test condition necessary 2 : LBS ≤/dominates UBS 
-    fathomed = true
+    fathomed = true ; dist_naditPt = Vector{Float64}()
     # iterate of all local nadir points
     for u ∈ nadir_pts.sols
         existence = false ; compared = false
+        segl = ptl.y ; segr = ptr.y
 
         # case 1 : if u is dominates the ideal point of LBS 
         if u.y[1] < ptr.y[1] && u.y[2] < ptl.y[2]
@@ -290,7 +291,9 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
             compared = true
 
             if λ'*u.y < λ'*sol_r.y #&& λ'*u.y < λ'*sol_l.y
-                existence = true ; break
+                existence = true
+                segl = sol_l.y ; segr = sol_r.y
+                break
             end
         end
         
@@ -299,12 +302,9 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
             fathomed = false
 
             if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
-            # if u.y in node.pred.localNadirPts
                 node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
-            else#if EPB_decider(u.y, ptl, ptr)
-                push!(node.localNadirPts, u.y)
-            # else
-            #     node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
+            else
+                push!(node.localNadirPts, u.y) ; push!(dist_naditPt, dist_ratio(worst_nadir_pt, u.y, segl, segr))
             end
         end
 
@@ -312,6 +312,10 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet)
             node.localNadirPts = Vector{Vector{Float64}}()              # no need to (extended) pareto branching
             return false
         end
+    end
+
+    if sum(dist_naditPt)/length(dist_naditPt) > 1/2
+        node.localNadirPts = Vector{Vector{Float64}}() ; return false
     end
 
     return fathomed
@@ -329,15 +333,7 @@ end
 """
 Given a non-dominated nadir point, return `true` if the decider EP - branch on it, considering the average distance of nadir point from LBS.
 """
-function EPB_decider( node::Node)
-    ptl = node.RBS.natural_order_vect.sols[1].y ; ptr = node.RBS.natural_order_vect.sols[end].y
-    worst_nadir_pt = [ptl[1], ptr[2]] ; dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr)
-    
-    avg_dist = 0.0
-    for nadir_pt in node.localNadirPts
-        dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
-        avg_dist += dist_nadir/dist_LBS
-    end
-    
-    return (avg_dist/length(node.localNadirPts)) ≤ 1/2
+function dist_ratio( worst_nadir_pt::Vector{Float64}, nadir_pt::Vector{Float64}, ptl::Vector{Float64}, ptr::Vector{Float64})
+    dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr) ; dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
+    return dist_nadir/dist_LBS
 end
