@@ -215,7 +215,7 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, 
     # if there exists an upper bound u s.t. u≦l
     function weak_dom(l)
         for u ∈ incumbent.natural_order_vect.sols
-            if u ≤ l
+            if u ≤ l && u != l
                 return true
             end
         end
@@ -262,10 +262,11 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, 
 
     # test condition necessary 2 : LBS ≤/dominates UBS 
     fathomed = true ; dist_naditPt = Vector{Float64}()
+    ideal_pt = [ptr.y[1], ptl.y[2]]
+
     # iterate of all local nadir points
     for u ∈ nadir_pts.sols
         existence = false ; compared = false
-        segl = ptl.y ; segr = ptr.y
 
         # case 1 : if u is dominates the ideal point of LBS 
         if u.y[1] < ptr.y[1] && u.y[2] < ptl.y[2]
@@ -292,7 +293,6 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, 
 
             if λ'*u.y < λ'*sol_r.y #&& λ'*u.y < λ'*sol_l.y
                 existence = true
-                segl = sol_l.y ; segr = sol_r.y
                 break
             end
         end
@@ -304,7 +304,7 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, 
             if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
                 node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
             else
-                push!(node.localNadirPts, u.y) ; push!(dist_naditPt, dist_ratio(worst_nadir_pt, u.y, segl, segr))
+                push!(node.localNadirPts, u.y) ; push!(dist_naditPt, dist_ratio(worst_nadir_pt, u.y, ideal_pt))
             end
         end
 
@@ -333,7 +333,8 @@ end
 """
 Given a non-dominated nadir point, return `true` if the decider EP - branch on it, considering the average distance of nadir point from LBS.
 """
-function dist_ratio( worst_nadir_pt::Vector{Float64}, nadir_pt::Vector{Float64}, ptl::Vector{Float64}, ptr::Vector{Float64})
-    dist_LBS = orthogonal_dist(worst_nadir_pt, ptl, ptr) ; dist_nadir = orthogonal_dist(nadir_pt, ptl, ptr)
+function dist_ratio( worst_nadir_pt::Vector{Float64}, nadir_pt::Vector{Float64}, ideal_pt::Vector{Float64})
+    dist_LBS = sqrt((worst_nadir_pt[1] - ideal_pt[1])^2 + (worst_nadir_pt[2] - ideal_pt[2])^2) 
+    dist_nadir = sqrt((nadir_pt[1] - ideal_pt[1])^2 + (nadir_pt[2] - ideal_pt[2])^2) 
     return dist_nadir/dist_LBS
 end
