@@ -45,7 +45,7 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
   fout = open(outputName, "w")
   println(fout, "vars = $vars ; constr = $constr ")
 
-  if method == :bb || method == :bc
+  if method == :bb || method == :bc || method == :bb_EPB || method == :bc_EPB
     println(fout, infos)
   else
     println(fout, "total_times_used = $total_time")
@@ -89,7 +89,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
 
     outputName = subfolder * "/" * split(fname, "/")[end]
     # TODO : if a file already exists
-    if isfile(outputName) && method != :bb && method != :bc
+    if isfile(outputName) && method != :bb && method != :bc && method != :bb_EPB && method != :bc_EPB
       return
     end
 
@@ -117,6 +117,12 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     elseif method == :bc 
       infos = vSolve( Bi01IP, method=:bc, verbose=true )
       println(infos)
+    elseif method == :bb_EPB
+      infos = vSolve( Bi01IP, method=:bb_EPB, verbose=true )
+      println(infos)
+    elseif method == :bc_EPB
+      infos = vSolve( Bi01IP, method=:bc_EPB, verbose=true )
+      println(infos)
     end
 
     # ---- Querying the results
@@ -128,7 +134,7 @@ function vSolveBi01IP(solverSelected, C, A, B, fname, method)
     println("length X_E = ", length(X_E))
 
     # ---- Writing the results
-    (method == :bb || method == :bc) ?
+    (method == :bb || method == :bc || method == :bb_EPB || method == :bc_EPB) ?
       writeResults(n, m, fname, outputName, method, Y_N, X_E; infos) : 
       writeResults(n, m, fname, outputName, method, Y_N, X_E; total_time)
 
@@ -163,7 +169,7 @@ function main(fname::String)
   end
 
   solverSelected = CPLEX.Optimizer
-  for method in [:dicho, :epsilon, :bb, :bc] # 
+  for method in [:dicho, :epsilon, :bb, :bc, :bb_EPB, :bc_EPB] # 
     vSolveBi01IP(solverSelected, dat.C, dat.A, dat.b, fname, method) 
   end
 

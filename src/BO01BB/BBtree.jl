@@ -22,7 +22,6 @@ mutable struct Node
     pruned::Bool                # if the node is pruned
     prunedType::PrunedType      # if the node is fathomed, restore pruned type
     deleted::Bool               # if the node is supposed to be deleted
-    # cuts_ref::Vector{CutScore}
     con_cuts::Vector{ConstraintRef}             
     cutpool::CutPool
 
@@ -32,7 +31,7 @@ mutable struct Node
     A complete node constructor.
     """
     function Node(num::Int64, depth::Int64; pred::Node=Node(), succs::Vector{Node}=Vector{Node}(),
-         var::Int64=0, var_bound::Int64=0, EPB::Bool=false, nadirPt::Vector{Float64}=Vector{Float64}(), duplicationBound::Float64=0.0)
+        var::Int64=0, var_bound::Int64=0, EPB::Bool=false, nadirPt::Vector{Float64}=Vector{Float64}(), duplicationBound::Float64=Inf)
         n = new()
         n.num = num
         n.depth = depth
@@ -87,8 +86,7 @@ end
 Delete the given node in B&B tree. (should be a private function)
 """
 function Base.delete!(node::Node)
-    node.deleted = true
-    node = nothing               # remove from the memory
+    node.deleted = true ; node = nothing               # remove from the memory
 end
 
 """
@@ -119,8 +117,7 @@ function getPartialAssign(actual::Node)
     if !actual.EPB assignment[actual.var] = actual.var_bound end 
 
     while !isRoot(predecessor)     
-        actual = predecessor
-        predecessor = actual.pred
+        actual = predecessor ; predecessor = actual.pred
         if !actual.EPB assignment[actual.var] = actual.var_bound end 
     end
     return assignment
@@ -206,15 +203,13 @@ end
 
 """
 Given a un-dominated nadir point, add the correspond EPB objective bound.
-
-#TODO : need to avoid duplication ??
 """
-function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64}, duplication_bound::Float64)
+function setObjBound(pb::BO01Problem, nadirPt::Vector{Float64}, duplication_bound::Float64=NONE)
     cons_obj = []
     # for i=1:2 
         con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≤ nadirPt[1]) ; push!(cons_obj, con)
         con = JuMP.@constraint(pb.m, pb.c[2, 1] + pb.c[2, 2:end]'*pb.varArray ≤ nadirPt[2]) ; push!(cons_obj, con)
-        if duplication_bound != 0.0 con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≥ duplication_bound) ; push!(cons_obj, con) end 
+        if duplication_bound != Inf con = JuMP.@constraint(pb.m, pb.c[1, 1] + pb.c[1, 2:end]'*pb.varArray ≥ duplication_bound) ; push!(cons_obj, con) end 
     # end
     return cons_obj
 end

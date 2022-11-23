@@ -96,10 +96,11 @@ mutable struct BBparam
     traverse::Symbol        # traverse strategy such as dfs, bfs...
     branching::Symbol       # branching strategy
     cut_activated::Bool     # if apply cuts at each node
+    EPB::Bool               # if consider the EP branching 
 end
 
 function BBparam()
-    return BBparam(300, :bfs, :arbitrary, false)
+    return BBparam(300, :bfs, :arbitrary, false, false)
 end
 
 
@@ -114,7 +115,6 @@ mutable struct BO01Problem
     A::Matrix{Float64}
     b::Vector{Float64}
     c::Matrix{Float64}
-    # cpool::CutPool
     SP_CG_model_defined::Bool
     SP_CG_model::JuMP.Model
     SP_CG_α::Vector{JuMP.VariableRef}

@@ -18,7 +18,7 @@ function writeResults(vars::Int64, constr::Int64, fname::String, outputName::Str
     fout = open(outputName, "w")
     println(fout, "vars = $vars ; constr = $constr ")
   
-    if method == :bb || method == :bc
+    if method == :bb || method == :bc || method == :bb_EPB || method == :bc_EPB
       println(fout, infos)
     else
       println(fout, "total_times_used = $total_time")
@@ -54,6 +54,10 @@ function vSolveBOUKP(method, fname; step=0.5)
         infos = vSolve( biukp, method=:bb, verbose=true )
     elseif method == :bc 
         infos = vSolve( biukp, method=:bc, verbose=true )
+    elseif method == :bb_EPB
+        infos = vSolve( biukp, method=:bb_EPB, verbose=true )
+    elseif method == :bc_EPB
+        infos = vSolve( biukp, method=:bc_EPB, verbose=true )
     elseif method == :dicho 
         start = time()
         vSolve( biukp, method=:dicho, verbose=false )
@@ -72,7 +76,7 @@ function vSolveBOUKP(method, fname; step=0.5)
     X_E = getX_E( biukp )
 
 
-    (method == :bc || method == :bb) ?
+    (method == :bc || method == :bb || method == :bc_EPB || method == :bb_EPB) ?
         writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N, X_E; infos) :
         writeResults(n, 1, "UKnapsackEhrgott2005", fname, method, Y_N, X_E; total_time)
 end
@@ -80,8 +84,8 @@ end
 
 function main()
     folder = "../../results/smallExamples"
-    for method in [:bb, :bc] # :dicho, 
-        result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
+    for method in [:bb, :bc, :bb_EPB, :bc_EPB] # :dicho, 
+        result_dir = folder * "/" * string(method)
             if !isdir(result_dir)
                     mkdir(result_dir)
             end

@@ -1,5 +1,5 @@
 vars = 20 ; constr = 2 
-total_times_used = 0.69
+total_times_used = 0.71
 size_Y_N = 3
 Y_N = [[358140.0, 278777.0], [361764.0, 275674.0], [363283.0, 183557.0]]
 

@@ -147,7 +147,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     # test dominance 
     #--------------------
     start = time()
-    if ( @timeit tmr "dominance" fullyExplicitDominanceTest(node, incumbent, worst_nadir_pt) )
+    if ( @timeit tmr "dominance" fullyExplicitDominanceTest(node, incumbent, worst_nadir_pt, pb.param.EPB) )
         prune!(node, DOMINANCE)
         if verbose
             @info "node $(node.num) is fathomed by dominance ! |LBS|=$(length(node.RBS.natural_order_vect))" 
@@ -177,7 +177,7 @@ function iterative_procedure(todo, node::Node, pb::BO01Problem, incumbent::Incum
     #-----------------------------------------
     # TODO : check => branching variable/objective + generate new nodes
     #-----------------------------------------
-    if length(node.localNadirPts) > 0
+    if pb.param.EPB && length(node.localNadirPts) > 0
         for i = 1:length(node.localNadirPts)
             pt =  node.localNadirPts[i] ; duplicationBound_z1 = 0.0
             if i < length(node.localNadirPts) duplicationBound_z1 = node.localNadirPts[i+1][1] end
@@ -270,7 +270,7 @@ end
 """
 A bi-objective binary(0-1) branch and bound algorithm.
 """
-function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; args...)
+function solve_branchboundcut(m::JuMP.Model, cut::Bool, EPB::Bool, round_results, verbose; args...)
     start = time()
 
     converted, f = formatting(m)
@@ -282,7 +282,7 @@ function solve_branchboundcut(m::JuMP.Model, cut::Bool, round_results, verbose; 
         JuMP.Model(CPLEX.Optimizer), Vector{JuMP.VariableRef}()
     )
 
-    standard_form(problem)
+    standard_form(problem) ; problem.param.EPB = EPB
     if cut
         problem.param.cut_activated = cut ; problem.info.cuts_activated = cut 
     end

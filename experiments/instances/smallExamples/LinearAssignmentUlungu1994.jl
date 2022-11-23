@@ -63,6 +63,10 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
                 infos = vSolve( bilap, method=:bb, verbose=true )
         elseif method == :bc
                 infos = vSolve( bilap, method=:bc, verbose=true )
+        elseif method == :bb_EPB
+                infos = vSolve( bilap, method=:bb_EPB, verbose=true )
+        elseif method == :bc_EPB
+                infos = vSolve( bilap, method=:bc_EPB, verbose=true )
         elseif method == :dicho 
                 start = time()
                 vSolve( bilap, method=:dicho, verbose=false )
@@ -80,7 +84,7 @@ function vSolveBOLAP(method::Symbol, fname::String; step=0.5)
 
         X_E = getX_E( bilap )
 
-        (method == :bb || method == :bc) ? 
+        (method == :bb || method == :bc || method == :bb_EPB || method == :bc_EPB) ? 
                 writeResults(n, 2*n, "LinearAssignmentUlungu1994", fname, method, Y_N, X_E; infos) : 
                 writeResults(n, 2*n, "LinearAssignmentUlungu1994", fname, method, Y_N, X_E; total_time)
 
@@ -89,8 +93,8 @@ end
 
 function main()
         folder = "../../results/smallExamples"
-        for method in [:bb, :bc] # :dicho, 
-                result_dir = method≠:bb ? folder * "/" * string(method) : folder * "/" * string(method) * "/default"
+        for method in [:bb, :bc, :bb_EPB, :bc_EPB] # :dicho, 
+                result_dir = folder * "/" * string(method)
                 if !isdir(result_dir)
                         mkdir(result_dir)
                 end

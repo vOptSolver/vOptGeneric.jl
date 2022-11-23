@@ -193,7 +193,7 @@ A fully explicit dominance test, and prune the given node if it's fathomed by do
 (i.e. ∀ l∈L: ∃ u∈U s.t. λu ≤ λl )
 Return `true` if the given node is fathomed by dominance.
 """
-function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, worst_nadir_pt::Vector{Float64})
+function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, worst_nadir_pt::Vector{Float64}, EPB::Bool)
     @assert length(node.RBS.natural_order_vect) > 0 "relaxed bound set is empty for node $(node.num)"
 
     # we can't compare the LBS and UBS if the incumbent set is empty
@@ -300,23 +300,27 @@ function fullyExplicitDominanceTest(node::Node, global_incumbent::IncumbentSet, 
         # case 4 : condition dominance violated, then stock the non-dominated local nadir pts to prepare EPB
         if compared && !existence 
             fathomed = false
-
-            if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
-                node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
-            else
-                push!(node.localNadirPts, u.y) ; push!(dist_naditPt, dist_ratio(worst_nadir_pt, u.y, ideal_pt))
+            if EPB
+                if !isRoot(node) && (u.y in node.pred.localNadirPts || u.y == node.pred.nadirPt || u.y == node.nadirPt)    # the current local nadir pt is already branched 
+                    node.localNadirPts = Vector{Vector{Float64}}() ; return fathomed
+                else
+                    push!(node.localNadirPts, u.y) ; push!(dist_naditPt, dist_ratio(worst_nadir_pt, u.y, ideal_pt))
+                end
+            else 
+                return fathomed
             end
         end
 
         if !compared && (u.y[1] ≥ ptr.y[1] && u.y[2] ≥ ptl.y[2])
-            node.localNadirPts = Vector{Vector{Float64}}()              # no need to (extended) pareto branching
+            if EPB node.localNadirPts = Vector{Vector{Float64}}() end               # no need to (extended) pareto branching
             return false
         end
     end
 
-    if sum(dist_naditPt)/length(dist_naditPt) > 1/2
-        node.localNadirPts = Vector{Vector{Float64}}() ; return false
-    end
+    #todo : indicator not good ...
+    # if sum(dist_naditPt)/length(dist_naditPt) > 1/2
+    #     node.localNadirPts = Vector{Vector{Float64}}() ; return false
+    # end
 
     return fathomed
 end
