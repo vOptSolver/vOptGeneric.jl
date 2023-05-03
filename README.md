@@ -10,7 +10,11 @@ We suppose you are familiar with vOptSolver; if not, read first this [presentati
 
 **IMPORTANT** (Feb-2023): 
 
-vOptGeneric.jl has been fully redesigned, and reimplemented. It becomes **MultiObjectiveAlgorithms.jl (MOA)**, a collection of algorithms for multi-objective optimization integrated to [JuMP](https://jump.dev/) and [MathOptInterface](https://jump.dev/MathOptInterface.jl/stable/). MOA comes with an enriched list of multi-objective algorithms, especially for solving problems with 3 objectives. Consequently vOptGeneric.jl is no longer under active development. It will remain available on Github at this URL. From February 2023, the JuMP-dev organization will continue to maintain the MOA package and transition development over the long term.
+vOptGeneric.jl has been fully redesigned, and reimplemented. It becomes **MultiObjectiveAlgorithms.jl (MOA)**, a collection of algorithms for multi-objective optimization integrated to [JuMP](https://jump.dev/) and [MathOptInterface](https://jump.dev/MathOptInterface.jl/stable/). MOA comes with an enriched list of multi-objective algorithms, especially for solving problems with 3 objectives. Examples are available here:
+- [multiobjective knapsack](https://jump.dev/JuMP.jl/stable/tutorials/linear/multi_objective_knapsack/)
+- [simple multiobjective examples](https://jump.dev/JuMP.jl/stable/tutorials/linear/multi_objective_examples/)
+
+Consequently vOptGeneric.jl is no longer under active development. It will remain available on Github at this URL. From February 2023, the JuMP-dev organization will continue to maintain the MOA package and transition development over the long term.
 
 ## Instructions 
 For a local use, a working version of:
